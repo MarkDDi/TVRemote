@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- The version number defined here is sent to the GTV box when the
      remote connects to it. This number is compared with the one defined
-     in IpRemote/res/values/string.xml to determine if a new version is
+     in IpRemote/res/values/strings.xml to determine if a new version is
      available -->
 <manifest
     package="com.google.android.apps.tvremote"
