@@ -10,7 +10,7 @@
 
   <TableRow
     android:layout_weight="1">
-   <!-- <com.google.android.apps.tvremote.widget.KeyCodeButton
+    <com.google.android.apps.tvremote.widget.KeyCodeButton
       android:layout_height="fill_parent"
       app:key_code="KEYCODE_DVR"
       android:src="@drawable/icon_01_selector"
@@ -26,7 +26,7 @@
       android:layout_height="fill_parent"
       app:key_code="KEYCODE_INFO"
       android:src="@drawable/icon_03_selector"
-      android:background="@drawable/background_03_selector" />-->
+      android:background="@drawable/background_03_selector" />
 
     <ImageView
       android:layout_height="fill_parent"

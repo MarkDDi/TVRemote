@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Google TV Remote.iml" filepath="$PROJECT_DIR$/Google TV Remote.iml" />
+      <module fileurl="file://$PROJECT_DIR$/TVRemote.iml" filepath="$PROJECT_DIR$/TVRemote.iml" />
     </modules>
   </component>
 </project>
