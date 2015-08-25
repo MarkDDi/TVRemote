@@ -72,19 +72,19 @@
 
     <!-- Updates -->
     <string name="update_available">An update is available. Do you want to download it?</string>
-    <string name="update_available_yes">Download</string>
-    <string name="update_available_no">Cancel</string>
+    <string name="update_available_yes">下载</string>
+    <string name="update_available_no">取消</string>
 
     <!-- Touchpad activity strings -->
     <string name="error_could_not_send_url">Could not send because this was not a valid URL.</string>
-    <string name="voice_send">Send</string>
-    <string name="voice_search_send">Search</string>
-    <string name="voice_cancel">Cancel</string>
-    <string name="voice_dialog_label">Voice command</string>
-    <string name="sender_missing">Connecting</string>
+    <string name="voice_send">发送</string>
+    <string name="voice_search_send">搜索</string>
+    <string name="voice_cancel">取消</string>
+    <string name="voice_dialog_label">语音命令</string>
+    <string name="sender_missing">正在连接中</string>
 
     <!--  Content Descriptions -->
-    <string name="keyboard_hide_desc">Hide Keyboard</string>
+    <string name="keyboard_hide_desc">隐藏键盘</string>
     <string name="controls_hide_desc">Hide Controls</string>
     <string name="controls_cancel_desc">Cancel</string>
     <string name="controls_dvr_desc">D V R</string>
@@ -110,8 +110,8 @@
     <string name="touchpad_keyboard_desc">Keyboard</string>
     <string name="touchpad_back_desc">Back</string>
     <string name="touchpad_home_desc">Home</string>
-    <string name="touchpad_voice_desc">Voice Search</string>
-    <string name="touchpad_search_desc">Search</string>
+    <string name="touchpad_voice_desc">语音搜索</string>
+    <string name="touchpad_search_desc">搜索</string>
     <string name="touchpad_zoom_desc">Zoom</string>
     <string name="touchpad_tv_desc">TV</string>
     <string name="touchpad_zoom_bar_desc">Zoom Control Bar</string>
