@@ -299,6 +299,7 @@ public final class CoreService extends Service implements ConnectionManager {
     return keyStoreManager;
   }
 
+  // 添加最近已连接的设备
   private void addRecentlyConnected(RemoteDevice remoteDevice) {
     recentlyConnected.remove(remoteDevice.getAddress());
     recentlyConnected.put(remoteDevice.getAddress(), remoteDevice);

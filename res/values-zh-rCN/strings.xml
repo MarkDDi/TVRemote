@@ -7,7 +7,7 @@
 
     <!-- Manifest labels -->
     <string name="core_service_label">Google TV Remote Control Service</string>
-    <string name="finder_label">Connect to Google TV</string>
+    <string name="finder_label">连接到TVBOX</string>
     <string name="config_page_label">Your build is:</string>
 
     <!--  Main menu -->
@@ -21,30 +21,30 @@
     <string name="unknown_build">未知</string>
 
     <!--  Device Finder - more devices -->
-    <string name="finder_searching">Searching for Google TV devices on your network.</string>
-    <string name="finder_searching_with_ssid">Searching for Google TV devices on \"%s\" network.</string>
-    <string name="finder_wifi_waiting">Waiting for WiFi network.</string>
-    <string name="finder_add_other">Add other device</string>
+    <string name="finder_searching">正在搜索电视设备</string>
+    <string name="finder_searching_with_ssid">正在%s网络搜索可连接设备.</string>
+    <string name="finder_wifi_waiting">等待WIFI网络</string>
+    <string name="finder_add_other">添加其他设备</string>
     <string name="finder_connect">连接</string>
     <string name="finder_cancel">取消</string>
-    <string name="finder_manual">Add Google TV manually</string>
-    <string name="finder_enable">Enable</string>
-    <string name="finder_configure">Configure</string>
-    <string name="finder_wait">Wait</string>
-    <string name="finder_no_devices">No Google TV devices found</string>
-    <string name="finder_no_devices_with_ssid">No Google TV devices found on \"%s\"</string>
-    <string name="finder_wifi_not_available">WiFi network not available</string>
-    <string name="finder_recently_connected">Recently connected devices</string>
+    <string name="finder_manual">手动添加</string>
+    <string name="finder_enable">激活</string>
+    <string name="finder_configure">配置</string>
+    <string name="finder_wait">等待</string>
+    <string name="finder_no_devices">未发现附近设备</string>
+    <string name="finder_no_devices_with_ssid">没有在%s网络中搜到可连接的设备</string>
+    <string name="finder_wifi_not_available">WiFi网络未激活</string>
+    <string name="finder_recently_connected">最近已连接的设备</string>
 
     <!-- Manual IP dialog strings -->
-    <string name="manual_ip_label">Add Google TV</string>
-    <string name="manual_ip_entry_label">IP Address</string>
+    <string name="manual_ip_label">添加电视设备</string>
+    <string name="manual_ip_entry_label">IP地址</string>
     <string name="manual_ip_hint">xxx.xxx.xxx.xxx</string>
-    <string name="manual_ip_message">You can find IP address of your Google TV device by going to:\nSettings &gt; Network &gt; Network Information</string>
-    <string name="manual_ip_error_address">Invalid address.</string>
-    <string name="manual_ip_default_box_name">Unknown box</string>
-    <string name="manual_ip_connect">Connect</string>
-    <string name="manual_ip_cancel">Cancel</string>
+    <string name="manual_ip_message">你能够在盒子的通用设置 &gt; 关于本机中查看无线IP地址</string>
+    <string name="manual_ip_error_address">无效IP地址</string>
+    <string name="manual_ip_default_box_name">未知盒子</string>
+    <string name="manual_ip_connect">连接</string>
+    <string name="manual_ip_cancel">取消</string>
 
     <!-- Shortcut names -->
     <string name="shortcut_power_on_off">ON/OFF</string>
@@ -64,19 +64,19 @@
     <string name="shortcut_settings">Settings</string>
 
     <!-- Preferences -->
-    <string name="settings_title">Settings</string>
-    <string name="settings_remote_name">Remote name</string>
-    <string name="trackball_speed">Trackball speed</string>
-    <string name="zoom_speed">Zoom reactivity</string>
+    <string name="settings_title">设置</string>
+    <string name="settings_remote_name">远程设备名</string>
+    <string name="trackball_speed">轨迹速度</string>
+    <string name="zoom_speed">缩放灵敏度</string>
     <string name="soft_dpad_speed">Dpad repetition</string>
 
     <!-- Updates -->
-    <string name="update_available">An update is available. Do you want to download it?</string>
+    <string name="update_available">有最新版本了，是否进行下载?</string>
     <string name="update_available_yes">下载</string>
     <string name="update_available_no">取消</string>
 
     <!-- Touchpad activity strings -->
-    <string name="error_could_not_send_url">Could not send because this was not a valid URL.</string>
+    <string name="error_could_not_send_url">不能发送指令，因为它不是一个有效的url</string>
     <string name="voice_send">发送</string>
     <string name="voice_search_send">搜索</string>
     <string name="voice_cancel">取消</string>
@@ -85,60 +85,60 @@
 
     <!--  Content Descriptions -->
     <string name="keyboard_hide_desc">隐藏键盘</string>
-    <string name="controls_hide_desc">Hide Controls</string>
-    <string name="controls_cancel_desc">Cancel</string>
+    <string name="controls_hide_desc">隐藏控制键</string>
+    <string name="controls_cancel_desc">取消</string>
     <string name="controls_dvr_desc">D V R</string>
     <string name="controls_guide_desc">Guide</string>
-    <string name="controls_channel_up_desc">Channel Up</string>
+    <string name="controls_channel_up_desc">上一个通道</string>
     <string name="controls_record_desc">Record</string>
-    <string name="controls_pg_up_desc">Page Up</string>
-    <string name="controls_channel_down_desc">Channel Down</string>
-    <string name="controls_stop_desc">Stop</string>
-    <string name="controls_pg_down_desc">Page Down</string>
+    <string name="controls_pg_up_desc">上一页</string>
+    <string name="controls_channel_down_desc">下一个通道</string>
+    <string name="controls_stop_desc">停止</string>
+    <string name="controls_pg_down_desc">下一页</string>
     <string name="controls_mute_desc">Mute</string>
-    <string name="controls_volume_down_desc">Volume Down</string>
-    <string name="controls_volume_up_desc">Volume Up</string>
-    <string name="controls_rewind_desc">Rewind</string>
-    <string name="controls_play_pause_desc">Play Pause</string>
-    <string name="controls_fast_forward_desc">Fast Forward</string>
-    <string name="controls_skip_backward_desc">Skip Backward</string>
-    <string name="controls_skip_forward_desc">Skip Forward</string>
-    <string name="shortcuts_hide_desc">Hide Shortcuts</string>
-    <string name="touchpad_scrollbar_desc">Scroll Bar</string>
-    <string name="touchpad_esc_desc">Escape</string>
-    <string name="touchpad_mute_desc">Mute</string>
-    <string name="touchpad_keyboard_desc">Keyboard</string>
-    <string name="touchpad_back_desc">Back</string>
-    <string name="touchpad_home_desc">Home</string>
+    <string name="controls_volume_down_desc">音量-</string>
+    <string name="controls_volume_up_desc">音量+</string>
+    <string name="controls_rewind_desc">回退</string>
+    <string name="controls_play_pause_desc">游戏暂停</string>
+    <string name="controls_fast_forward_desc">快进</string>
+    <string name="controls_skip_backward_desc">跳过后面</string>
+    <string name="controls_skip_forward_desc">跳过签名</string>
+    <string name="shortcuts_hide_desc">隐藏快捷键</string>
+    <string name="touchpad_scrollbar_desc">滚动条</string>
+    <string name="touchpad_esc_desc">后退</string>
+    <string name="touchpad_mute_desc">静音</string>
+    <string name="touchpad_keyboard_desc">键盘</string>
+    <string name="touchpad_back_desc">后退</string>
+    <string name="touchpad_home_desc">主页</string>
     <string name="touchpad_voice_desc">语音搜索</string>
     <string name="touchpad_search_desc">搜索</string>
-    <string name="touchpad_zoom_desc">Zoom</string>
+    <string name="touchpad_zoom_desc">缩放</string>
     <string name="touchpad_tv_desc">TV</string>
-    <string name="touchpad_zoom_bar_desc">Zoom Control Bar</string>
-    <string name="touchpad_zoom_bar_in_desc">Zoom In</string>
-    <string name="touchpad_zoom_bar_out_desc">Zoom In</string>
+    <string name="touchpad_zoom_bar_desc">缩放控制条</string>
+    <string name="touchpad_zoom_bar_in_desc">放大</string>
+    <string name="touchpad_zoom_bar_out_desc">缩小</string>
     <string name="touchpad_dpad_desc">Directional Pad</string>
 
     <!-- Pairing -->
-    <string name="pairing_activity_label">Pairing with Google TV</string>
-    <string name="pairing_label">Enter PIN code</string>
-    <string name="pairing_hint">Enter PIN code</string>
-    <string name="pairing_ok">Pair</string>
-    <string name="pairing_request_code">Request code</string>
-    <string name="pairing_cancel">Cancel</string>
-    <string name="pairing_failed_toast">Pairing failed</string>
-    <string name="pairing_succeeded_toast">Pairing succeeded</string>
-    <string name="pairing_waiting">Waiting for pairing code</string>
+    <string name="pairing_activity_label">正在与电视进行配对</string>
+    <string name="pairing_label">输入PIN码</string>
+    <string name="pairing_hint">输入PIN码</string>
+    <string name="pairing_ok">配对</string>
+    <string name="pairing_request_code">请求配对码</string>
+    <string name="pairing_cancel">取消</string>
+    <string name="pairing_failed_toast">配对失败</string>
+    <string name="pairing_succeeded_toast">配对成功</string>
+    <string name="pairing_waiting">正在等待配对</string>
 
     <!-- Keyboard messages -->
-    <string name="keyboard_enter">ENTER</string>
-    <string name="keyboard_del">DEL</string>
+    <string name="keyboard_enter">回车</string>
+    <string name="keyboard_del">删除</string>
 
     <!-- About -->
     <string name="about_title">Google TV Remote</string>
-    <string name="about_button_tos">Terms of service</string>
-    <string name="about_button_privacy_policy">Privacy policy</string>
-    <string name="about_button_tutorial">Show tutorial</string>
+    <string name="about_button_tos">服务条款</string>
+    <string name="about_button_privacy_policy">隐私政策</string>
+    <string name="about_button_tutorial">操作指南</string>
     <string name="about_version_title">Version: %s</string>
 
     <!-- Tutorial -->
