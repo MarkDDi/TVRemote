@@ -20,6 +20,7 @@ import com.google.android.apps.tvremote.TouchHandler.Mode;
 import com.google.android.apps.tvremote.layout.SlidingLayout;
 import com.google.android.apps.tvremote.util.Action;
 import com.google.android.apps.tvremote.util.LogUtils;
+import com.google.android.apps.tvremote.util.PromptManager;
 import com.google.android.apps.tvremote.widget.HighlightView;
 import com.google.android.apps.tvremote.widget.KeyCodeButton;
 import com.google.android.apps.tvremote.widget.SoftDpad;
@@ -57,7 +58,7 @@ public class MainActivity extends BaseActivity implements KeyCodeButton.KeyCodeH
     /**
      * The enum represents modes of the remote controller with
      * {@link SlidingLayout} screens assignment. In conjunction with
-     * {@link ModeSelector} allows sliding between the screens.
+     * {@link } allows sliding between the screens.
      */
     private enum RemoteMode {
         TV(0, R.drawable.icon_04_touchpad_selector),
@@ -75,8 +76,9 @@ public class MainActivity extends BaseActivity implements KeyCodeButton.KeyCodeH
     /**
      * Mode selector allow sliding across the modes, keeps currently selected mode
      * information, and slides among the modes.
+     * 切换按键和鼠标模式，废弃
      */
-    private static final class ModeSelector {
+   /* private static final class ModeSelector {
         private final SlidingLayout slidingLayout;
         private final ImageButton imageButton;
         private RemoteMode mode;
@@ -103,7 +105,7 @@ public class MainActivity extends BaseActivity implements KeyCodeButton.KeyCodeH
             slidingLayout.snapToScreen(mode.screenId);
             imageButton.setImageResource(mode.switchButtonId);
         }
-    }
+    }*/
 
     public MainActivity() {
         handler = new Handler();
@@ -112,15 +114,15 @@ public class MainActivity extends BaseActivity implements KeyCodeButton.KeyCodeH
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main_touchpad_top);  // 加载下半部分布局
+        setContentView(R.layout.new_main_touchpad_top);  // 加载主界面
 
         surface = (HighlightView) findViewById(R.id.HighlightView);
 
         LayoutInflater inflater = LayoutInflater.from(getBaseContext());
 
         SlidingLayout slidingLayout = (SlidingLayout) findViewById(R.id.slider);
-        slidingLayout.addView(inflater.inflate(R.layout.subview_playcontrol_tv, null), 0); // 加载上半部分部件
-        slidingLayout.addView(inflater.inflate(R.layout.subview_touchpad, null), 1);  // 加载右上角触摸鼠标
+//        slidingLayout.addView(inflater.inflate(R.layout.subview_playcontrol_tv, null), 0); // 加载上半部分部件
+        slidingLayout.addView(inflater.inflate(R.layout.subview_touchpad, null), 0);  // 加载鼠标区域
         slidingLayout.setCurrentScreen(0);
 
         ImageButton nextButton = (ImageButton) findViewById(R.id.button_next_page);  // 点击触摸鼠标后返回按钮
@@ -130,13 +132,13 @@ public class MainActivity extends BaseActivity implements KeyCodeButton.KeyCodeH
         ImageButton shortcutsButton = (ImageButton) findViewById(R.id.button_shortcuts);      // 更多设置
         //    ImageButton liveTvButton = (ImageButton) findViewById(R.id.button_livetv);  // 直播
 
-        final ModeSelector current = new ModeSelector(RemoteMode.TV, slidingLayout, nextButton);
-
+        // 右上角切换鼠标和功能键，由于大多数功能键无效，已废弃，只显示鼠标操作
+       /* final ModeSelector current = new ModeSelector(RemoteMode.TV, slidingLayout, nextButton);
         nextButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 current.slideNext();
             }
-        });
+        });*/
 
    /* liveTvButton.setOnClickListener(new View.OnClickListener() {
       public void onClick(View v) {
@@ -154,6 +156,7 @@ public class MainActivity extends BaseActivity implements KeyCodeButton.KeyCodeH
             public void onClick(View view) {
                 // 语音搜索暂不支持
                 //        showVoiceSearchActivity();
+                PromptManager.showToast(MainActivity.this, R.string.unsupport_voice);
             }
         });
 
