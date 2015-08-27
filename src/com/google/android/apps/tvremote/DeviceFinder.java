@@ -120,6 +120,7 @@ public final class DeviceFinder extends Activity {
     }
 
     private void showOtherDevices() {
+        LogUtils.e("显示其他设备");
         broadcastHandler.removeMessages(DELAYED_MESSAGE);
         if (progressDialog.isShowing()) {
             progressDialog.dismiss();
@@ -200,6 +201,7 @@ public final class DeviceFinder extends Activity {
         Intent resultIntent = new Intent();
         resultIntent.putExtra(EXTRA_REMOTE_DEVICE, remoteDevice);
         setResult(RESULT_OK, resultIntent);
+        LogUtils.e("连接到指定的设备");
         finish();
     }
 
@@ -209,11 +211,13 @@ public final class DeviceFinder extends Activity {
             buildNoWifiDialog().show();
             return;
         }
+        // 发送搜索广播
         broadcastClient = new BroadcastDiscoveryClient(broadcastAddress, broadcastHandler);
         broadcastClientThread = new Thread(broadcastClient);
         broadcastClientThread.start();
+        // 获取到枚举中的延迟消息
         Message message = DelayedMessage.BROADCAST_TIMEOUT.obtainMessage(broadcastHandler);
-        broadcastHandler.sendMessageDelayed(message, getResources().getInteger(R.integer.broadcast_timeout));
+        broadcastHandler.sendMessageDelayed(message, getResources().getInteger(R.integer.broadcast_timeout)); // 设置10秒搜索设备超时
         showProgressDialog(buildBroadcastProgressDialog());
     }
 
@@ -377,10 +381,11 @@ public final class DeviceFinder extends Activity {
                         if (progressDialog.isShowing()) {
                             progressDialog.dismiss();
                         }
+                        LogUtils.e("搜索超时，提示没有搜到");
                         buildBroadcastTimeoutDialog().show();
                         break;
 
-                    case GTV_DEVICE_FOUND:
+                    case GTV_DEVICE_FOUND: // handleRemoteDeviceAdd()发送
                         // Check if there is previously connected remote and suggest it
                         // for connection:
                         RemoteDevice toConnect = null;
@@ -393,7 +398,7 @@ public final class DeviceFinder extends Activity {
                             // No default found - suggest any device
                             toConnect = trackedDevices.get(0);
                         }
-
+                        LogUtils.e("已搜索到可连接的设备");
                         progressDialog.dismiss();
                         confirmationDialog = buildConfirmationDialog(toConnect);
                         confirmationDialog.show();
@@ -403,6 +408,8 @@ public final class DeviceFinder extends Activity {
 
             switch (msg.what) {
                 case BROADCAST_RESPONSE:
+                    // BroadcastDiscoveryClient客户端接收到服务端响应的数据包
+                    // BroadcastDiscoveryClient中的handleResponsePacket()方法 处理服务端响应的数据
                     BroadcastAdvertisement advert = (BroadcastAdvertisement) msg.obj;
                     RemoteDevice remoteDevice = new RemoteDevice(advert.getServiceName(), advert.getServiceAddress(), advert.getServicePort());
                     handleRemoteDeviceAdd(remoteDevice);
@@ -413,15 +420,15 @@ public final class DeviceFinder extends Activity {
 
     private void handleRemoteDeviceAdd(final RemoteDevice remoteDevice) {
         if (trackedDevices.add(remoteDevice)) {
-            LogUtils.v("Adding new device: " + remoteDevice);
+            LogUtils.e("Adding new device: " + remoteDevice);
 
             // Notify data adapter and update title.
             dataAdapter.notifyDataSetChanged();
 
             // Show confirmation dialog only for the first STB and only if progress
-            // dialog is visible.
+            // dialog is visible. 显示确认连接对话框，只在第一次连接时显示
             if ((trackedDevices.size() == 1) && progressDialog.isShowing()) {
-                broadcastHandler.removeMessages(DELAYED_MESSAGE);
+                broadcastHandler.removeMessages(DELAYED_MESSAGE);  // 移除掉先前发送的超时延迟消息
                 // delayed automatic adding
                 Message message = DelayedMessage.GTV_DEVICE_FOUND.obtainMessage(broadcastHandler);
                 broadcastHandler.sendMessageDelayed(message, getResources().getInteger(R.integer.gtv_finder_reconnect_delay));
@@ -429,6 +436,7 @@ public final class DeviceFinder extends Activity {
         }
     }
 
+    // 弹出搜索进度框
     private ProgressDialog buildBroadcastProgressDialog() {
         String message;
         String networkName = getNetworkName();

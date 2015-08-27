@@ -120,8 +120,8 @@ public class BroadcastDiscoveryClient implements Runnable {
     LogUtils.i( "Broadcast client thread starting.");
     byte[] buffer = new byte[256];
 
-    mProbeTimer.schedule(mProbeTimerTask, 0, PROBE_INTERVAL_MS);
 
+    mProbeTimer.schedule(mProbeTimerTask, 0, PROBE_INTERVAL_MS); // 6秒发送一次
     while (true) {
       try {
         DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
@@ -164,7 +164,7 @@ public class BroadcastDiscoveryClient implements Runnable {
 
   /**
    * Constructs a new probe packet.
-   *
+   * 创建一个探测包
    * @param serviceName  the service name to discover
    * @param responsePort  the udp port number for replies
    * @return  a new DatagramPacket
@@ -181,7 +181,7 @@ public class BroadcastDiscoveryClient implements Runnable {
 
   /**
    * Parse a received packet, and notify the main thread if valid.
-   *
+   * 解析接收到的数据包，如果是有效的就通知主线程
    * @param packet  The locally-received DatagramPacket
    */
   private void handleResponsePacket(DatagramPacket packet) {
