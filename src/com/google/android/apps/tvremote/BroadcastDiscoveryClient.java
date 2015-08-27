@@ -200,7 +200,13 @@ public class BroadcastDiscoveryClient implements Runnable {
       if (!serviceType.equals(DESIRED_SERVICE)) {
         return;
       }
-      String serviceName = tokens[1];
+      String serviceName;
+      // 如果设备名称包含 - 符号 则截取前面部分
+      if (tokens[1].contains("-")) {
+        serviceName = tokens[1].split("-")[0];
+      } else {
+        serviceName = tokens[1];
+      }
       int port = Integer.parseInt(tokens[2]);
       InetAddress addr = packet.getAddress();
       LogUtils.v( "Broadcast response: " + serviceName + ", "
