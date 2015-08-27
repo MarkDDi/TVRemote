@@ -73,44 +73,10 @@ public class New_MainActivity extends BaseActivity implements KeyCodeButton.KeyC
         slidingLayout.addView(inflater.inflate(R.layout.subview_touchpad, null), 0);  // 加载鼠标区域
         slidingLayout.setCurrentScreen(0);
 
-        ImageButton nextButton = (ImageButton) findViewById(R.id.button_next_page);  // 点击触摸鼠标后返回按钮
-        ImageButton keyboardButton = (ImageButton) findViewById(R.id.button_keyboard);
-        ImageButton voiceButton = (ImageButton) findViewById(R.id.button_voice);
-        ImageButton searchButton = (ImageButton) findViewById(R.id.button_search);
-        ImageButton shortcutsButton = (ImageButton) findViewById(R.id.button_shortcuts);      // 更多设置
-
-        keyboardButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                showActivity(KeyboardActivity.class);
-            }
-        });
-
-        voiceButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                // 语音搜索暂不支持
-                //        showVoiceSearchActivity();
-                PromptManager.showToast(New_MainActivity.this, R.string.unsupport_voice);
-            }
-        });
-
-        searchButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                Action.NAVBAR.execute(getCommands());
-                showActivity(KeyboardActivity.class);
-            }
-        });
-
-        shortcutsButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View arg0) {
-                showActivity(ShortcutsActivity.class);
-            }
-        });
 
         SoftDpad softDpad = (SoftDpad) findViewById(R.id.SoftDpad);  // 控制方向及确认键
         softDpad.setDpadListener(getDefaultDpadListener());
 
-        // Attach touch handler to the touchpad
-        new TouchHandler(findViewById(R.id.touch_pad), TouchHandler.Mode.POINTER_MULTITOUCH, getCommands());
 
         flingIntent(getIntent());
     }

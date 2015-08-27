@@ -176,7 +176,7 @@ public class MainActivity extends BaseActivity implements KeyCodeButton.KeyCodeH
         SoftDpad softDpad = (SoftDpad) findViewById(R.id.SoftDpad);  // 控制方向及确认键
         softDpad.setDpadListener(getDefaultDpadListener());
 
-        // Attach touch handler to the touchpad
+        // Attach touch handler to the touchpad 鼠标触摸板
         new TouchHandler(findViewById(R.id.touch_pad), Mode.POINTER_MULTITOUCH, getCommands());
 
         flingIntent(getIntent());
