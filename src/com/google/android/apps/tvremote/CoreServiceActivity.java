@@ -124,9 +124,11 @@ public abstract class CoreServiceActivity extends Activity {
     return null;
   }
 
+    // 启动时，在BaseActivity的onStart()和onResume中间接调用
   protected boolean executeWhenCoreServiceAvailable(Runnable runnable) {
     if (coreService == null) {
       LogUtils.d("Queueing runnable: " + runnable);
+      LogUtils.e("execute this = " + this);
       runnableQueue.offer(runnable);
       return false;
     }

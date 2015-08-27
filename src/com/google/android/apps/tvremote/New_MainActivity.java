@@ -64,7 +64,6 @@ public class New_MainActivity extends BaseActivity implements KeyCodeButton.KeyC
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);  // 加载主界面
 
-
         SoftDpad softDpad = (SoftDpad) findViewById(R.id.SoftDpad);  // 控制方向及确认键
         softDpad.setDpadListener(getDefaultDpadListener());
 
@@ -157,7 +156,7 @@ public class New_MainActivity extends BaseActivity implements KeyCodeButton.KeyC
         }
     }
 
-    // VOICE SEARCH
+    // 语音搜索， 暂未支持
 
     private void showVoiceSearchActivity() {
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);

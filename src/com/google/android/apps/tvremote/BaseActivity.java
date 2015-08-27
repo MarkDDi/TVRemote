@@ -249,6 +249,7 @@ public class BaseActivity extends CoreServiceActivity
             }
           }
           getConnectionManager().deviceFinderFinished();
+          LogUtils.e("onActivityResult...");
           connectOrFinish();
         }
         else if (requestCode == CODE_PAIRING) {
@@ -381,6 +382,7 @@ public class BaseActivity extends CoreServiceActivity
     }
   }
 
+  // onResume()调用
   private void connect() {
     if (!isConnected) {
       isConnected = true;

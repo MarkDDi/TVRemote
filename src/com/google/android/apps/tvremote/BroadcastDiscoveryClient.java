@@ -201,7 +201,7 @@ public class BroadcastDiscoveryClient implements Runnable {
         return;
       }
       String serviceName;
-      // 如果设备名称包含 - 符号 则截取前面部分
+      // 如果设备名称包含 - 符号 则只截取前面部分
       if (tokens[1].contains("-")) {
         serviceName = tokens[1].split("-")[0];
       } else {

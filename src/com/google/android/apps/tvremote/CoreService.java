@@ -327,6 +327,7 @@ public final class CoreService extends Service implements ConnectionManager {
   }
 
   public void connect(ConnectionListener listener) {
+    LogUtils.e("开始连接。。。");
     sendMessage(Request.CONNECT, listener);
   }
 
