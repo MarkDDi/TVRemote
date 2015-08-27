@@ -32,10 +32,10 @@
             />
     </LinearLayout>
 
-    <com.google.android.apps.tvremote.layout.SlidingLayout
+   <!-- <com.google.android.apps.tvremote.layout.SlidingLayout
         android:id="@+id/slider"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent" />
+        android:layout_height="fill_parent" />-->
 
     <com.google.android.apps.tvremote.widget.SoftDpad
         android:layout_below="@id/title"

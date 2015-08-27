@@ -64,19 +64,9 @@ public class New_MainActivity extends BaseActivity implements KeyCodeButton.KeyC
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);  // 加载主界面
 
-//        surface = (HighlightView) findViewById(R.id.HighlightView);
-
-        LayoutInflater inflater = LayoutInflater.from(getBaseContext());
-
-        SlidingLayout slidingLayout = (SlidingLayout) findViewById(R.id.slider);
-        //        slidingLayout.addView(inflater.inflate(R.layout.subview_playcontrol_tv, null), 0); // 加载上半部分部件
-        slidingLayout.addView(inflater.inflate(R.layout.subview_touchpad, null), 0);  // 加载鼠标区域
-        slidingLayout.setCurrentScreen(0);
-
 
         SoftDpad softDpad = (SoftDpad) findViewById(R.id.SoftDpad);  // 控制方向及确认键
         softDpad.setDpadListener(getDefaultDpadListener());
-
 
         flingIntent(getIntent());
     }
