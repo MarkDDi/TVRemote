@@ -152,6 +152,9 @@
   <string name="tutorial_desc_dpad">Navigate Google TV menus and content by swiping and tapping the directional pad.</string>
   <string name="tutorial_button">Connect to Google TV</string>
 
+  <string name="gesture_mode">gesture</string>
+  <string name="mouse_mode">mouse</string>
+
   <!-- Links -->
   <string name="tos_link">http://m.google.com/toscountry</string>
   <string name="privacy_link">http://m.google.com/static/en/privacy.html</string>

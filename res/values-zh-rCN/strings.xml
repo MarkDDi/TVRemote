@@ -149,7 +149,10 @@
     <string name="tutorial_desc_volume">通过点击手机上的音量调整按钮遥控电视的音量.</string>
     <string name="tutorial_desc_webmode">通过手势进行鼠标移动</string>
     <string name="tutorial_desc_dpad">通过手势进行导航操作</string>
-    <string name="tutorial_button">开启远程之旅</string>
+    <string name="tutorial_button">进入主界面</string>
+
+    <string name="gesture_mode">手势模式</string>
+    <string name="mouse_mode">鼠标模式</string>
 
     <!-- Links -->
     <string name="tos_link">http://m.google.com/toscountry</string>
