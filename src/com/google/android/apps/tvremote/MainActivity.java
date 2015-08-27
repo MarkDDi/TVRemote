@@ -217,7 +217,7 @@ public class MainActivity extends BaseActivity implements KeyCodeButton.KeyCodeH
                         Toast.makeText(this, R.string.error_could_not_send_url, Toast.LENGTH_SHORT).show();
                     }
                 } else {
-                    Log.w(LOG_TAG, "No URI to fling");
+                    LogUtils.w( "No URI to fling");
                 }
             }
         }
@@ -287,12 +287,12 @@ public class MainActivity extends BaseActivity implements KeyCodeButton.KeyCodeH
 
         ArrayList<String> queryResults = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
         if ((queryResults == null) || (queryResults.isEmpty())) {
-            Log.d(LOG_TAG, "No results from VoiceSearch server.");
+            LogUtils.d( "No results from VoiceSearch server.");
             return;
         } else {
             searchQuery = queryResults.get(0);
             if (TextUtils.isEmpty(searchQuery)) {
-                Log.d(LOG_TAG, "Empty result from VoiceSearch server.");
+                LogUtils.d( "Empty result from VoiceSearch server.");
                 return;
             }
         }

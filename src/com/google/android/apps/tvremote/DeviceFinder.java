@@ -17,6 +17,7 @@
 package com.google.android.apps.tvremote;
 
 import com.google.android.apps.tvremote.util.Debug;
+import com.google.android.apps.tvremote.util.LogUtils;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -139,7 +140,7 @@ public final class DeviceFinder extends Activity {
     try {
       broadcastAddress = getBroadcastAddress();
     } catch (IOException e) {
-      Log.e(LOG_TAG, "Failed to get broadcast address");
+      LogUtils.e( "Failed to get broadcast address");
       setResult(RESULT_CANCELED, null);
       finish();
     }
@@ -174,7 +175,7 @@ public final class DeviceFinder extends Activity {
   protected void onActivityResult(int requestCode,
       int resultCode, Intent data) {
     super.onActivityResult(requestCode, resultCode, data);
-    Log.d(LOG_TAG, "ActivityResult: " + requestCode + ", " + resultCode);
+    LogUtils.d( "ActivityResult: " + requestCode + ", " + resultCode);
     if (requestCode == CODE_WIFI_SETTINGS) {
       if (!isWifiAvailable()) {
         buildNoWifiDialog().show();
@@ -393,11 +394,11 @@ public final class DeviceFinder extends Activity {
             // for connection:
             RemoteDevice toConnect = null;
             if (previousRemoteDevice != null) {
-              Log.d(LOG_TAG, "Previous Remote Device: " + previousRemoteDevice);
+              LogUtils.d("Previous Remote Device: " + previousRemoteDevice);
               toConnect = trackedDevices.findRemoteDevice(previousRemoteDevice);
             }
             if (toConnect == null) {
-              Log.d(LOG_TAG, "No previous device found.");
+              LogUtils.d( "No previous device found.");
               // No default found - suggest any device
               toConnect = trackedDevices.get(0);
             }
@@ -422,7 +423,7 @@ public final class DeviceFinder extends Activity {
 
   private void handleRemoteDeviceAdd(final RemoteDevice remoteDevice) {
     if (trackedDevices.add(remoteDevice)) {
-      Log.v(LOG_TAG, "Adding new device: " + remoteDevice);
+      LogUtils.v( "Adding new device: " + remoteDevice);
 
       // Notify data adapter and update title.
       dataAdapter.notifyDataSetChanged();
@@ -731,7 +732,7 @@ public final class DeviceFinder extends Activity {
       }
 
       for (RemoteDevice device : devices) {
-        Log.d(LOG_TAG, "New device: " + device);
+        LogUtils.d( "New device: " + device);
         if (remoteDevice.getName().equals(device.getName())) {
           return device;
         }

@@ -16,6 +16,7 @@
 
 package com.google.android.apps.tvremote;
 
+import com.google.android.apps.tvremote.util.LogUtils;
 import com.google.polo.exception.PoloException;
 import com.google.polo.pairing.ClientPairingSession;
 import com.google.polo.pairing.PairingContext;
@@ -147,10 +148,10 @@ public class PairingActivity extends CoreServiceActivity {
 
   private void startPairing() {
     if (pairing != null) {
-      Log.v(LOG_TAG, "Already pairing - cancel first.");
+      LogUtils.v( "Already pairing - cancel first.");
       return;
     }
-    Log.v(LOG_TAG, "Starting pairing with " + remoteDevice);
+    LogUtils.v( "Starting pairing with " + remoteDevice);
     pairing = new PairingClientThread();
     new Thread(pairing).start();
   }
@@ -209,7 +210,7 @@ public class PairingActivity extends CoreServiceActivity {
 
     public void cancel() {
       synchronized (this) {
-        Log.d(LOG_TAG, "Cancelling: " + this);
+        LogUtils.d( "Cancelling: " + this);
         isCancelling = true;
         notify();
       }
@@ -230,7 +231,7 @@ public class PairingActivity extends CoreServiceActivity {
       try {
         wait();
       } catch (InterruptedException e) {
-        Log.d(LOG_TAG, "Exception occurred", e);
+        LogUtils.d( "Exception occurred", e);
         return null;
       }
       return secret;
@@ -281,35 +282,35 @@ public class PairingActivity extends CoreServiceActivity {
 
         PairingListener listener = new PairingListener() {
           public void onSessionEnded(PairingSession session) {
-            Log.d(LOG_TAG, "onSessionEnded: " + session);
+            LogUtils.d( "onSessionEnded: " + session);
           }
 
           public void onSessionCreated(PairingSession session) {
-            Log.d(LOG_TAG, "onSessionCreated: " + session);
+            LogUtils.d( "onSessionCreated: " + session);
           }
 
           public void onPerformOutputDeviceRole(PairingSession session,
               byte[] gamma) {
-            Log.d(LOG_TAG, "onPerformOutputDeviceRole: " + session + ", "
+            LogUtils.d( "onPerformOutputDeviceRole: " + session + ", "
                 + session.getEncoder().encodeToString(gamma));
           }
 
           public void onPerformInputDeviceRole(PairingSession session) {
             showPairingDialog(PairingClientThread.this);
 
-            Log.d(LOG_TAG, "onPerformInputDeviceRole: " + session);
+            LogUtils.d( "onPerformInputDeviceRole: " + session);
             String secret = getSecret();
-            Log.d(LOG_TAG, "Got: " + secret + " " + isCancelling);
+            LogUtils.d( "Got: " + secret + " " + isCancelling);
             if (!isCancelling && secret != null) {
               try {
                 byte[] secretBytes = session.getEncoder().decodeToBytes(secret);
                 session.setSecret(secretBytes);
               } catch (IllegalArgumentException exception) {
-                Log.d(LOG_TAG, "Exception while decoding secret: ", exception);
+                LogUtils.d( "Exception while decoding secret: ", exception);
                 session.teardown();
               } catch (IllegalStateException exception) {
                 // ISE may be thrown when session is currently terminating
-                Log.d(LOG_TAG, "Exception while setting secret: ", exception);
+                LogUtils.d( "Exception while setting secret: ", exception);
                 session.teardown();
               }
             } else {
@@ -318,13 +319,13 @@ public class PairingActivity extends CoreServiceActivity {
           }
 
           public void onLogMessage(LogLevel level, String message) {
-            Log.d(LOG_TAG, "Log: " + message + " (" + level + ")");
+            LogUtils.d("Log: " + message + " (" + level + ")");
           }
         };
 
         boolean ret = pairingSession.doPair(listener);
         if (ret) {
-          Log.d(LOG_TAG, "Success");
+          LogUtils.d( "Success");
           getKeyStoreManager().storeCertificate(context.getServerCertificate());
           result = Result.SUCCEEDED;
         } else if (isCancelling) {

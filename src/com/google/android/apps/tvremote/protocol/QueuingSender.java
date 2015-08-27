@@ -16,6 +16,7 @@
 
 package com.google.android.apps.tvremote.protocol;
 
+import com.google.android.apps.tvremote.util.LogUtils;
 import com.google.anymote.Key.Action;
 import com.google.anymote.Key.Code;
 
@@ -85,7 +86,7 @@ public final class QueuingSender implements ICommandSender {
         if (currentSender != null) {
           command.execute(currentSender);
         } else {
-          Log.w(LOG_TAG, "Sender removed before sending command");
+          LogUtils.w("Sender removed before sending command");
         }
         return true;
       }

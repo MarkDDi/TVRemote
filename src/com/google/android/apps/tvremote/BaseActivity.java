@@ -24,6 +24,7 @@ import com.google.android.apps.tvremote.protocol.ICommandSender;
 import com.google.android.apps.tvremote.protocol.QueuingSender;
 import com.google.android.apps.tvremote.util.Action;
 import com.google.android.apps.tvremote.util.Debug;
+import com.google.android.apps.tvremote.util.LogUtils;
 import com.google.android.apps.tvremote.widget.SoftDpad;
 import com.google.android.apps.tvremote.widget.SoftDpad.DpadListener;
 
@@ -487,7 +488,7 @@ public class BaseActivity extends CoreServiceActivity
     if (Debug.isDebugConnection()) {
       Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
-    Log.d(LOG_TAG, "Connection state: " + sequence);
+    LogUtils.d("Connection state: " + sequence);
   }
 
   private void connectOrFinish() {

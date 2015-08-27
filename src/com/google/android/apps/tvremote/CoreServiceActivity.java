@@ -24,6 +24,8 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 
+import com.google.android.apps.tvremote.util.LogUtils;
+
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -124,7 +126,7 @@ public abstract class CoreServiceActivity extends Activity {
 
   protected boolean executeWhenCoreServiceAvailable(Runnable runnable) {
     if (coreService == null) {
-      Log.d(LOG_TAG, "Queueing runnable: " + runnable);
+      LogUtils.d("Queueing runnable: " + runnable);
       runnableQueue.offer(runnable);
       return false;
     }

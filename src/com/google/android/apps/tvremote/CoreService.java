@@ -20,6 +20,7 @@ import com.google.android.apps.tvremote.protocol.AnymoteSender;
 import com.google.android.apps.tvremote.protocol.DummySender;
 import com.google.android.apps.tvremote.util.Debug;
 import com.google.android.apps.tvremote.util.LimitedLinkedHashMap;
+import com.google.android.apps.tvremote.util.LogUtils;
 
 import android.app.Service;
 import android.content.Intent;
@@ -200,7 +201,7 @@ public final class CoreService extends Service implements ConnectionManager {
     if (sendSocket == null) {
       return;
     }
-    Log.i(LOG_TAG, "Closing connection to " + sendSocket.getInetAddress() +
+    LogUtils.i( "Closing connection to " + sendSocket.getInetAddress() +
         ":" + sendSocket.getPort());
     if (anymoteSender != null) {
       anymoteSender.disconnect();
@@ -209,7 +210,7 @@ public final class CoreService extends Service implements ConnectionManager {
     try {
       sendSocket.close();
     } catch (IOException e) {
-      Log.e(LOG_TAG, "failed to close socket");
+      LogUtils.e("failed to close socket");
     }
     sendSocket = null;
   }
@@ -390,7 +391,7 @@ public final class CoreService extends Service implements ConnectionManager {
     private boolean changeState(State newState, Runnable callback) {
       if (isTransitionLegal(currentState, newState)) {
         if (Debug.isDebugConnection()) {
-          Log.d(LOG_TAG, "Changing state: " + currentState + " -> " + newState);
+          LogUtils.d( "Changing state: " + currentState + " -> " + newState);
         }
         currentState = newState;
         if (callback != null) {
@@ -400,7 +401,7 @@ public final class CoreService extends Service implements ConnectionManager {
         return true;
       }
       if (Debug.isDebugConnection()) {
-        Log.d(LOG_TAG, "Illegal transition: " + currentState + " -> "
+        LogUtils.d( "Illegal transition: " + currentState + " -> "
             + newState);
       }
       return false;
@@ -408,7 +409,7 @@ public final class CoreService extends Service implements ConnectionManager {
 
     public boolean handleMessage(Message msg) {
       Request request = Request.values()[msg.what];
-      Log.v(LOG_TAG, "handleMessage:" + request + " (" + msg.obj + ")");
+      LogUtils.v( "handleMessage:" + request + " (" + msg.obj + ")");
       switch (request) {
         case CONNECT:
           handleConnect((ConnectionListener) msg.obj);
@@ -525,7 +526,7 @@ public final class CoreService extends Service implements ConnectionManager {
     private void handleSetKeepConnected(boolean keepConnected) {
       keepConnectedRefcount += keepConnected ? 1 : -1;
       if (Debug.isDebugConnection()) {
-        Log.d(LOG_TAG, "KeepConnectedRefcount: " + keepConnectedRefcount);
+        LogUtils.d( "KeepConnectedRefcount: " + keepConnectedRefcount);
       }
       if (keepConnectedRefcount < 0) {
         throw new IllegalStateException("KeepConnectedRefCount < 0");
@@ -559,7 +560,7 @@ public final class CoreService extends Service implements ConnectionManager {
 
     private void connect() {
       if (Debug.isDebugConnection()) {
-        Log.d(LOG_TAG, "Connecting to: " + target);
+        LogUtils.d( "Connecting to: " + target);
       }
       if (sendSocket != null) {
         throw new IllegalStateException("Already connected");
@@ -575,13 +576,13 @@ public final class CoreService extends Service implements ConnectionManager {
       if (connectionListener == null) {
         pendingNotification = true;
         if (Debug.isDebugConnection()) {
-          Log.d(LOG_TAG, "Pending notification: " + currentState);
+          LogUtils.d( "Pending notification: " + currentState);
         }
         return;
       }
       pendingNotification = false;
       if (Debug.isDebugConnection()) {
-        Log.d(LOG_TAG, "Sending notification: " + currentState + " to "
+        LogUtils.d( "Sending notification: " + currentState + " to "
             + connectionListener);
       }
       switch (currentState) {
@@ -704,31 +705,31 @@ public final class CoreService extends Service implements ConnectionManager {
       try {
         socket = getSslSocket(target);
       } catch (SSLException e) {
-        Log.e(LOG_TAG, "(SSL) Could not create socket to " + target, e);
+        LogUtils.e( "(SSL) Could not create socket to " + target, e);
         return ConnectionStatus.ERROR_HANDSHAKE;
       } catch (GeneralSecurityException e) {
-        Log.e(LOG_TAG, "(GSE) Could not create socket to " + target, e);
+        LogUtils.e( "(GSE) Could not create socket to " + target, e);
         return ConnectionStatus.ERROR_HANDSHAKE;
       } catch (IOException e) {
         // Hack for Froyo which throws IOException for SSL handshake problem:
         if (e.getMessage().startsWith("SSL handshake")) {
           return ConnectionStatus.ERROR_HANDSHAKE;
         }
-        Log.e(LOG_TAG, "(IOE) Could not create socket to " + target, e);
+        LogUtils.e( "(IOE) Could not create socket to " + target, e);
         return ConnectionStatus.ERROR_CREATE;
       }
-      Log.i(LOG_TAG, "Connected to " + target);
+      LogUtils.i( "Connected to " + target);
       if (isCancelled()) {
         return ConnectionStatus.ERROR_CREATE;
       }
       sender = new AnymoteSender(coreService);
       if (!sender.setSocket(socket)) {
-        Log.e(LOG_TAG, "Initial message failed");
+        LogUtils.e( "Initial message failed");
         sender.disconnect();
         try {
           socket.close();
         } catch (IOException e) {
-          Log.e(LOG_TAG, "failed to close socket");
+          LogUtils.e( "failed to close socket");
         }
         return ConnectionStatus.ERROR_CREATE;
       }

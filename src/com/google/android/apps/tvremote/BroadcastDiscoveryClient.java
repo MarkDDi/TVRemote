@@ -20,6 +20,8 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
+import com.google.android.apps.tvremote.util.LogUtils;
+
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.net.DatagramPacket;
@@ -99,7 +101,7 @@ public class BroadcastDiscoveryClient implements Runnable {
       mSocket = new DatagramSocket(); // binds to random port
       mSocket.setBroadcast(true);
     } catch (SocketException e) {
-      Log.e(LOG_TAG, "Could not create broadcast client socket.", e);
+      LogUtils.e( "Could not create broadcast client socket.", e);
       throw new RuntimeException();
     }
 
@@ -110,12 +112,12 @@ public class BroadcastDiscoveryClient implements Runnable {
         BroadcastDiscoveryClient.this.sendProbe();
       }
     };
-    Log.i(LOG_TAG, "Starting client on address " + mBroadcastAddress);
+    LogUtils.i("Starting client on address " + mBroadcastAddress);
   }
 
   /** {@inheritDoc} */
   public void run() {
-    Log.i(LOG_TAG, "Broadcast client thread starting.");
+    LogUtils.i( "Broadcast client thread starting.");
     byte[] buffer = new byte[256];
 
     mProbeTimer.schedule(mProbeTimerTask, 0, PROBE_INTERVAL_MS);
@@ -133,7 +135,7 @@ public class BroadcastDiscoveryClient implements Runnable {
         break;
       }
     }
-    Log.i(LOG_TAG, "Exiting client loop.");
+    LogUtils.i( "Exiting client loop.");
     mProbeTimer.cancel();
   }
 
@@ -146,7 +148,7 @@ public class BroadcastDiscoveryClient implements Runnable {
     try {
       mSocket.send(packet);
     } catch (IOException e) {
-      Log.e(LOG_TAG, "Exception sending broadcast probe", e);
+      LogUtils.e( "Exception sending broadcast probe", e);
       return;
     }
   }
@@ -187,7 +189,7 @@ public class BroadcastDiscoveryClient implements Runnable {
     String tokens[] = strPacket.trim().split("\\s+");
 
     if (tokens.length != 3) {
-      Log.w(LOG_TAG, "Malformed response: expected 3 tokens, got "
+      LogUtils.w( "Malformed response: expected 3 tokens, got "
           + tokens.length);
       return;
     }
@@ -201,7 +203,7 @@ public class BroadcastDiscoveryClient implements Runnable {
       String serviceName = tokens[1];
       int port = Integer.parseInt(tokens[2]);
       InetAddress addr = packet.getAddress();
-      Log.v(LOG_TAG, "Broadcast response: " + serviceName + ", "
+      LogUtils.v( "Broadcast response: " + serviceName + ", "
           + addr + ", " + port);
       advert = new BroadcastAdvertisement(serviceName, addr, port);
     } catch (NumberFormatException e) {

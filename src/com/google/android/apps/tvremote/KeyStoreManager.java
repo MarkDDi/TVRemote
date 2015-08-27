@@ -16,6 +16,7 @@
 
 package com.google.android.apps.tvremote;
 
+import com.google.android.apps.tvremote.util.LogUtils;
 import com.google.polo.ssl.SslUtil;
 
 import android.content.Context;
@@ -87,10 +88,10 @@ public final class KeyStoreManager {
       FileInputStream fis = mContext.openFileInput(KEYSTORE_FILENAME);
       keyStore.load(fis, KEYSTORE_PASSWORD);
     } catch (IOException e) {
-      Log.v(LOG_TAG, "Unable open keystore file", e);
+      LogUtils.v( "Unable open keystore file", e);
       keyStore = null;
     } catch (GeneralSecurityException e) {
-      Log.v(LOG_TAG, "Unable open keystore file", e);
+      LogUtils.v( "Unable open keystore file", e);
       keyStore = null;
     }
 
@@ -111,12 +112,12 @@ public final class KeyStoreManager {
   public boolean hasServerIdentityAlias() {
     try {
       if (!mKeyStore.containsAlias(LOCAL_IDENTITY_ALIAS)) {
-        Log.e(
-            LOG_TAG, "Key store missing identity for " + LOCAL_IDENTITY_ALIAS);
+        LogUtils.e(
+             "Key store missing identity for " + LOCAL_IDENTITY_ALIAS);
         return false;
       }
     } catch (KeyStoreException e) {
-      Log.e(LOG_TAG, "Key store exception occurred", e);
+      LogUtils.e( "Key store exception occurred", e);
       return false;
     }
     return true;
@@ -125,20 +126,20 @@ public final class KeyStoreManager {
   public void initializeKeyStore(String id) {
     clearKeyStore();
     try {
-      Log.v(LOG_TAG, "Generating key pair ...");
+      LogUtils.v( "Generating key pair ...");
       KeyPairGenerator kg = KeyPairGenerator.getInstance("RSA");
       KeyPair keyPair = kg.generateKeyPair();
 
-      Log.v(LOG_TAG, "Generating certificate ...");
+      LogUtils.v( "Generating certificate ...");
       String name = getCertificateName(id);
       X509Certificate cert = SslUtil.generateX509V3Certificate(keyPair, name);
       Certificate[] chain = {cert};
 
-      Log.v(LOG_TAG, "Adding key to keystore  ...");
+      LogUtils.v( "Adding key to keystore  ...");
       mKeyStore.setKeyEntry(
           LOCAL_IDENTITY_ALIAS, keyPair.getPrivate(), null, chain);
 
-      Log.d(LOG_TAG, "Key added!");
+      LogUtils.d( "Key added!");
     } catch (GeneralSecurityException e) {
       throw new IllegalStateException("Unable to create identity KeyStore", e);
     }
@@ -216,14 +217,14 @@ public final class KeyStoreManager {
       String alias = String.format(
           KeyStoreManager.REMOTE_IDENTITY_ALIAS_PATTERN, peerCert.hashCode());
       if (mKeyStore.containsAlias(alias)) {
-        Log.w(LOG_TAG, "Deleting existing entry for " + alias);
+        LogUtils.w( "Deleting existing entry for " + alias);
         mKeyStore.deleteEntry(alias);
       }
-      Log.i(LOG_TAG, "Adding cert to keystore: " + alias);
+      LogUtils.i( "Adding cert to keystore: " + alias);
       mKeyStore.setCertificateEntry(alias, peerCert);
       store();
     } catch (KeyStoreException e) {
-      Log.e(LOG_TAG, "Storing cert failed", e);
+      LogUtils.e( "Storing cert failed", e);
     }
   }
 
@@ -232,11 +233,11 @@ public final class KeyStoreManager {
         for (Enumeration<String> e = mKeyStore.aliases();
                 e.hasMoreElements();) {
             final String alias = e.nextElement();
-            Log.v(LOG_TAG, "Deleting alias: " + alias);
+            LogUtils.v("Deleting alias: " + alias);
             mKeyStore.deleteEntry(alias);
         }
     } catch (KeyStoreException e) {
-        Log.e(LOG_TAG, "Clearing certificates failed", e);
+        LogUtils.e( "Clearing certificates failed", e);
     }
     store();
   }

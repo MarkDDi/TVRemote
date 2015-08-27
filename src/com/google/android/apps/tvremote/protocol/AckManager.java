@@ -22,6 +22,8 @@ import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 
+import com.google.android.apps.tvremote.util.LogUtils;
+
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -117,9 +119,7 @@ public final class AckManager {
     public void handleMessage(Message msg) {
       Action action = actionValueOf(msg.what);
       if (DEBUG) {
-        Log.d(LOG_TAG,
-            "action=" + action + " : msg=" + msg + " : seq=" + sequence.get()
-                + " @ " + System.currentTimeMillis());
+        LogUtils.d("action=" + action + " : msg=" + msg + " : seq=" + sequence.get() + " @ " + System.currentTimeMillis());
       }
       switch (action) {
         case START:

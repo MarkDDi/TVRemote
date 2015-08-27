@@ -18,6 +18,7 @@ package com.google.android.apps.tvremote.protocol;
 
 import com.google.android.apps.tvremote.CoreService;
 import com.google.android.apps.tvremote.protocol.AckManager.Listener;
+import com.google.android.apps.tvremote.util.LogUtils;
 import com.google.anymote.Key.Action;
 import com.google.anymote.Key.Code;
 import com.google.anymote.Messages.DataList;
@@ -83,23 +84,23 @@ public final class AnymoteSender implements ICommandSender {
       }
 
       public void onData(String type, String data) {
-        Log.d(LOG_TAG, "onData: " + type + " / " + data);
+        LogUtils.d( "onData: " + type + " / " + data);
       }
 
       public void onDataList(DataList dataList) {
-        Log.d(LOG_TAG, "onDataList: " + dataList.toString());
+        LogUtils.d( "onDataList: " + dataList.toString());
       }
 
       public void onFlingResult(
           FlingResult flingResult, Integer sequenceNumber) {
-        Log.d(LOG_TAG,
+        LogUtils.d(
             "onFlingResult: " + flingResult.toString() + " " + sequenceNumber);
       }
     };
 
     errorListener = new ErrorListener() {
       public void onIoError(String message, Throwable exception) {
-        Log.d(LOG_TAG, "IoError: " + message, exception);
+        LogUtils.d( "IoError: " + message, exception);
         onConnectionError();
       }
     };
@@ -201,7 +202,7 @@ public final class AnymoteSender implements ICommandSender {
           AnymoteFactory.getDeviceAdapter(receiver, socket.getInputStream(),
               socket.getOutputStream(), errorListener);
     } catch (IOException e) {
-      Log.d(LOG_TAG, "Unable to create sender", e);
+      LogUtils.d( "Unable to create sender", e);
       deviceAdapter = null;
       return false;
     }
@@ -222,7 +223,7 @@ public final class AnymoteSender implements ICommandSender {
           0 /* basic info */);
       return info.versionCode;
     } catch (NameNotFoundException e) {
-      Log.d(LOG_TAG, "cannot retrieve version number, package name not found");
+      LogUtils.d("cannot retrieve version number, package name not found");
     }
     return -1;
   }
