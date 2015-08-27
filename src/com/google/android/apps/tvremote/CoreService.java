@@ -377,7 +377,7 @@ public final class CoreService extends Service implements ConnectionManager {
   private void sendMessage(Request request, Object obj) {
     Message msg = handler.obtainMessage(request.ordinal());
     msg.obj = obj;
-    handler.dispatchMessage(msg);
+    handler.dispatchMessage(msg); // 消息发送到下面的Handler.Callback的handlerMessage()接收
   }
 
   private class ConnectionRequestCallback implements Handler.Callback {
@@ -488,7 +488,7 @@ public final class CoreService extends Service implements ConnectionManager {
       if (target != null && changeState(State.CONNECTING)) {
         connect();
       } else if (target == null) {
-        changeState(State.DEVICE_FINDER);
+        changeState(State.DEVICE_FINDER);  // 未找到远程设备
       }
     }
 
