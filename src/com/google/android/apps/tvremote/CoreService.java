@@ -486,8 +486,10 @@ public final class CoreService extends Service implements ConnectionManager {
       }
 
       if (target != null && changeState(State.CONNECTING)) {
+        LogUtils.e("找到设备，连接中...");
         connect();
       } else if (target == null) {
+        LogUtils.e("未找到设备，弹出提示");
         changeState(State.DEVICE_FINDER);  // 未找到远程设备
       }
     }
@@ -605,7 +607,7 @@ public final class CoreService extends Service implements ConnectionManager {
           break;
 
         case DEVICE_FINDER:
-          connectionListener.onShowDeviceFinder();
+          connectionListener.onShowDeviceFinder();  // 回调实现ConnectionListener接口的Activity
           break;
 
         case PAIRING:

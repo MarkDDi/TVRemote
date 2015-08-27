@@ -395,6 +395,7 @@ public class BaseActivity extends CoreServiceActivity
   }
 
   private void disconnect() {
+    LogUtils.e("isConnected = " + isConnected);
     if (isConnected) {
       commands.setSender(null);
       isConnected = false;
@@ -451,6 +452,9 @@ public class BaseActivity extends CoreServiceActivity
     logConnectionStatus("Connecting");
   }
 
+  /**
+   * Wifi网络未激活
+   */
   public void onShowDeviceFinder() {
     commands.setSender(null);
     logConnectionStatus("Show device finder");
