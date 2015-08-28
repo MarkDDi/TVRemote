@@ -282,7 +282,7 @@ public class BaseActivity extends CoreServiceActivity implements ConnectionListe
     /**
      * Returns the interface to send commands to the remote box.
      */
-    protected final ICommandSender getCommands() {
+    public final ICommandSender getCommands() {
         return commands;
     }
 

@@ -102,7 +102,7 @@
         android:name="android.hardware.wifi"
         android:required="true"/>
 
-    <uses-sdk android:minSdkVersion="8"/>
+    <uses-sdk android:minSdkVersion="11"/>
 
     <supports-screens android:smallScreens="false"/>
 </manifest>

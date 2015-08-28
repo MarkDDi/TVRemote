@@ -229,7 +229,7 @@ public final class SoftDpad extends ImageView {
         int y = (int) event.getY();
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                LogUtils.e("SoftDpad 触发ACTION_DOWN");
+//                LogUtils.e("SoftDpad 触发ACTION_DOWN");
                 if (isEventOutsideIgnoredArea(x, y)) {
                     return false;
                 }
@@ -240,7 +240,7 @@ public final class SoftDpad extends ImageView {
                 return true;
 
             case MotionEvent.ACTION_MOVE:
-                LogUtils.e("SoftDpad 触发ACTION_MOVE");
+//                LogUtils.e("SoftDpad 触发ACTION_MOVE");
                 if (isDpadFocused) {
                     handleActionMove(x, y);
                     return true;
@@ -248,7 +248,7 @@ public final class SoftDpad extends ImageView {
                 break;
 
             case MotionEvent.ACTION_UP:
-                LogUtils.e("SoftDpad 触发ACTION_UP");
+//                LogUtils.e("SoftDpad 触发ACTION_UP");
                 if (isDpadFocused) {
                     handleActionUp(x, y);
                 }

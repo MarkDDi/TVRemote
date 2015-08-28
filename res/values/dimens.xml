@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="bottom_height">85dp</dimen>
+    <dimen name="bottom_key_margin">10dp</dimen>
+    <dimen name="switch_text_padding">20dp</dimen>
+</resources>

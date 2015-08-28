@@ -2,6 +2,7 @@ package com.google.android.apps.tvremote;
 
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -16,8 +17,10 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.apps.tvremote.fragment.MouseFragment;
 import com.google.android.apps.tvremote.fragment.SoftDpadFragment;
 import com.google.android.apps.tvremote.layout.SlidingLayout;
 import com.google.android.apps.tvremote.util.Action;
@@ -36,10 +39,15 @@ import java.util.ArrayList;
  * Time          : 11:15
  * Decription    :
  */
-public class New_MainActivity extends BaseActivity implements KeyCodeButton.KeyCodeHandler {
+public class New_MainActivity extends BaseActivity implements KeyCodeButton.KeyCodeHandler, View.OnFocusChangeListener {
 
     private final Handler handler;
     private SharedPreferences sharedPreferences;
+    private TextView gesture;
+    private TextView mouse;
+    private SoftDpadFragment softFragment;
+    private MouseFragment mouseFragment;
+
 
     /**
      * The enum represents modes of the remote controller with
@@ -79,10 +87,47 @@ public class New_MainActivity extends BaseActivity implements KeyCodeButton.KeyC
         edit.commit();
 
         // 控制方向及确认键
-        getFragmentManager().beginTransaction().replace(R.id.container, new SoftDpadFragment())
-                .commit();
+        softFragment = new SoftDpadFragment();
+        mouseFragment = new MouseFragment();
+
+
+        initView();
+
+        initListener();
 
         flingIntent(getIntent());
+    }
+
+    private void initListener() {
+        gesture.setOnFocusChangeListener(this);
+        mouse.setOnFocusChangeListener(this);
+    }
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    @Override
+    public void onFocusChange(View v, boolean hasFocus) {
+        if (hasFocus) {
+            switch (v.getId()) {
+                case R.id.gesture:
+                    getFragmentManager().beginTransaction().replace(R.id.container, softFragment)
+                            .commit();
+
+                    break;
+                case R.id.mouse:
+                    getFragmentManager().beginTransaction().replace(R.id.container,
+                            mouseFragment).commit();
+                    break;
+                default:
+
+                    break;
+            }
+        }
+    }
+
+    private void initView() {
+        gesture = ((TextView) findViewById(R.id.gesture));
+        mouse = ((TextView) findViewById(R.id.mouse));
+
     }
 
     @Override
@@ -186,12 +231,12 @@ public class New_MainActivity extends BaseActivity implements KeyCodeButton.KeyC
 
         ArrayList<String> queryResults = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
         if ((queryResults == null) || (queryResults.isEmpty())) {
-            LogUtils.d( "No results from VoiceSearch server.");
+            LogUtils.d("No results from VoiceSearch server.");
             return;
         } else {
             searchQuery = queryResults.get(0);
             if (TextUtils.isEmpty(searchQuery)) {
-                LogUtils.d( "Empty result from VoiceSearch server.");
+                LogUtils.d("Empty result from VoiceSearch server.");
                 return;
             }
         }

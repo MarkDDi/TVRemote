@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:id="@+id/MainScreen"
@@ -8,26 +9,26 @@
     >
 
     <LinearLayout
-        android:id="@+id/title"
+        android:id="@+id/switch_mode"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="80dp"
         android:padding="5dp"
-        android:background="@drawable/top_mode_switch"
+        android:background="@drawable/top_switch_mode_shape"
         >
         <TextView
             android:id="@+id/gesture"
             style="@style/switch_mode"
             android:text="@string/gesture_mode"
-            android:paddingLeft="20dp"
+            android:paddingLeft="@dimen/switch_text_padding"
             />
         <TextView
             android:id="@+id/mouse"
             style="@style/switch_mode"
             android:text="@string/mouse_mode"
             android:gravity="right"
-            android:paddingRight="20dp"
+            android:paddingRight="@dimen/switch_text_padding"
             />
     </LinearLayout>
 
@@ -38,11 +39,45 @@
 
     <FrameLayout
         android:id="@+id/container"
-        android:layout_below="@id/title"
+        android:layout_below="@id/switch_mode"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
     </FrameLayout>
 
+   <LinearLayout
+       android:layout_width="wrap_content"
+       android:layout_height="@dimen/bottom_height"
+       android:orientation="horizontal"
+       android:background="@color/bottom_bg"
+       android:layout_alignParentBottom="true"
+       >
+       <com.google.android.apps.tvremote.widget.KeyCodeButton
+           android:id="@+id/menu_key"
+           style="@style/common_key"
+           android:layout_weight="1"
+           android:background="@drawable/menukey_selector"
+           app:key_code="KEYCODE_MENU"
+           android:layout_marginLeft="@dimen/bottom_key_margin"
+           />
 
+       <com.google.android.apps.tvremote.widget.KeyCodeButton
+           android:id="@+id/home_key"
+           style="@style/common_key"
+           android:layout_marginLeft="@dimen/bottom_key_margin"
+           android:layout_marginRight="@dimen/bottom_key_margin"
+           android:layout_weight="2"
+           android:background="@drawable/homekey_selector"
+           app:key_code="KEYCODE_HOME"
+           />
+
+       <com.google.android.apps.tvremote.widget.KeyCodeButton
+           android:id="@+id/back_key"
+           style="@style/common_key"
+           android:layout_weight="1"
+           android:background="@drawable/backkey_selector"
+           app:key_code="KEYCODE_BACK"
+           android:layout_marginRight="@dimen/bottom_key_margin"
+           />
+   </LinearLayout>
 </RelativeLayout>
