@@ -235,6 +235,7 @@ public class BaseActivity extends CoreServiceActivity implements ConnectionListe
 
     @Override
     protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
+        LogUtils.e("onActivityResult...");
         executeWhenCoreServiceAvailable(new Runnable() {
             public void run() {
                 if (requestCode == CODE_SWITCH_BOX) {
@@ -245,7 +246,7 @@ public class BaseActivity extends CoreServiceActivity implements ConnectionListe
                         }
                     }
                     getConnectionManager().deviceFinderFinished();
-                    LogUtils.e("onActivityResult...");
+                    LogUtils.e("deviceFinderFinished...");
                     connectOrFinish();
                 } else if (requestCode == CODE_PAIRING) {
                     getConnectionManager().pairingFinished();
@@ -368,7 +369,7 @@ public class BaseActivity extends CoreServiceActivity implements ConnectionListe
         }
     }
 
-    // onResume()调用
+    // 第一次在onResume()调用
     private void connect() {
         if (!isConnected) {
             isConnected = true;

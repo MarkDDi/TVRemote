@@ -216,7 +216,7 @@ public final class AnymoteSender implements ICommandSender {
    * Returns the version number as defined in Android manifest
    * {@code versionCode}
    */
-  private int getVersionCode() {
+  public int getVersionCode() {
     try {
       PackageInfo info = coreService.getPackageManager().getPackageInfo(
           coreService.getPackageName(),

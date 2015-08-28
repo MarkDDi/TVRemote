@@ -634,6 +634,9 @@ public final class CoreService extends Service implements ConnectionManager {
         }
     }
 
+    /**
+     * 执行远程连接任务
+     */
     private static class ConnectionTask extends AsyncTask<RemoteDevice, Void, ConnectionResult> {
 
         private final CoreService coreService;
@@ -671,6 +674,7 @@ public final class CoreService extends Service implements ConnectionManager {
                         return new ConnectionResult(status, sender, socket);
 
                     case ERROR_HANDSHAKE:
+                        LogUtils.e("握手错误");
                         return new ConnectionResult(status, null, null);
 
                     case ERROR_CREATE:
@@ -681,6 +685,7 @@ public final class CoreService extends Service implements ConnectionManager {
                         throw new IllegalStateException("Unsupported status: " + status);
                 }
             }
+
             return new ConnectionResult(ConnectionStatus.ERROR_CREATE, null, null);
         }
 
@@ -775,13 +780,14 @@ public final class CoreService extends Service implements ConnectionManager {
             super.onPostExecute(result);
             switch (result.status) {
                 case OK:
+                    LogUtils.e("从服务端返回OK VersionCode = " + result.sender.getVersionCode());
                     coreService.connected(result);
                     break;
                 case ERROR_CREATE:
                     coreService.requestDeviceFinder();
                     break;
                 case ERROR_HANDSHAKE:
-                    coreService.requestPairing();
+                    coreService.requestPairing();// 第一次连接握手错误，请求弹出配对
                     break;
             }
         }

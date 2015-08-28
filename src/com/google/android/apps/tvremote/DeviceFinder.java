@@ -196,11 +196,12 @@ public final class DeviceFinder extends Activity {
      * Connects to the chosen entry in the list.
      * Finishes the activity and returns the informations on the chosen box.
      * @param remoteDevice the listEntry representing the box you want to connect to
+     * 在用户点击连接和在其他设备中点击一个Item时，调用
      */
     private void connectToEntry(RemoteDevice remoteDevice) {
         Intent resultIntent = new Intent();
         resultIntent.putExtra(EXTRA_REMOTE_DEVICE, remoteDevice);
-        setResult(RESULT_OK, resultIntent);
+        setResult(RESULT_OK, resultIntent);  // 给BaseActivity设置响应Code
         LogUtils.e("连接到指定的设备");
         finish();
     }

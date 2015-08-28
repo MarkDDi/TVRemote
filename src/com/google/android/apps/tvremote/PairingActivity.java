@@ -55,377 +55,355 @@ import javax.net.ssl.SSLSocketFactory;
  *
  * Pairing activity establishes and handles Polo pairing session. If needed,
  * it displays dialog to enter secret code.
- *
  */
 public class PairingActivity extends CoreServiceActivity {
 
-  private static final String LOG_TAG = "PairingActivity";
-  private static final String EXTRA_REMOTE_DEVICE = "remote_device";
-  private static final String EXTRA_PAIRING_RESULT = "pairing_result";
-  private static final String REMOTE_NAME = Build.MANUFACTURER + " " +
-      Build.MODEL;
+    private static final String LOG_TAG = "PairingActivity";
+    private static final String EXTRA_REMOTE_DEVICE = "remote_device";
+    private static final String EXTRA_PAIRING_RESULT = "pairing_result";
+    private static final String REMOTE_NAME = Build.MANUFACTURER + " " +
+            Build.MODEL;
 
-  /**
-   * Result for pairing failure due to connection problem.
-   */
-  public static final int RESULT_CONNECTION_FAILED = RESULT_FIRST_USER;
-
-  /**
-   * Result for pairing failure due to invalid code or protocol error.
-   */
-  public static final int RESULT_PAIRING_FAILED = RESULT_FIRST_USER + 1;
-
-  /**
-   * Enumeration that encapsulates all valid pairing results.
-   */
-  private enum Result {
     /**
-     * Pairing successful.
+     * Result for pairing failure due to connection problem.
      */
-    SUCCEEDED(Activity.RESULT_OK),
+    public static final int RESULT_CONNECTION_FAILED = RESULT_FIRST_USER;
+
     /**
-     * Pairing failed - connection problem.
+     * Result for pairing failure due to invalid code or protocol error.
      */
-    FAILED_CONNECTION(PairingActivity.RESULT_CONNECTION_FAILED),
+    public static final int RESULT_PAIRING_FAILED = RESULT_FIRST_USER + 1;
+
     /**
-     * Pairing failed - canceled.
+     * Enumeration that encapsulates all valid pairing results.
      */
-    FAILED_CANCELED(Activity.RESULT_CANCELED),
+    private enum Result {
+        /**
+         * Pairing successful.
+         */
+        SUCCEEDED(Activity.RESULT_OK),
+        /**
+         * Pairing failed - connection problem.
+         */
+        FAILED_CONNECTION(PairingActivity.RESULT_CONNECTION_FAILED),
+        /**
+         * Pairing failed - canceled.
+         */
+        FAILED_CANCELED(Activity.RESULT_CANCELED),
+        /**
+         * Pairing failed - invalid secret.
+         */
+        FAILED_SECRET(PairingActivity.RESULT_PAIRING_FAILED);
+
+        private final int resultCode;
+
+        Result(int resultCode) {
+            this.resultCode = resultCode;
+        }
+    }
+
+    private Handler handler;
+
     /**
-     * Pairing failed - invalid secret.
+     * Pairing dialog.
      */
-    FAILED_SECRET(PairingActivity.RESULT_PAIRING_FAILED);
+    private AlertDialog alertDialog;
 
-    private final int resultCode;
+    private PairingClientThread pairing;
 
-    Result(int resultCode) {
-      this.resultCode = resultCode;
-    }
-  }
+    private ProgressDialog progressDialog;
+    private RemoteDevice remoteDevice;
 
-  private Handler handler;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-  /**
-   * Pairing dialog.
-   */
-  private AlertDialog alertDialog;
+        handler = new Handler();
 
-  private PairingClientThread pairing;
+        progressDialog = buildProgressDialog();
+        progressDialog.show();
 
-  private ProgressDialog progressDialog;
-  private RemoteDevice remoteDevice;
-
-  @Override
-  protected void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-
-    handler = new Handler();
-
-    progressDialog = buildProgressDialog();
-    progressDialog.show();
-
-    remoteDevice = getIntent().getParcelableExtra(EXTRA_REMOTE_DEVICE);
-    if (remoteDevice == null) {
-      throw new IllegalStateException();
-    }
-  }
-
-  @Override
-  protected void onPause() {
-    if (pairing != null) {
-      pairing.cancel();
-      pairing = null;
-    }
-    hideKeyboard();
-    super.onPause();
-  }
-
-  public static Intent createIntent(Context context, RemoteDevice remoteDevice) {
-    Intent intent = new Intent(context, PairingActivity.class);
-    intent.putExtra(EXTRA_REMOTE_DEVICE, remoteDevice);
-    return intent;
-  }
-
-  private void startPairing() {
-    if (pairing != null) {
-      LogUtils.v( "Already pairing - cancel first.");
-      return;
-    }
-    LogUtils.v( "Starting pairing with " + remoteDevice);
-    pairing = new PairingClientThread();
-    new Thread(pairing).start();
-  }
-
-  private AlertDialog createPairingDialog(final PairingClientThread client) {
-    AlertDialog.Builder builder = new AlertDialog.Builder(this);
-    View view =
-        LayoutInflater.from(this).inflate(R.layout.pairing, null);
-    final EditText pinEditText =
-        (EditText) view.findViewById(R.id.pairing_pin_entry);
-
-    builder
-        .setPositiveButton(
-            R.string.pairing_ok, new DialogInterface.OnClickListener() {
-              public void onClick(DialogInterface dialog, int which) {
-                alertDialog = null;
-                client.setSecret(pinEditText.getText().toString());
-              }
-            })
-        .setNegativeButton(
-            R.string.pairing_cancel, new DialogInterface.OnClickListener() {
-              public void onClick(DialogInterface dialog, int which) {
-                alertDialog = null;
-                client.cancel();
-              }
-            })
-        .setCancelable(false)
-        .setTitle(R.string.pairing_label)
-        .setMessage(remoteDevice.getName())
-        .setView(view);
-    return builder.create();
-  }
-
-  private void finishedPairing(Result result) {
-    Intent resultIntent = new Intent();
-    resultIntent.putExtra(EXTRA_PAIRING_RESULT, result);
-    setResult(result.resultCode);
-    finish();
-  }
-
-  /**
-   * Pairing client thread, that handles pairing logic.
-   *
-   */
-  private final class PairingClientThread extends Thread {
-    private String secret;
-    private boolean isCancelling;
-
-    public synchronized void setSecret(String secretEntered) {
-      if (secret != null) {
-        throw new IllegalStateException("Secret already set: " + secret);
-      }
-      secret = secretEntered;
-      notify();
-    }
-
-    public void cancel() {
-      synchronized (this) {
-        LogUtils.d( "Cancelling: " + this);
-        isCancelling = true;
-        notify();
-      }
-      try {
-        join();
-      } catch (InterruptedException e) {
-        e.printStackTrace();
-      }
-    }
-
-    private synchronized String getSecret() {
-      if (isCancelling) {
-        return null;
-      }
-      if (secret != null) {
-        return secret;
-      }
-      try {
-        wait();
-      } catch (InterruptedException e) {
-        LogUtils.d( "Exception occurred", e);
-        return null;
-      }
-      return secret;
+        remoteDevice = getIntent().getParcelableExtra(EXTRA_REMOTE_DEVICE);
+        if (remoteDevice == null) {
+            throw new IllegalStateException();
+        }
     }
 
     @Override
-    public void run() {
-      Result result = Result.FAILED_CONNECTION;
-      try {
-        SSLSocketFactory socketFactory;
-        try {
-          socketFactory = DummySSLSocketFactory.fromKeyManagers(
-              getKeyStoreManager().getKeyManagers());
-        } catch (GeneralSecurityException e) {
-          throw new IllegalStateException("Cannot build socket factory", e);
+    protected void onPause() {
+        if (pairing != null) {
+            pairing.cancel();
+            pairing = null;
         }
+        hideKeyboard();
+        super.onPause();
+    }
 
-        SSLSocket socket;
-        try {
-          socket = (SSLSocket) socketFactory.createSocket(
-              remoteDevice.getAddress(), remoteDevice.getPort());
-        } catch (UnknownHostException e) {
-          return;
-        } catch (IOException e) {
-          return;
+    public static Intent createIntent(Context context, RemoteDevice remoteDevice) {
+        Intent intent = new Intent(context, PairingActivity.class);
+        intent.putExtra(EXTRA_REMOTE_DEVICE, remoteDevice);
+        return intent;
+    }
+
+    /**
+     *  在父类绑定完CoreService服务后。开始回调配对
+     */
+    private void startPairing() {
+        if (pairing != null) {
+            LogUtils.v("Already pairing - cancel first.");
+            return;
         }
+        LogUtils.v("Starting pairing with " + remoteDevice);
+        pairing = new PairingClientThread();
+        new Thread(pairing).start();
+    }
 
-        PairingContext context;
-        try {
-          context = PairingContext.fromSslSocket(socket, false);
-        } catch (PoloException e) {
-          return;
-        } catch (IOException e) {
-          return;
-        }
+    private AlertDialog createPairingDialog(final PairingClientThread client) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View view = LayoutInflater.from(this).inflate(R.layout.pairing, null);
+        final EditText pinEditText = (EditText) view.findViewById(R.id.pairing_pin_entry);
 
-        PoloWireInterface protocol =
-            WireFormat.PROTOCOL_BUFFERS.getWireInterface(context);
-        ClientPairingSession pairingSession =
-            new ClientPairingSession(protocol, context, "AnyMote",
-                REMOTE_NAME);
+        builder.setPositiveButton(R.string.pairing_ok, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        alertDialog = null;
+                        client.setSecret(pinEditText.getText().toString());
+                    }
+                }).setNegativeButton(R.string.pairing_cancel, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        alertDialog = null;
+                        client.cancel();
+                    }
+                }).setCancelable(false).setTitle(R.string.pairing_label).setMessage(remoteDevice.getName()).setView(view);
+        return builder.create();
+    }
 
-        EncodingOption hexEnc =
-            new EncodingOption(
-                EncodingOption.EncodingType.ENCODING_HEXADECIMAL, 4);
-        pairingSession.addInputEncoding(hexEnc);
-        pairingSession.addOutputEncoding(hexEnc);
+    private void finishedPairing(Result result) {
+        Intent resultIntent = new Intent();
+        resultIntent.putExtra(EXTRA_PAIRING_RESULT, result);
+        setResult(result.resultCode);
+        finish();
+    }
 
-        PairingListener listener = new PairingListener() {
-          public void onSessionEnded(PairingSession session) {
-            LogUtils.d( "onSessionEnded: " + session);
-          }
+    /**
+     * Pairing client thread, that handles pairing logic.
+     */
+    private final class PairingClientThread extends Thread {
+        private String secret;
+        private boolean isCancelling;
 
-          public void onSessionCreated(PairingSession session) {
-            LogUtils.d( "onSessionCreated: " + session);
-          }
-
-          public void onPerformOutputDeviceRole(PairingSession session,
-              byte[] gamma) {
-            LogUtils.d( "onPerformOutputDeviceRole: " + session + ", "
-                + session.getEncoder().encodeToString(gamma));
-          }
-
-          public void onPerformInputDeviceRole(PairingSession session) {
-            showPairingDialog(PairingClientThread.this);
-
-            LogUtils.d( "onPerformInputDeviceRole: " + session);
-            String secret = getSecret();
-            LogUtils.d( "Got: " + secret + " " + isCancelling);
-            if (!isCancelling && secret != null) {
-              try {
-                byte[] secretBytes = session.getEncoder().decodeToBytes(secret);
-                session.setSecret(secretBytes);
-              } catch (IllegalArgumentException exception) {
-                LogUtils.d( "Exception while decoding secret: ", exception);
-                session.teardown();
-              } catch (IllegalStateException exception) {
-                // ISE may be thrown when session is currently terminating
-                LogUtils.d( "Exception while setting secret: ", exception);
-                session.teardown();
-              }
-            } else {
-              session.teardown();
+        public synchronized void setSecret(String secretEntered) {
+            if (secret != null) {
+                throw new IllegalStateException("Secret already set: " + secret);
             }
-          }
-
-          public void onLogMessage(LogLevel level, String message) {
-            LogUtils.d("Log: " + message + " (" + level + ")");
-          }
-        };
-
-        boolean ret = pairingSession.doPair(listener);
-        if (ret) {
-          LogUtils.d( "Success");
-          getKeyStoreManager().storeCertificate(context.getServerCertificate());
-          result = Result.SUCCEEDED;
-        } else if (isCancelling) {
-          result = Result.FAILED_CANCELED;
-        } else {
-          result = Result.FAILED_SECRET;
+            secret = secretEntered;
+            notify();
         }
-      } finally {
-        sendPairingResult(result);
-      }
+
+        public void cancel() {
+            synchronized (this) {
+                LogUtils.d("Cancelling: " + this);
+                isCancelling = true;
+                notify();
+            }
+            try {
+                join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        private synchronized String getSecret() {
+            if (isCancelling) {
+                return null;
+            }
+            if (secret != null) {
+                return secret;
+            }
+            try {
+                wait();
+            } catch (InterruptedException e) {
+                LogUtils.d("Exception occurred", e);
+                return null;
+            }
+            return secret;
+        }
+
+        @Override
+        public void run() {
+            Result result = Result.FAILED_CONNECTION;
+            try {
+                SSLSocketFactory socketFactory;
+                try {
+                    socketFactory = DummySSLSocketFactory.fromKeyManagers(getKeyStoreManager().getKeyManagers());
+                } catch (GeneralSecurityException e) {
+                    throw new IllegalStateException("Cannot build socket factory", e);
+                }
+
+                SSLSocket socket;
+                try {
+                    socket = (SSLSocket) socketFactory.createSocket(remoteDevice.getAddress(), remoteDevice.getPort());
+                } catch (UnknownHostException e) {
+                    return;
+                } catch (IOException e) {
+                    return;
+                }
+
+                PairingContext context;
+                try {
+                    context = PairingContext.fromSslSocket(socket, false);
+                } catch (PoloException e) {
+                    return;
+                } catch (IOException e) {
+                    return;
+                }
+
+                PoloWireInterface protocol = WireFormat.PROTOCOL_BUFFERS.getWireInterface(context);
+                ClientPairingSession pairingSession = new ClientPairingSession(protocol, context, "AnyMote", REMOTE_NAME);
+
+                EncodingOption hexEnc = new EncodingOption(EncodingOption.EncodingType.ENCODING_HEXADECIMAL, 4);
+                pairingSession.addInputEncoding(hexEnc);
+                pairingSession.addOutputEncoding(hexEnc);
+
+                PairingListener listener = new PairingListener() {
+                    public void onSessionEnded(PairingSession session) {
+                        LogUtils.d("onSessionEnded: " + session);
+                    }
+
+                    public void onSessionCreated(PairingSession session) {
+                        LogUtils.d("onSessionCreated: " + session);
+                    }
+
+                    public void onPerformOutputDeviceRole(PairingSession session, byte[] gamma) {
+                        LogUtils.d("onPerformOutputDeviceRole: " + session + ", " + session.getEncoder().encodeToString(gamma));
+                    }
+
+                    public void onPerformInputDeviceRole(PairingSession session) {
+                        showPairingDialog(PairingClientThread.this);
+
+                        LogUtils.d("onPerformInputDeviceRole: " + session);
+                        String secret = getSecret();
+                        LogUtils.d("Got: " + secret + " " + isCancelling);
+                        if (!isCancelling && secret != null) {
+                            try {
+                                byte[] secretBytes = session.getEncoder().decodeToBytes(secret);
+                                session.setSecret(secretBytes);
+                            } catch (IllegalArgumentException exception) {
+                                LogUtils.d("Exception while decoding secret: ", exception);
+                                session.teardown();
+                            } catch (IllegalStateException exception) {
+                                // ISE may be thrown when session is currently terminating
+                                LogUtils.d("Exception while setting secret: ", exception);
+                                session.teardown();
+                            }
+                        } else {
+                            session.teardown();
+                        }
+                    }
+
+                    public void onLogMessage(LogLevel level, String message) {
+                        LogUtils.d("Log: " + message + " (" + level + ")");
+                    }
+                };
+
+                boolean ret = pairingSession.doPair(listener);
+                if (ret) {
+                    LogUtils.d("Success");
+                    getKeyStoreManager().storeCertificate(context.getServerCertificate());
+                    result = Result.SUCCEEDED;
+                } else if (isCancelling) {
+                    result = Result.FAILED_CANCELED;
+                } else {
+                    result = Result.FAILED_SECRET;
+                }
+            } finally {
+                sendPairingResult(result);
+            }
+        }
     }
-  }
 
-  private void showPairingDialog(final PairingClientThread client) {
-    handler.post(new Runnable() {
-      public void run() {
-        dismissProgressDialog();
-        if (pairing == null) {
-          return;
-        }
-        alertDialog = createPairingDialog(client);
-        alertDialog.show();
+    private void showPairingDialog(final PairingClientThread client) {
+        handler.post(new Runnable() {
+            public void run() {
+                dismissProgressDialog();
+                if (pairing == null) {
+                    return;
+                }
+                alertDialog = createPairingDialog(client);
+                alertDialog.show();
 
-        // Focus and show keyboard
-        View pinView = alertDialog.findViewById(R.id.pairing_pin_entry);
-        pinView.requestFocus();
-        showKeyboard();
-      }
-    });
-  }
-
-  private void sendPairingResult(final Result pairingResult) {
-    handler.post(new Runnable() {
-      public void run() {
-        if (alertDialog != null) {
-          hideKeyboard();
-          alertDialog.dismiss();
-        }
-        finishedPairing(pairingResult);
-      }
-    });
-  }
-
-  private ProgressDialog buildProgressDialog() {
-    ProgressDialog dialog = new ProgressDialog(this);
-    dialog.setMessage(getString(R.string.pairing_waiting));
-    dialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
-      public boolean onKey(
-          DialogInterface dialogInterface, int which, KeyEvent event) {
-        if (event.getKeyCode() == KeyEvent.KEYCODE_BACK) {
-          cancelPairing();
-          return true;
-        }
-        return false;
-      }
-    });
-    dialog.setButton(getString(R.string.pairing_cancel),
-        new DialogInterface.OnClickListener() {
-          public void onClick(DialogInterface dialogInterface, int which) {
-            cancelPairing();
-          }
+                // Focus and show keyboard
+                View pinView = alertDialog.findViewById(R.id.pairing_pin_entry);
+                pinView.requestFocus();
+                showKeyboard();
+            }
         });
-    return dialog;
-  }
-
-  @Override
-  protected void onServiceAvailable(CoreService coreService) {
-    startPairing();
-  }
-
-  @Override
-  protected void onServiceDisconnecting(CoreService coreService) {
-    cancelPairing();
-  }
-
-  private void cancelPairing() {
-    if (pairing != null) {
-      pairing.cancel();
-      pairing = null;
     }
-    dismissProgressDialog();
-    finishedPairing(Result.FAILED_CANCELED);
-  }
 
-  private void dismissProgressDialog() {
-    if (progressDialog != null) {
-      progressDialog.dismiss();
-      progressDialog = null;
+    private void sendPairingResult(final Result pairingResult) {
+        handler.post(new Runnable() {
+            public void run() {
+                if (alertDialog != null) {
+                    hideKeyboard();
+                    alertDialog.dismiss();
+                }
+                finishedPairing(pairingResult);
+            }
+        });
     }
-  }
 
-  private void hideKeyboard() {
-    InputMethodManager manager = (InputMethodManager) getSystemService(
-        Context.INPUT_METHOD_SERVICE);
-    manager.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, 0);
-  }
+    private ProgressDialog buildProgressDialog() {
+        ProgressDialog dialog = new ProgressDialog(this);
+        dialog.setMessage(getString(R.string.pairing_waiting));
+        dialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
+            public boolean onKey(DialogInterface dialogInterface, int which, KeyEvent event) {
+                if (event.getKeyCode() == KeyEvent.KEYCODE_BACK) {
+                    cancelPairing();
+                    return true;
+                }
+                return false;
+            }
+        });
+        dialog.setButton(getString(R.string.pairing_cancel), new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialogInterface, int which) {
+                        cancelPairing();
+                    }
+                });
+        return dialog;
+    }
 
-  private void showKeyboard() {
-    InputMethodManager manager = (InputMethodManager) getSystemService(
-        Context.INPUT_METHOD_SERVICE);
-    manager.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
-  }
+    @Override
+    protected void onServiceAvailable(CoreService coreService) {
+        startPairing();
+    }
+
+    @Override
+    protected void onServiceDisconnecting(CoreService coreService) {
+        cancelPairing();
+    }
+
+    private void cancelPairing() {
+        if (pairing != null) {
+            pairing.cancel();
+            pairing = null;
+        }
+        dismissProgressDialog();
+        finishedPairing(Result.FAILED_CANCELED);
+    }
+
+    private void dismissProgressDialog() {
+        if (progressDialog != null) {
+            progressDialog.dismiss();
+            progressDialog = null;
+        }
+    }
+
+    private void hideKeyboard() {
+        InputMethodManager manager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        manager.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, 0);
+    }
+
+    private void showKeyboard() {
+        InputMethodManager manager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        manager.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+    }
 }
