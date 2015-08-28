@@ -46,6 +46,7 @@ import android.widget.EditText;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.security.GeneralSecurityException;
+import java.util.Arrays;
 
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
@@ -269,8 +270,12 @@ public class PairingActivity extends CoreServiceActivity {
                         LogUtils.d("onSessionEnded: " + session);
                     }
 
-                    public void onSessionCreated(PairingSession session) {
-                        LogUtils.d("onSessionCreated: " + session);
+                    public void onSessionCreated(PairingSession session) { // 在doPair()方法中第一个回调
+                        LogUtils.e("onSessionCreated: serverName = " + session.getServiceName() +
+                                " " +
+                                "peer = " +
+                                session.getPeerName());
+
                     }
 
                     public void onPerformOutputDeviceRole(PairingSession session, byte[] gamma) {
@@ -278,15 +283,19 @@ public class PairingActivity extends CoreServiceActivity {
                     }
 
                     public void onPerformInputDeviceRole(PairingSession session) {
-                        showPairingDialog(PairingClientThread.this);
+                        showPairingDialog(PairingClientThread.this);  // 弹出配对框，回调
 
                         LogUtils.d("onPerformInputDeviceRole: " + session);
-                        String secret = getSecret();
+                        String secret = getSecret();  // 阻塞线程，等待用户输入PIN码和点击配对调用setSecret()唤醒
                         LogUtils.d("Got: " + secret + " " + isCancelling);
                         if (!isCancelling && secret != null) {
                             try {
                                 byte[] secretBytes = session.getEncoder().decodeToBytes(secret);
-                                session.setSecret(secretBytes);
+                                LogUtils.e("secretBytes = " + Arrays.toString(secretBytes));
+
+                                boolean setSecret = session.setSecret(secretBytes);
+                                LogUtils.e("setSecret = " + setSecret);
+
                             } catch (IllegalArgumentException exception) {
                                 LogUtils.d("Exception while decoding secret: ", exception);
                                 session.teardown();
@@ -305,9 +314,10 @@ public class PairingActivity extends CoreServiceActivity {
                     }
                 };
 
-                boolean ret = pairingSession.doPair(listener);
+                boolean ret = pairingSession.doPair(listener); // 回调上面接口中的方法
                 if (ret) {
                     LogUtils.d("Success");
+                    // context = PairingContext，获取远程密钥并存储到本地
                     getKeyStoreManager().storeCertificate(context.getServerCertificate());
                     result = Result.SUCCEEDED;
                 } else if (isCancelling) {
@@ -321,6 +331,7 @@ public class PairingActivity extends CoreServiceActivity {
         }
     }
 
+    // 在子线程中回调
     private void showPairingDialog(final PairingClientThread client) {
         handler.post(new Runnable() {
             public void run() {
