@@ -16,10 +16,12 @@
 
 package com.google.android.apps.tvremote.widget;
 
+import com.google.android.apps.tvremote.ConstValues;
 import com.google.android.apps.tvremote.R;
 import com.google.android.apps.tvremote.util.LogUtils;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.os.Vibrator;
@@ -40,6 +42,8 @@ import android.widget.ImageView;
  * aligned on the bottom of the screen minus the padding.
  */
 public final class SoftDpad extends ImageView {
+
+    private final SharedPreferences sharedPreferences;
 
     /**
      * Interface that receives the commands.
@@ -155,6 +159,9 @@ public final class SoftDpad extends ImageView {
 
     public SoftDpad(Context context, AttributeSet attrs) {
         super(context, attrs);
+
+        sharedPreferences = getContext().getSharedPreferences(ConstValues.settings, Context.MODE_PRIVATE);
+
         LogUtils.e("SoftDpad 构造，获取xml属性");
         vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
 
@@ -415,6 +422,8 @@ public final class SoftDpad extends ImageView {
                     if (playSound) {
                         if (pressed) {
                             // 开始手机振动
+
+
                             vibrator.vibrate(getResources().getInteger(R.integer.dpad_vibrate_time));
                         }
                         playSound();
