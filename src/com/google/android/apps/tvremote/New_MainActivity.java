@@ -33,7 +33,6 @@ import java.util.ArrayList;
  * Decription    :
  */
 public class New_MainActivity extends BaseActivity implements KeyCodeButton.KeyCodeHandler {
-    private HighlightView surface;
 
     private final Handler handler;
 
@@ -73,10 +72,6 @@ public class New_MainActivity extends BaseActivity implements KeyCodeButton.KeyC
     @Override
     protected void onDestroy() {
         super.onDestroy();
-    }
-
-    public HighlightView getHighlightView() {
-        return surface;
     }
 
     // KeyCode handler implementation.
