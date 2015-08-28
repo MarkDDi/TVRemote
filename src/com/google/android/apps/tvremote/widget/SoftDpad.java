@@ -422,9 +422,9 @@ public final class SoftDpad extends ImageView {
                     if (playSound) {
                         if (pressed) {
                             // 开始手机振动
-
-
-                            vibrator.vibrate(getResources().getInteger(R.integer.dpad_vibrate_time));
+                            if (sharedPreferences.getBoolean(ConstValues.vibrator, true)) {
+                                vibrator.vibrate(getResources().getInteger(R.integer.dpad_vibrate_time));
+                            }
                         }
                         playSound();
                     }

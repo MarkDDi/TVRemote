@@ -71,8 +71,11 @@ public class New_MainActivity extends BaseActivity implements KeyCodeButton.KeyC
 
         // 设置手势模式滑动带有振动效果
         sharedPreferences = getSharedPreferences(ConstValues.settings, MODE_PRIVATE);
-        boolean vibrator = sharedPreferences.getBoolean("vibrator", true);
+        boolean vibrator = sharedPreferences.getBoolean(ConstValues.vibrator, true);
         SharedPreferences.Editor edit = sharedPreferences.edit();
+
+        // 可关闭振动
+        edit.putBoolean(ConstValues.vibrator, false);
         edit.commit();
 
         // 控制方向及确认键

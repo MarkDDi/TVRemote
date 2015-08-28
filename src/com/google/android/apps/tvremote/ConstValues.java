@@ -9,5 +9,5 @@ package com.google.android.apps.tvremote;
 public interface ConstValues {
 
     String settings = "settings";
-
+    String vibrator = "vibrator";
 }
