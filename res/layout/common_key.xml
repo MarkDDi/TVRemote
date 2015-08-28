@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:keepScreenOn="true"
+              android:orientation="horizontal"
+              android:background="@color/bottom_bg"
+    >
+
+    <com.google.android.apps.tvremote.widget.KeyCodeButton
+        android:id="@+id/menu_key"
+        style="@style/common_key"
+        android:layout_weight="1"
+        android:background="@drawable/menukey_selector"
+        app:key_code="KEYCODE_MENU"
+        android:layout_marginLeft="10dp"
+        />
+
+    <com.google.android.apps.tvremote.widget.KeyCodeButton
+        android:id="@+id/home_key"
+        style="@style/common_key"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_weight="2"
+        android:background="@drawable/homekey_selector"
+        app:key_code="KEYCODE_HOME"
+        />
+
+    <com.google.android.apps.tvremote.widget.KeyCodeButton
+        android:id="@+id/back_key"
+        style="@style/common_key"
+        android:layout_weight="1"
+        android:background="@drawable/backkey_selector"
+        app:key_code="KEYCODE_BACK"
+        android:layout_marginRight="10dp"
+        />
+</LinearLayout>
