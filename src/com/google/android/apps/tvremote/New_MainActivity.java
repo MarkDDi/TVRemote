@@ -1,11 +1,13 @@
 package com.google.android.apps.tvremote;
 
+import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.speech.RecognizerIntent;
@@ -15,6 +17,7 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import com.google.android.apps.tvremote.fragment.SoftDpadFragment;
 import com.google.android.apps.tvremote.layout.SlidingLayout;
 import com.google.android.apps.tvremote.util.Action;
 import com.google.android.apps.tvremote.util.LogUtils;
@@ -58,13 +61,17 @@ public class New_MainActivity extends BaseActivity implements KeyCodeButton.KeyC
         handler = new Handler();
     }
 
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);  // 加载主界面
 
-        SoftDpad softDpad = (SoftDpad) findViewById(R.id.SoftDpad);  // 控制方向及确认键
-        softDpad.setDpadListener(getDefaultDpadListener());
+//        SoftDpad softDpad = (SoftDpad) findViewById(R.id.SoftDpad);  // 控制方向及确认键
+//        softDpad.setDpadListener(getDefaultDpadListener());
+
+        getFragmentManager().beginTransaction().replace(R.id.container, new SoftDpadFragment())
+                .commit();
 
         flingIntent(getIntent());
     }

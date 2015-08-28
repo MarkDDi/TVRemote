@@ -327,7 +327,7 @@ public class BaseActivity extends CoreServiceActivity implements ConnectionListe
     /**
      * Returns a default implementation for the DpadListener.
      */
-    protected DpadListener getDefaultDpadListener() {
+    public DpadListener getDefaultDpadListener() {
         return new DpadListener() {
 
             public void onDpadClicked() {

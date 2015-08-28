@@ -263,7 +263,7 @@ public final class SoftDpad extends ImageView {
 
         Direction move = getDirection(dx, dy);
         if (move.isMove && !dPadDirection.isMove) {
-            // 开始振动，第2个参数表示是否开启振动
+            // 开始振动
             sendEvent(move, true, true);
             dPadDirection = move;
         }
@@ -429,6 +429,7 @@ public final class SoftDpad extends ImageView {
     private void onCenterAction() {
         if (listener != null) {
             listener.onDpadClicked();
+            // 点击中间OK键开始振动,持续时间为40毫秒
             vibrator.vibrate(getResources().getInteger(R.integer.dpad_vibrate_time));
             playSound();
         }
