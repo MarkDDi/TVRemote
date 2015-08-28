@@ -564,6 +564,7 @@ public final class CoreService extends Service implements ConnectionManager {
             LogUtils.e("发送通知 currentState = " + currentState);
             if (connectionListener == null) {
                 pendingNotification = true;
+                LogUtils.d("Pending notification: " + currentState);
                 if (Debug.isDebugConnection()) {
                     LogUtils.d("Pending notification: " + currentState);
                 }

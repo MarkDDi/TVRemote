@@ -369,7 +369,7 @@ public class BaseActivity extends CoreServiceActivity implements ConnectionListe
         }
     }
 
-    // 第一次在onResume()调用
+    // 第一次在点击应用在onResume()调用，第二次在配对成功后handlePairingResult中调用
     private void connect() {
         if (!isConnected) {
             isConnected = true;
