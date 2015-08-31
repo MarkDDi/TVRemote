@@ -63,8 +63,6 @@ public class HomeFragment extends Fragment implements View.OnFocusChangeListener
                     break;
                 case R.id.mouse:
                     iSwitchMode.switchMouseFragment();
-                    //                    getFragmentManager().beginTransaction().replace(R.id.container,
-                    //                            mouseFragment).commit();
                     break;
                 default:
 

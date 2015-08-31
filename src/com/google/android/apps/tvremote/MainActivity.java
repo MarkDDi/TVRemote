@@ -27,9 +27,7 @@ import android.widget.Toast;
 import com.google.android.apps.tvremote.fragment.HomeFragment;
 import com.google.android.apps.tvremote.fragment.MouseFragment;
 import com.google.android.apps.tvremote.fragment.SoftDpadFragment;
-import com.google.android.apps.tvremote.layout.SlidingLayout;
 import com.google.android.apps.tvremote.util.LogUtils;
-import com.google.android.apps.tvremote.util.PromptManager;
 import com.google.android.apps.tvremote.widget.ActionBarDrawerToggle;
 import com.google.android.apps.tvremote.widget.DrawerArrowDrawable;
 import com.google.android.apps.tvremote.widget.KeyCodeButton;
@@ -81,7 +79,7 @@ public class MainActivity extends BaseActivity implements KeyCodeButton.KeyCodeH
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.new_main);  // 加载主界面
+        setContentView(R.layout.main);  // 加载主界面
 
         ActionBar ab = getActionBar();
         ab.setDisplayHomeAsUpEnabled(true);
@@ -108,9 +106,7 @@ public class MainActivity extends BaseActivity implements KeyCodeButton.KeyCodeH
         homeFragment = new HomeFragment();
 
         getFragmentManager().beginTransaction().replace(R.id.new_container, homeFragment).commit();
-//        initView();
 
-//        initListener();
 
         flingIntent(getIntent());
     }
