@@ -44,6 +44,10 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
@@ -58,6 +62,10 @@ import javax.net.ssl.TrustManager;
 public final class CoreService extends Service implements ConnectionManager {
 
     private static final String LOG_TAG = "TvRemoteCoreService";
+    private static ExecutorService executor = null;
+    static {
+        executor =   Executors.newFixedThreadPool(3);
+    }
 
     /**
      * Connection status enumeration.
@@ -155,13 +163,24 @@ public final class CoreService extends Service implements ConnectionManager {
         loadConfig();
     }
 
+
+    public static ExecutorService getExecutor() {
+        return executor;
+    }
+
     @Override
     public void onDestroy() {
         storeConfig();
-        cleanupSocket();
-        if (keyStoreManager != null) {
-            keyStoreManager.store();
-        }
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                cleanupSocket();
+                if (keyStoreManager != null) {
+                    keyStoreManager.store();
+                }
+            }
+        });
+
         super.onDestroy();
     }
 
@@ -200,11 +219,19 @@ public final class CoreService extends Service implements ConnectionManager {
             anymoteSender.disconnect();
             anymoteSender = null;
         }
-        try {
-            sendSocket.close();
-        } catch (IOException e) {
-            LogUtils.e("failed to close socket");
-        }
+            executor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        if (sendSocket != null) {
+
+                            sendSocket.close();
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
         sendSocket = null;
     }
 

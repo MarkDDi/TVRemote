@@ -29,6 +29,7 @@ import com.google.android.apps.tvremote.fragment.MouseFragment;
 import com.google.android.apps.tvremote.fragment.SoftDpadFragment;
 import com.google.android.apps.tvremote.layout.SlidingLayout;
 import com.google.android.apps.tvremote.util.LogUtils;
+import com.google.android.apps.tvremote.util.PromptManager;
 import com.google.android.apps.tvremote.widget.ActionBarDrawerToggle;
 import com.google.android.apps.tvremote.widget.DrawerArrowDrawable;
 import com.google.android.apps.tvremote.widget.KeyCodeButton;
@@ -42,7 +43,8 @@ import java.util.ArrayList;
  * Time          : 11:15
  * Decription    :
  */
-public class New_MainActivity extends BaseActivity implements KeyCodeButton.KeyCodeHandler, View.OnFocusChangeListener {
+public class New_MainActivity extends BaseActivity implements KeyCodeButton.KeyCodeHandler,
+        HomeFragment.ISwitchMode {
 
     private final Handler handler;
     private SharedPreferences sharedPreferences;
@@ -57,6 +59,18 @@ public class New_MainActivity extends BaseActivity implements KeyCodeButton.KeyC
     private ActionBarDrawerToggle mDrawerToggle;
     private DrawerArrowDrawable drawerArrow;
     private boolean drawerArrowColor;
+
+    @Override
+    public void switchSoftFragment() {
+        getFragmentManager().beginTransaction().replace(R.id.area, softFragment)
+                                    .commit();
+    }
+
+    @Override
+    public void switchMouseFragment() {
+        getFragmentManager().beginTransaction().replace(R.id.area, mouseFragment)
+                .commit();
+    }
 
 
     /**
@@ -206,38 +220,6 @@ public class New_MainActivity extends BaseActivity implements KeyCodeButton.KeyC
 
             }
         });
-
-    }
-
-    private void initListener() {
-        gesture.setOnFocusChangeListener(this);
-        mouse.setOnFocusChangeListener(this);
-    }
-
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    @Override
-    public void onFocusChange(View v, boolean hasFocus) {
-        if (hasFocus) {
-            switch (v.getId()) {
-                case R.id.gesture:
-                    getFragmentManager().beginTransaction().replace(R.id.container, softFragment)
-                            .commit();
-
-                    break;
-                case R.id.mouse:
-                    getFragmentManager().beginTransaction().replace(R.id.container,
-                            mouseFragment).commit();
-                    break;
-                default:
-
-                    break;
-            }
-        }
-    }
-
-    private void initView() {
-        gesture = ((TextView) findViewById(R.id.gesture));
-        mouse = ((TextView) findViewById(R.id.mouse));
 
     }
 

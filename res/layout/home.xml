@@ -1,34 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:layout_centerHorizontal="true"
-              android:orientation="horizontal"
-              android:padding="5dp"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_centerHorizontal="true"
+                android:orientation="horizontal"
+
     >
 
     <RelativeLayout
+        android:id="@+id/new_title"
         android:layout_width="260dp"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
         android:layout_centerHorizontal="true"
-        android:background="@drawable/top_switch_mode_shape"
-        android:padding="5dp"
         android:layout_marginTop="10dp"
+        android:background="@drawable/top_switch_mode_shape"
+        android:orientation="horizontal"
+        android:padding="5dp"
         >
+
         <TextView
             android:id="@+id/gesture"
             style="@style/switch_mode"
-            android:text="@string/gesture_mode"
             android:layout_alignParentLeft="true"
+            android:text="@string/gesture_mode"
             />
 
         <TextView
             android:id="@+id/mouse"
             style="@style/switch_mode"
-            android:text="@string/mouse_mode"
             android:layout_alignParentRight="true"
+            android:text="@string/mouse_mode"
             />
     </RelativeLayout>
 
+    <FrameLayout
+        android:id="@+id/area"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/new_title"
+        >
+
+    </FrameLayout>
+
+    <include
+        layout="@layout/common_key"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        />
 </RelativeLayout>

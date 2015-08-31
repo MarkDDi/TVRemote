@@ -117,6 +117,8 @@ public abstract class CoreServiceActivity extends Activity {
         return coreService;
     }
 
+    protected CoreService getCoreService() { return coreService; }
+
     protected KeyStoreManager getKeyStoreManager() {
         if (coreService != null) {
             return coreService.getKeyStoreManager();

@@ -44,6 +44,7 @@ import android.view.MotionEvent;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -124,21 +125,40 @@ public class BaseActivity extends CoreServiceActivity implements ConnectionListe
 
     @Override
     protected void onStop() {
-        setKeepConnected(false);
+        ExecutorService executor = getCoreService().getExecutor();
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                setKeepConnected(false);
+            }
+        });
+
         super.onStop();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        connect();
-        resetScreenDim();
+        getCoreService().getExecutor().execute(new Runnable() {
+            @Override
+            public void run() {
+                connect();
+                resetScreenDim();
+            }
+        });
+
     }
 
     @Override
     protected void onPause() {
         handler.removeMessages(SCREEN_DIM);
-        disconnect();
+        getCoreService().getExecutor().execute(new Runnable() {
+            @Override
+            public void run() {
+                disconnect();
+            }
+        });
+
         super.onPause();
     }
 
