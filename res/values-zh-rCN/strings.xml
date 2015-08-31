@@ -154,6 +154,12 @@
     <string name="gesture_mode">手势模式</string>
     <string name="mouse_mode">鼠标模式</string>
 
+
+    <!-- title -->
+    <string name="app_description">Android drawer icon with material design animation</string>
+    <string name="drawer_open">drawer_open</string>
+    <string name="drawer_close">drawer_close</string>
+
     <!-- Links -->
     <string name="tos_link">http://m.google.com/toscountry</string>
     <string name="privacy_link">http://m.google.com/static/en/privacy.html</string>

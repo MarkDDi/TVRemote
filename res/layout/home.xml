@@ -1,26 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:layout_centerHorizontal="true"
-              android:layout_marginTop="80dp"
-              android:background="@drawable/top_switch_mode_shape"
               android:orientation="horizontal"
               android:padding="5dp"
     >
 
-    <TextView
-        android:id="@+id/gesture"
-        style="@style/switch_mode"
-        android:paddingLeft="@dimen/switch_text_padding"
-        android:text="@string/gesture_mode"
-        />
+    <RelativeLayout
+        android:layout_width="260dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/top_switch_mode_shape"
+        android:padding="5dp"
+        android:layout_marginTop="10dp"
+        >
+        <TextView
+            android:id="@+id/gesture"
+            style="@style/switch_mode"
+            android:text="@string/gesture_mode"
+            android:layout_alignParentLeft="true"
+            />
 
-    <TextView
-        android:id="@+id/mouse"
-        style="@style/switch_mode"
-        android:gravity="right"
-        android:paddingRight="@dimen/switch_text_padding"
-        android:text="@string/mouse_mode"
-        />
-</LinearLayout>
+        <TextView
+            android:id="@+id/mouse"
+            style="@style/switch_mode"
+            android:text="@string/mouse_mode"
+            android:layout_alignParentRight="true"
+            />
+    </RelativeLayout>
+
+</RelativeLayout>

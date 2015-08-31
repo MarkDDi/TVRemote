@@ -16,6 +16,7 @@
 
 package com.google.android.apps.tvremote;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Intent;
@@ -35,104 +36,103 @@ import java.util.Queue;
  * The activity connects to service in {@link #onCreate(Bundle)}, and
  * disconnects in {@link #onDestroy()}. Upon successful connection, and before
  * disconnection appropriate callbacks are invoked.
- *
  */
 public abstract class CoreServiceActivity extends Activity {
-  private static final String LOG_TAG = "CoreServiceActivity";
+    private static final String LOG_TAG = "CoreServiceActivity";
 
-  /**
-   * Used to connect to the background service.
-   */
-  private ServiceConnection serviceConnection;
-  private CoreService coreService;
-  private Queue<Runnable> runnableQueue;
+    /**
+     * Used to connect to the background service.
+     */
+    private ServiceConnection serviceConnection;
+    private CoreService coreService;
+    private Queue<Runnable> runnableQueue;
 
-  @Override
-  protected void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    runnableQueue = new LinkedList<Runnable>();
-    connectToService();
-  }
-
-  @Override
-  protected void onDestroy() {
-    disconnectFromService();
-    super.onDestroy();
-  }
-
-  /**
-   * Opens the connection to the underlying service.
-   */
-  private void connectToService() {
-    serviceConnection = new ServiceConnection() {
-      public void onServiceConnected(ComponentName name, IBinder service) {
-        coreService = ((CoreService.LocalBinder) service).getService();
-        runQueuedRunnables();
-        onServiceAvailable(coreService);
-      }
-
-      public void onServiceDisconnected(ComponentName name) {
-        onServiceDisconnecting(coreService);
-        coreService = null;
-      }
-    };
-    Intent intent = new Intent(this, CoreService.class);
-    bindService(intent, serviceConnection, BIND_AUTO_CREATE);
-  }
-
-  /**
-   * Closes the connection to the background service.
-   */
-  private synchronized void disconnectFromService() {
-    unbindService(serviceConnection);
-    serviceConnection = null;
-  }
-
-  private void runQueuedRunnables() {
-    Runnable runnable;
-    while ((runnable = runnableQueue.poll()) != null) {
-      runnable.run();
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        runnableQueue = new LinkedList<Runnable>();
+        connectToService();
     }
-  }
 
-  /**
-   * Callback that is called when the core service become available.
-   */
-  protected abstract void onServiceAvailable(CoreService coreService);
-
-  /**
-   * Callback that is called when the core service is about disconnecting.
-   */
-  protected abstract void onServiceDisconnecting(CoreService coreService);
-
-  /**
-   * Starts an activity based on its class.
-   */
-  protected void showActivity(Class<?> activityClass) {
-    Intent intent = new Intent(this, activityClass);
-    startActivity(intent);
-  }
-
-  protected ConnectionManager getConnectionManager() {
-    return coreService;
-  }
-
-  protected KeyStoreManager getKeyStoreManager() {
-    if (coreService != null) {
-      return coreService.getKeyStoreManager();
+    @Override
+    protected void onDestroy() {
+        disconnectFromService();
+        super.onDestroy();
     }
-    return null;
-  }
+
+    /**
+     * Opens the connection to the underlying service.
+     */
+    private void connectToService() {
+        serviceConnection = new ServiceConnection() {
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                coreService = ((CoreService.LocalBinder) service).getService();
+                runQueuedRunnables();
+                onServiceAvailable(coreService);
+            }
+
+            public void onServiceDisconnected(ComponentName name) {
+                onServiceDisconnecting(coreService);
+                coreService = null;
+            }
+        };
+        Intent intent = new Intent(this, CoreService.class);
+        bindService(intent, serviceConnection, BIND_AUTO_CREATE);
+    }
+
+    /**
+     * Closes the connection to the background service.
+     */
+    private synchronized void disconnectFromService() {
+        unbindService(serviceConnection);
+        serviceConnection = null;
+    }
+
+    private void runQueuedRunnables() {
+        Runnable runnable;
+        while ((runnable = runnableQueue.poll()) != null) {
+            runnable.run();
+        }
+    }
+
+    /**
+     * Callback that is called when the core service become available.
+     */
+    protected abstract void onServiceAvailable(CoreService coreService);
+
+    /**
+     * Callback that is called when the core service is about disconnecting.
+     */
+    protected abstract void onServiceDisconnecting(CoreService coreService);
+
+    /**
+     * Starts an activity based on its class.
+     */
+    protected void showActivity(Class<?> activityClass) {
+        Intent intent = new Intent(this, activityClass);
+        startActivity(intent);
+    }
+
+    protected ConnectionManager getConnectionManager() {
+        return coreService;
+    }
+
+    protected KeyStoreManager getKeyStoreManager() {
+        if (coreService != null) {
+            return coreService.getKeyStoreManager();
+        }
+        return null;
+    }
 
     // 启动时，在BaseActivity的onStart()和onResume中间接调用
-  protected boolean executeWhenCoreServiceAvailable(Runnable runnable) {
-    if (coreService == null) {
-      LogUtils.d("Queueing runnable: " + runnable);
-      LogUtils.e("execute this = " + this);
-      runnableQueue.offer(runnable);
-      return false;
+    protected boolean executeWhenCoreServiceAvailable(Runnable runnable) {
+        if (coreService == null) {
+            LogUtils.d("Queueing runnable: " + runnable);
+            LogUtils.e("execute this = " + this);
+            runnableQueue.offer(runnable);
+            return false;
+        }
+        runnable.run();
+        return true;
     }
-    runnable.run();
-    return true;
-  }
 }

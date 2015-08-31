@@ -1,34 +1,37 @@
 package com.google.android.apps.tvremote;
 
 import android.annotation.TargetApi;
+import android.app.ActionBar;
 import android.app.AlertDialog;
-import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.speech.RecognizerIntent;
+import android.support.v4.widget.DrawerLayout;
 import android.text.TextUtils;
-import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageButton;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.apps.tvremote.fragment.HomeFragment;
 import com.google.android.apps.tvremote.fragment.MouseFragment;
 import com.google.android.apps.tvremote.fragment.SoftDpadFragment;
 import com.google.android.apps.tvremote.layout.SlidingLayout;
-import com.google.android.apps.tvremote.util.Action;
 import com.google.android.apps.tvremote.util.LogUtils;
-import com.google.android.apps.tvremote.util.PromptManager;
-import com.google.android.apps.tvremote.widget.HighlightView;
+import com.google.android.apps.tvremote.widget.ActionBarDrawerToggle;
+import com.google.android.apps.tvremote.widget.DrawerArrowDrawable;
 import com.google.android.apps.tvremote.widget.KeyCodeButton;
-import com.google.android.apps.tvremote.widget.SoftDpad;
 import com.google.anymote.Key;
 
 import java.util.ArrayList;
@@ -47,6 +50,13 @@ public class New_MainActivity extends BaseActivity implements KeyCodeButton.KeyC
     private TextView mouse;
     private SoftDpadFragment softFragment;
     private MouseFragment mouseFragment;
+    private HomeFragment homeFragment;
+
+    private DrawerLayout mDrawerLayout;
+    private ListView mDrawerList;
+    private ActionBarDrawerToggle mDrawerToggle;
+    private DrawerArrowDrawable drawerArrow;
+    private boolean drawerArrowColor;
 
 
     /**
@@ -77,6 +87,16 @@ public class New_MainActivity extends BaseActivity implements KeyCodeButton.KeyC
         super.onCreate(savedInstanceState);
         setContentView(R.layout.new_main);  // 加载主界面
 
+        ActionBar ab = getActionBar();
+        ab.setDisplayHomeAsUpEnabled(true);
+        ab.setHomeButtonEnabled(true);
+
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerList = (ListView) findViewById(R.id.navdrawer);
+
+        initDrawer();
+
+
         // 设置手势模式滑动带有振动效果
         sharedPreferences = getSharedPreferences(ConstValues.settings, MODE_PRIVATE);
         boolean vibrator = sharedPreferences.getBoolean(ConstValues.vibrator, true);
@@ -89,13 +109,104 @@ public class New_MainActivity extends BaseActivity implements KeyCodeButton.KeyC
         // 控制方向及确认键
         softFragment = new SoftDpadFragment();
         mouseFragment = new MouseFragment();
+        homeFragment = new HomeFragment();
 
-
+        getFragmentManager().beginTransaction().replace(R.id.new_container, homeFragment).commit();
 //        initView();
 
 //        initListener();
 
         flingIntent(getIntent());
+    }
+
+    private void initDrawer() {
+
+        drawerArrow = new DrawerArrowDrawable(this) {
+            @Override
+            public boolean isLayoutRtl() {
+                return false;
+            }
+        };
+        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
+                drawerArrow, R.string.drawer_open,
+                R.string.drawer_close) {
+
+            public void onDrawerClosed(View view) {
+                super.onDrawerClosed(view);
+                invalidateOptionsMenu();
+            }
+
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+                invalidateOptionsMenu();
+            }
+        };
+        mDrawerLayout.setDrawerListener(mDrawerToggle);
+        mDrawerToggle.syncState();
+
+        String[] values = new String[]{
+                "Stop Animation (Back icon)",
+                "Stop Animation (Home icon)",
+                "Start Animation",
+                "Change Color",
+                "GitHub Page",
+                "Share",
+                "Rate"
+        };
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_list_item_1, android.R.id.text1, values);
+        mDrawerList.setAdapter(adapter);
+        mDrawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                switch (position) {
+                    case 0:
+                        mDrawerToggle.setAnimateEnabled(false);
+                        drawerArrow.setProgress(1f);
+                        break;
+                    case 1:
+                        mDrawerToggle.setAnimateEnabled(false);
+                        drawerArrow.setProgress(0f);
+                        break;
+                    case 2:
+                        mDrawerToggle.setAnimateEnabled(true);
+                        mDrawerToggle.syncState();
+                        break;
+                    case 3:
+                        if (drawerArrowColor) {
+                            drawerArrowColor = false;
+                            drawerArrow.setColor(R.color.ldrawer_color);
+                        } else {
+                            drawerArrowColor = true;
+                            drawerArrow.setColor(R.color.drawer_arrow_second_color);
+                        }
+                        mDrawerToggle.syncState();
+                        break;
+                    case 4:
+                        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/IkiMuhendis/LDrawer"));
+                        startActivity(browserIntent);
+                        break;
+                    case 5:
+                        Intent share = new Intent(Intent.ACTION_SEND);
+                        share.setType("text/plain");
+                        share.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        share.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.app_name));
+                        share.putExtra(Intent.EXTRA_TEXT, getString(R.string.app_description) + "\n" +
+                                "GitHub Page :  https://github.com/IkiMuhendis/LDrawer\n" +
+                                "Sample App : https://play.google.com/store/apps/details?id=" +
+                                getPackageName());
+                        startActivity(Intent.createChooser(share, getString(R.string.app_name)));
+                        break;
+                    case 6:
+                        String appUrl = "https://play.google.com/store/apps/details?id=" + getPackageName();
+                        Intent rateIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(appUrl));
+                        startActivity(rateIntent);
+                        break;
+                }
+
+            }
+        });
+
     }
 
     private void initListener() {
@@ -212,8 +323,34 @@ public class New_MainActivity extends BaseActivity implements KeyCodeButton.KeyC
         }
     }
 
-    // 语音搜索， 暂未支持
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            if (mDrawerLayout.isDrawerOpen(mDrawerList)) {
+                mDrawerLayout.closeDrawer(mDrawerList);
+            } else {
+                mDrawerLayout.openDrawer(mDrawerList);
+            }
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        mDrawerToggle.syncState();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        mDrawerToggle.onConfigurationChanged(newConfig);
+    }
+
+
+
+    //=====================================================================
+    // 语音搜索， 暂未支持
     private void showVoiceSearchActivity() {
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
