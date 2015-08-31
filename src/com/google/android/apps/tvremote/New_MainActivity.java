@@ -75,7 +75,7 @@ public class New_MainActivity extends BaseActivity implements KeyCodeButton.KeyC
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);  // 加载主界面
+        setContentView(R.layout.new_main);  // 加载主界面
 
         // 设置手势模式滑动带有振动效果
         sharedPreferences = getSharedPreferences(ConstValues.settings, MODE_PRIVATE);
@@ -91,9 +91,9 @@ public class New_MainActivity extends BaseActivity implements KeyCodeButton.KeyC
         mouseFragment = new MouseFragment();
 
 
-        initView();
+//        initView();
 
-        initListener();
+//        initListener();
 
         flingIntent(getIntent());
     }

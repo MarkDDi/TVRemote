@@ -3,4 +3,15 @@
     <dimen name="bottom_height">85dp</dimen>
     <dimen name="bottom_key_margin">10dp</dimen>
     <dimen name="switch_text_padding">20dp</dimen>
+
+    <!-- 顶部标题栏 -->
+    <dimen name="ldrawer_drawableSize">50dp</dimen>
+    <dimen name="ldrawer_barSize">18dp</dimen>
+    <dimen name="ldrawer_topBottomBarArrowSize">11dp</dimen>
+    <dimen name="ldrawer_thickness">2dp</dimen>
+    <dimen name="ldrawer_gapBetweenBars">3dp</dimen>
+    <dimen name="ldrawer_middleBarArrowSize">16dp</dimen>
+
+    <!-- 侧滑栏宽度 -->
+    <dimen name="navdrawer_width">260dp</dimen>
 </resources>
