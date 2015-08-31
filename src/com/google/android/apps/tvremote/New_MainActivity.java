@@ -73,24 +73,6 @@ public class New_MainActivity extends BaseActivity implements KeyCodeButton.KeyC
     }
 
 
-    /**
-     * The enum represents modes of the remote controller with
-     * {@link SlidingLayout} screens assignment. In conjunction with
-     * {@link } allows sliding between the screens.
-     */
-    private enum RemoteMode {
-        TV(0, R.drawable.icon_04_touchpad_selector),
-        TOUCHPAD(1, R.drawable.icon_04_buttons_selector);
-
-        private final int screenId;
-        private final int switchButtonId;
-
-        RemoteMode(int screenId, int switchButtonId) {
-            this.screenId = screenId;
-            this.switchButtonId = switchButtonId;
-        }
-    }
-
     public New_MainActivity() {
         handler = new Handler();
     }
