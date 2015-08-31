@@ -1,194 +1,213 @@
-/*
- * Copyright (C) 2010 Google Inc.  All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.google.android.apps.tvremote;
 
-import com.google.android.apps.tvremote.TouchHandler.Mode;
-import com.google.android.apps.tvremote.layout.SlidingLayout;
-import com.google.android.apps.tvremote.util.Action;
-import com.google.android.apps.tvremote.util.LogUtils;
-import com.google.android.apps.tvremote.util.PromptManager;
-import com.google.android.apps.tvremote.widget.HighlightView;
-import com.google.android.apps.tvremote.widget.KeyCodeButton;
-import com.google.android.apps.tvremote.widget.SoftDpad;
-import com.google.anymote.Key;
-
+import android.annotation.TargetApi;
+import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.media.AudioManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.speech.RecognizerIntent;
+import android.support.v4.widget.DrawerLayout;
 import android.text.TextUtils;
-import android.util.Log;
-import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageButton;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.apps.tvremote.fragment.HomeFragment;
+import com.google.android.apps.tvremote.fragment.MouseFragment;
+import com.google.android.apps.tvremote.fragment.SoftDpadFragment;
+import com.google.android.apps.tvremote.layout.SlidingLayout;
+import com.google.android.apps.tvremote.util.LogUtils;
+import com.google.android.apps.tvremote.util.PromptManager;
+import com.google.android.apps.tvremote.widget.ActionBarDrawerToggle;
+import com.google.android.apps.tvremote.widget.DrawerArrowDrawable;
+import com.google.android.apps.tvremote.widget.KeyCodeButton;
+import com.google.anymote.Key;
 
 import java.util.ArrayList;
 
 /**
- * Main screen of the remote controller activity.
+ * Author        : lu
+ * Data          : 2015/8/27
+ * Time          : 11:15
+ * Decription    :
  */
-public class MainActivity extends BaseActivity implements KeyCodeButton.KeyCodeHandler {
-
-    private static final String LOG_TAG = "RemoteActivity";
-
-    private HighlightView surface;
+public class MainActivity extends BaseActivity implements KeyCodeButton.KeyCodeHandler,
+        HomeFragment.ISwitchMode {
 
     private final Handler handler;
+    private SharedPreferences sharedPreferences;
+    private TextView gesture;
+    private TextView mouse;
+    private SoftDpadFragment softFragment;
+    private MouseFragment mouseFragment;
+    private HomeFragment homeFragment;
 
-    /**
-     * The enum represents modes of the remote controller with
-     * {@link SlidingLayout} screens assignment. In conjunction with
-     * {@link } allows sliding between the screens.
-     */
-    private enum RemoteMode {
-        TV(0, R.drawable.icon_04_touchpad_selector),
-        TOUCHPAD(1, R.drawable.icon_04_buttons_selector);
+    private DrawerLayout mDrawerLayout;
+    private ListView mDrawerList;
+    private ActionBarDrawerToggle mDrawerToggle;
+    private DrawerArrowDrawable drawerArrow;
+    private boolean drawerArrowColor;
 
-        private final int screenId;
-        private final int switchButtonId;
-
-        RemoteMode(int screenId, int switchButtonId) {
-            this.screenId = screenId;
-            this.switchButtonId = switchButtonId;
-        }
+    @Override
+    public void switchSoftFragment() {
+        getFragmentManager().beginTransaction().replace(R.id.area, softFragment)
+                                    .commit();
     }
 
-    /**
-     * Mode selector allow sliding across the modes, keeps currently selected mode
-     * information, and slides among the modes.
-     * 切换按键和鼠标模式，废弃
-     */
-   /* private static final class ModeSelector {
-        private final SlidingLayout slidingLayout;
-        private final ImageButton imageButton;
-        private RemoteMode mode;
+    @Override
+    public void switchMouseFragment() {
+        getFragmentManager().beginTransaction().replace(R.id.area, mouseFragment)
+                .commit();
+    }
 
-        ModeSelector(RemoteMode initialMode, SlidingLayout slidingLayout, ImageButton imageButton) {
-            mode = initialMode;
-
-            this.slidingLayout = slidingLayout;
-            this.imageButton = imageButton;
-
-            applyMode();
-        }
-
-        void slideNext() {
-            setMode(RemoteMode.TOUCHPAD.equals(mode) ? RemoteMode.TV : RemoteMode.TOUCHPAD);
-        }
-
-        void setMode(RemoteMode newMode) {
-            mode = newMode;
-            applyMode();
-        }
-
-        void applyMode() {
-            slidingLayout.snapToScreen(mode.screenId);
-            imageButton.setImageResource(mode.switchButtonId);
-        }
-    }*/
 
     public MainActivity() {
         handler = new Handler();
     }
 
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.new_main_touchpad_top);  // 加载主界面
+        setContentView(R.layout.new_main);  // 加载主界面
 
-        surface = (HighlightView) findViewById(R.id.HighlightView);
+        ActionBar ab = getActionBar();
+        ab.setDisplayHomeAsUpEnabled(true);
+        ab.setHomeButtonEnabled(true);
 
-        LayoutInflater inflater = LayoutInflater.from(getBaseContext());
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerList = (ListView) findViewById(R.id.navdrawer);
 
-        SlidingLayout slidingLayout = (SlidingLayout) findViewById(R.id.slider);
-//        slidingLayout.addView(inflater.inflate(R.layout.subview_playcontrol_tv, null), 0); // 加载上半部分部件
-        slidingLayout.addView(inflater.inflate(R.layout.subview_touchpad, null), 0);  // 加载鼠标区域
-        slidingLayout.setCurrentScreen(0);
+        initDrawer();
 
-        ImageButton nextButton = (ImageButton) findViewById(R.id.button_next_page);  // 点击触摸鼠标后返回按钮
-        ImageButton keyboardButton = (ImageButton) findViewById(R.id.button_keyboard);
-        ImageButton voiceButton = (ImageButton) findViewById(R.id.button_voice);
-        ImageButton searchButton = (ImageButton) findViewById(R.id.button_search);
-        ImageButton shortcutsButton = (ImageButton) findViewById(R.id.button_shortcuts);      // 更多设置
-        //    ImageButton liveTvButton = (ImageButton) findViewById(R.id.button_livetv);  // 直播
 
-        // 右上角切换鼠标和功能键，由于大多数功能键无效，已废弃，只显示鼠标操作
-       /* final ModeSelector current = new ModeSelector(RemoteMode.TV, slidingLayout, nextButton);
-        nextButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                current.slideNext();
-            }
-        });*/
+        // 设置手势模式滑动带有振动效果
+        sharedPreferences = getSharedPreferences(ConstValues.settings, MODE_PRIVATE);
+        boolean vibrator = sharedPreferences.getBoolean(ConstValues.vibrator, true);
+        SharedPreferences.Editor edit = sharedPreferences.edit();
 
-   /* liveTvButton.setOnClickListener(new View.OnClickListener() {
-      public void onClick(View v) {
-        current.setMode(RemoteMode.TV);
-      }
-    });*/
+        // 可关闭振动
+        edit.putBoolean(ConstValues.vibrator, false);
+        edit.commit();
 
-        keyboardButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                showActivity(KeyboardActivity.class);
-            }
-        });
+        // 控制方向及确认键
+        softFragment = new SoftDpadFragment();
+        mouseFragment = new MouseFragment();
+        homeFragment = new HomeFragment();
 
-        voiceButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                // 语音搜索暂不支持
-                //        showVoiceSearchActivity();
-                PromptManager.showToast(MainActivity.this, R.string.unsupport_voice);
-            }
-        });
+        getFragmentManager().beginTransaction().replace(R.id.new_container, homeFragment).commit();
+//        initView();
 
-        searchButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                Action.NAVBAR.execute(getCommands());
-                showActivity(KeyboardActivity.class);
-            }
-        });
-
-        shortcutsButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View arg0) {
-                showActivity(ShortcutsActivity.class);
-            }
-        });
-
-        SoftDpad softDpad = (SoftDpad) findViewById(R.id.SoftDpad);  // 控制方向及确认键
-        softDpad.setDpadListener(getDefaultDpadListener());
-
-        // Attach touch handler to the touchpad 鼠标触摸板
-        new TouchHandler(findViewById(R.id.touch_pad), Mode.POINTER_MULTITOUCH, getCommands());
+//        initListener();
 
         flingIntent(getIntent());
+    }
+
+    private void initDrawer() {
+
+        drawerArrow = new DrawerArrowDrawable(this) {
+            @Override
+            public boolean isLayoutRtl() {
+                return false;
+            }
+        };
+        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
+                drawerArrow, R.string.drawer_open,
+                R.string.drawer_close) {
+
+            public void onDrawerClosed(View view) {
+                super.onDrawerClosed(view);
+                invalidateOptionsMenu();
+            }
+
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+                invalidateOptionsMenu();
+            }
+        };
+        mDrawerLayout.setDrawerListener(mDrawerToggle);
+        mDrawerToggle.syncState();
+
+        String[] values = new String[]{
+                "Stop Animation (Back icon)",
+                "Stop Animation (Home icon)",
+                "Start Animation",
+                "Change Color",
+                "GitHub Page",
+                "Share",
+                "Rate"
+        };
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_list_item_1, android.R.id.text1, values);
+        mDrawerList.setAdapter(adapter);
+        mDrawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                switch (position) {
+                    case 0:
+                        mDrawerToggle.setAnimateEnabled(false);
+                        drawerArrow.setProgress(1f);
+                        break;
+                    case 1:
+                        mDrawerToggle.setAnimateEnabled(false);
+                        drawerArrow.setProgress(0f);
+                        break;
+                    case 2:
+                        mDrawerToggle.setAnimateEnabled(true);
+                        mDrawerToggle.syncState();
+                        break;
+                    case 3:
+                        if (drawerArrowColor) {
+                            drawerArrowColor = false;
+                            drawerArrow.setColor(R.color.ldrawer_color);
+                        } else {
+                            drawerArrowColor = true;
+                            drawerArrow.setColor(R.color.drawer_arrow_second_color);
+                        }
+                        mDrawerToggle.syncState();
+                        break;
+                    case 4:
+                        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/IkiMuhendis/LDrawer"));
+                        startActivity(browserIntent);
+                        break;
+                    case 5:
+                        Intent share = new Intent(Intent.ACTION_SEND);
+                        share.setType("text/plain");
+                        share.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        share.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.app_name));
+                        share.putExtra(Intent.EXTRA_TEXT, getString(R.string.app_description) + "\n" +
+                                "GitHub Page :  https://github.com/IkiMuhendis/LDrawer\n" +
+                                "Sample App : https://play.google.com/store/apps/details?id=" +
+                                getPackageName());
+                        startActivity(Intent.createChooser(share, getString(R.string.app_name)));
+                        break;
+                    case 6:
+                        String appUrl = "https://play.google.com/store/apps/details?id=" + getPackageName();
+                        Intent rateIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(appUrl));
+                        startActivity(rateIntent);
+                        break;
+                }
+
+            }
+        });
+
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-    }
-
-    public HighlightView getHighlightView() {
-        return surface;
     }
 
     // KeyCode handler implementation.
@@ -217,7 +236,7 @@ public class MainActivity extends BaseActivity implements KeyCodeButton.KeyCodeH
                         Toast.makeText(this, R.string.error_could_not_send_url, Toast.LENGTH_SHORT).show();
                     }
                 } else {
-                    LogUtils.w( "No URI to fling");
+                    LogUtils.w("No URI to fling");
                 }
             }
         }
@@ -268,8 +287,34 @@ public class MainActivity extends BaseActivity implements KeyCodeButton.KeyCodeH
         }
     }
 
-    // VOICE SEARCH
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            if (mDrawerLayout.isDrawerOpen(mDrawerList)) {
+                mDrawerLayout.closeDrawer(mDrawerList);
+            } else {
+                mDrawerLayout.openDrawer(mDrawerList);
+            }
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        mDrawerToggle.syncState();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        mDrawerToggle.onConfigurationChanged(newConfig);
+    }
+
+
+
+    //=====================================================================
+    // 语音搜索， 暂未支持
     private void showVoiceSearchActivity() {
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
@@ -287,12 +332,12 @@ public class MainActivity extends BaseActivity implements KeyCodeButton.KeyCodeH
 
         ArrayList<String> queryResults = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
         if ((queryResults == null) || (queryResults.isEmpty())) {
-            LogUtils.d( "No results from VoiceSearch server.");
+            LogUtils.d("No results from VoiceSearch server.");
             return;
         } else {
             searchQuery = queryResults.get(0);
             if (TextUtils.isEmpty(searchQuery)) {
-                LogUtils.d( "Empty result from VoiceSearch server.");
+                LogUtils.d("Empty result from VoiceSearch server.");
                 return;
             }
         }
@@ -303,23 +348,23 @@ public class MainActivity extends BaseActivity implements KeyCodeButton.KeyCodeH
     private void showVoiceSearchDialog(final String query) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setNeutralButton(R.string.voice_send, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
+            public void onClick(DialogInterface dialog, int which) {
+                getCommands().string(query);
+            }
+        }).setPositiveButton(R.string.voice_search_send, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                getCommands().keyPress(Key.Code.KEYCODE_SEARCH);
+                // Send query delayed
+                handler.postDelayed(new Runnable() {
+                    public void run() {
                         getCommands().string(query);
                     }
-                }).setPositiveButton(R.string.voice_search_send, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        getCommands().keyPress(Key.Code.KEYCODE_SEARCH);
-                        // Send query delayed
-                        handler.postDelayed(new Runnable() {
-                            public void run() {
-                                getCommands().string(query);
-                            }
-                        }, getResources().getInteger(R.integer.search_query_delay));
-                    }
-                }).setNegativeButton(R.string.pairing_cancel, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                }).setCancelable(true).setTitle(R.string.voice_dialog_label).setMessage(query);
+                }, getResources().getInteger(R.integer.search_query_delay));
+            }
+        }).setNegativeButton(R.string.pairing_cancel, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+            }
+        }).setCancelable(true).setTitle(R.string.voice_dialog_label).setMessage(query);
         builder.create().show();
     }
 }

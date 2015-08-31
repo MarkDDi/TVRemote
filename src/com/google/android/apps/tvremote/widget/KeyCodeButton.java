@@ -16,13 +16,10 @@
 package com.google.android.apps.tvremote.widget;
 
 import com.google.android.apps.tvremote.R;
-import com.google.android.apps.tvremote.MainActivity;
 import com.google.anymote.Key.Code;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.Canvas;
-import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -90,48 +87,23 @@ public class KeyCodeButton extends ImageButton {
 
   private void enableKeyCodeAction() {
     setOnTouchListener(new View.OnTouchListener() {
-      public boolean onTouch(View v, MotionEvent event) {
-        Context context = getContext();
-        if (context instanceof KeyCodeHandler) {
-          KeyCodeHandler handler = (KeyCodeHandler) context;
-          switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN:
-              handler.onTouch(keyCode);
-              break;
-            case MotionEvent.ACTION_UP:
-              handler.onRelease(keyCode);
-              break;
-          }
-        }
+        public boolean onTouch(View v, MotionEvent event) {
+            Context context = getContext();
+            if (context instanceof KeyCodeHandler) {
+                KeyCodeHandler handler = (KeyCodeHandler) context;
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        handler.onTouch(keyCode);
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        handler.onRelease(keyCode);
+                        break;
+                }
+            }
 
-        return false;
-      }
+            return false;
+        }
     });
   }
 
-  /**
-   * Draws button, and notifies highlight view to draw the glow.
-   *
-   * @see android.view.View#onDraw(android.graphics.Canvas)
-   */
-  @Override
-  protected void onDraw(Canvas canvas) {
-    super.onDraw(canvas);
-
-    // Notify highlight layer to draw highlight
-    Context context = getContext();
-    if (context instanceof MainActivity) {
-      HighlightView highlightView = ((MainActivity) context).getHighlightView();
-      if (this.isPressed()) {
-        Rect rect = new Rect();
-        if (this.getGlobalVisibleRect(rect)) {
-          highlightView.drawButtonHighlight(rect);
-          wasPressed = true;
-        }
-      } else if (wasPressed) {
-        wasPressed = false;
-        highlightView.clearButtonHighlight();
-      }
-    }
-  }
 }

@@ -66,7 +66,7 @@ public class StartupActivity extends CoreServiceActivity {
   }
 
   private void showMainActivity() {
-    Intent intent = new Intent(this, New_MainActivity.class);
+    Intent intent = new Intent(this, MainActivity.class);
     Intent originalIntent = getIntent();
     if (originalIntent != null) {
       intent.setAction(originalIntent.getAction());

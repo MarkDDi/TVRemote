@@ -9,7 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.android.apps.tvremote.New_MainActivity;
+import com.google.android.apps.tvremote.MainActivity;
 import com.google.android.apps.tvremote.R;
 import com.google.android.apps.tvremote.widget.SoftDpad;
 
@@ -23,12 +23,12 @@ import com.google.android.apps.tvremote.widget.SoftDpad;
 public class SoftDpadFragment extends Fragment {
 
     private SoftDpad softDpad;
-    private New_MainActivity mainActivity;
+    private MainActivity mainActivity;
 
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-       mainActivity = (New_MainActivity) activity;
+       mainActivity = (MainActivity) activity;
     }
 
     @Override

@@ -40,13 +40,6 @@
             android:windowSoftInputMode="adjustPan"/>
 
         <activity
-            android:name=".New_MainActivity"
-            android:configChanges="orientation|keyboardHidden"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme"
-            android:windowSoftInputMode="adjustPan"/>
-
-        <activity
             android:name="KeyboardActivity"
             android:configChanges="orientation|keyboardHidden"
             android:screenOrientation="sensor"

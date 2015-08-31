@@ -1,15 +1,13 @@
 package com.google.android.apps.tvremote.fragment;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Fragment;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.android.apps.tvremote.New_MainActivity;
+import com.google.android.apps.tvremote.MainActivity;
 import com.google.android.apps.tvremote.R;
 import com.google.android.apps.tvremote.TouchHandler;
 
@@ -21,12 +19,12 @@ import com.google.android.apps.tvremote.TouchHandler;
  */
 public class MouseFragment extends Fragment {
 
-    private New_MainActivity mainActivity;
+    private MainActivity mainActivity;
 
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        mainActivity = (New_MainActivity) activity;
+        mainActivity = (MainActivity) activity;
     }
 
     @Override
