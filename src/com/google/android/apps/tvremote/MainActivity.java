@@ -141,7 +141,7 @@ public class MainActivity extends BaseActivity implements KeyCodeButton.KeyCodeH
         Integer[] icons = new Integer[] { R.drawable.scan, R.drawable.miracast, R.drawable
                 .game_hand, R.drawable.somatic_hand, R.drawable.file_share, R.drawable.check_version, R
                 .drawable
-                .settings};
+                .drawer_setting};
         DrawerAdapter adapter = new DrawerAdapter(this, values, icons); mDrawerList.setAdapter
                 (adapter);
 
