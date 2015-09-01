@@ -22,9 +22,10 @@
         android:layout_gravity="start"
         android:background="@android:color/white"
         android:choiceMode="singleChoice"
-        android:divider="@android:color/transparent"
-        android:dividerHeight="0dp"
-        android:drawSelectorOnTop="false">
+        android:divider="@color/drawer_divider_color"
+        android:dividerHeight="1dp"
+        android:drawSelectorOnTop="false"
+        >
     </ListView>
 
 </android.support.v4.widget.DrawerLayout>

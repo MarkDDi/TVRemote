@@ -19,4 +19,5 @@
     <color name="ldrawer_color">#FFFFFF</color>
     <color name="actionbar_color">#1d92d5</color>
     <color name="drawer_arrow_second_color">#303f9f</color>
+    <color name="drawer_divider_color">#e9e9e9</color>
 </resources>

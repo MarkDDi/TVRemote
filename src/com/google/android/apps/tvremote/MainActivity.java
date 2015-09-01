@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.graphics.BitmapFactory;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Build;
@@ -18,8 +19,11 @@ import android.support.v4.widget.DrawerLayout;
 import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,6 +32,7 @@ import com.google.android.apps.tvremote.fragment.HomeFragment;
 import com.google.android.apps.tvremote.fragment.MouseFragment;
 import com.google.android.apps.tvremote.fragment.SoftDpadFragment;
 import com.google.android.apps.tvremote.util.LogUtils;
+import com.google.android.apps.tvremote.util.PromptManager;
 import com.google.android.apps.tvremote.widget.ActionBarDrawerToggle;
 import com.google.android.apps.tvremote.widget.DrawerArrowDrawable;
 import com.google.android.apps.tvremote.widget.KeyCodeButton;
@@ -41,8 +46,7 @@ import java.util.ArrayList;
  * Time          : 11:15
  * Decription    :
  */
-public class MainActivity extends BaseActivity implements KeyCodeButton.KeyCodeHandler,
-        HomeFragment.ISwitchMode {
+public class MainActivity extends BaseActivity implements KeyCodeButton.KeyCodeHandler, HomeFragment.ISwitchMode {
 
     private final Handler handler;
     private SharedPreferences sharedPreferences;
@@ -60,14 +64,12 @@ public class MainActivity extends BaseActivity implements KeyCodeButton.KeyCodeH
 
     @Override
     public void switchSoftFragment() {
-        getFragmentManager().beginTransaction().replace(R.id.area, softFragment)
-                                    .commit();
+        getFragmentManager().beginTransaction().replace(R.id.area, softFragment).commit();
     }
 
     @Override
     public void switchMouseFragment() {
-        getFragmentManager().beginTransaction().replace(R.id.area, mouseFragment)
-                .commit();
+        getFragmentManager().beginTransaction().replace(R.id.area, mouseFragment).commit();
     }
 
 
@@ -119,9 +121,7 @@ public class MainActivity extends BaseActivity implements KeyCodeButton.KeyCodeH
                 return false;
             }
         };
-        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
-                drawerArrow, R.string.drawer_open,
-                R.string.drawer_close) {
+        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, drawerArrow, R.string.drawer_open, R.string.drawer_close) {
 
             public void onDrawerClosed(View view) {
                 super.onDrawerClosed(view);
@@ -136,65 +136,61 @@ public class MainActivity extends BaseActivity implements KeyCodeButton.KeyCodeH
         mDrawerLayout.setDrawerListener(mDrawerToggle);
         mDrawerToggle.syncState();
 
-        String[] values = new String[]{
-                "Stop Animation (Back icon)",
-                "Stop Animation (Home icon)",
-                "Start Animation",
-                "Change Color",
-                "GitHub Page",
-                "Share",
-                "Rate"
-        };
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_list_item_1, android.R.id.text1, values);
-        mDrawerList.setAdapter(adapter);
+        final String[] values = new String[]{"扫一扫", "多屏互动", "游戏手柄", "体感手柄", "文件共享", "检查更新", "设置"};
+//        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, android.R.id.text1, values);
+        Integer[] icons = new Integer[] { R.drawable.scan, R.drawable.check_version, R.drawable
+                .virator, R.drawable.virator, R.drawable.virator, R.drawable.virator, R.drawable.virator};
+        DrawerAdapter adapter = new DrawerAdapter(this, values, icons); mDrawerList.setAdapter
+                (adapter);
+
         mDrawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 switch (position) {
                     case 0:
-                        mDrawerToggle.setAnimateEnabled(false);
-                        drawerArrow.setProgress(1f);
+//                        mDrawerToggle.setAnimateEnabled(false); // 关闭返回时恢复菜单动画
+//                        drawerArrow.setProgress(1f);
                         break;
                     case 1:
-                        mDrawerToggle.setAnimateEnabled(false);
-                        drawerArrow.setProgress(0f);
+//                        mDrawerToggle.setAnimateEnabled(false); // 关闭变为箭头动画
+//                        drawerArrow.setProgress(0f);
                         break;
                     case 2:
-                        mDrawerToggle.setAnimateEnabled(true);
-                        mDrawerToggle.syncState();
+//                        mDrawerToggle.setAnimateEnabled(true);  // 开启全部动画
+//                        mDrawerToggle.syncState();
                         break;
                     case 3:
-                        if (drawerArrowColor) {
-                            drawerArrowColor = false;
-                            drawerArrow.setColor(R.color.ldrawer_color);
-                        } else {
-                            drawerArrowColor = true;
-                            drawerArrow.setColor(R.color.drawer_arrow_second_color);
-                        }
-                        mDrawerToggle.syncState();
+//                        if (drawerArrowColor) {
+//                            drawerArrowColor = false;
+//                            drawerArrow.setColor(R.color.ldrawer_color);
+//                        } else {
+//                            drawerArrowColor = true;
+//                            drawerArrow.setColor(R.color.drawer_arrow_second_color);
+//                        }
+//                        mDrawerToggle.syncState();
                         break;
                     case 4:
-                        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/IkiMuhendis/LDrawer"));
-                        startActivity(browserIntent);
+//                        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/IkiMuhendis/LDrawer"));
+//                        startActivity(browserIntent);
                         break;
                     case 5:
-                        Intent share = new Intent(Intent.ACTION_SEND);
-                        share.setType("text/plain");
-                        share.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        share.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.app_name));
-                        share.putExtra(Intent.EXTRA_TEXT, getString(R.string.app_description) + "\n" +
-                                "GitHub Page :  https://github.com/IkiMuhendis/LDrawer\n" +
-                                "Sample App : https://play.google.com/store/apps/details?id=" +
-                                getPackageName());
-                        startActivity(Intent.createChooser(share, getString(R.string.app_name)));
+//                        Intent share = new Intent(Intent.ACTION_SEND);
+//                        share.setType("text/plain");
+//                        share.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                        share.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.app_name));
+//                        share.putExtra(Intent.EXTRA_TEXT, getString(R.string.app_description) + "\n" +
+//                                "GitHub Page :  https://github.com/IkiMuhendis/LDrawer\n" +
+//                                "Sample App : https://play.google.com/store/apps/details?id=" +
+//                                getPackageName());
+//                        startActivity(Intent.createChooser(share, getString(R.string.app_name)));
                         break;
                     case 6:
-                        String appUrl = "https://play.google.com/store/apps/details?id=" + getPackageName();
-                        Intent rateIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(appUrl));
-                        startActivity(rateIntent);
+//                        String appUrl = "https://play.google.com/store/apps/details?id=" + getPackageName();
+//                        Intent rateIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(appUrl));
+//                        startActivity(rateIntent);
                         break;
                 }
+                PromptManager.showToastTest(MainActivity.this, "点击了 " + values[position]);
 
             }
         });
@@ -307,6 +303,62 @@ public class MainActivity extends BaseActivity implements KeyCodeButton.KeyCodeH
         mDrawerToggle.onConfigurationChanged(newConfig);
     }
 
+
+    class DrawerAdapter extends BaseAdapter {
+        private Context context;
+        private String[] labels;
+        private Integer[] icons;
+
+        public DrawerAdapter(Context context, String[] labels, Integer[] icons) {
+            this.context = context;
+            this.labels = labels;
+            this.icons = icons;
+        }
+
+        @Override
+        public int getCount() {
+            return labels.length;
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return null;
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return 0;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+
+            DrawerItem drawerItem;
+            if (convertView == null) {
+                convertView = View.inflate(context, R.layout.drawer_item, null);
+                drawerItem = new DrawerItem();
+                drawerItem.drawer_iv = (ImageView) convertView.findViewById(R.id.drawer_iv);
+                drawerItem.drawer_tv = (TextView) convertView.findViewById(R.id.drawer_tv);
+                convertView.setTag(drawerItem);
+            } else {
+                drawerItem = (DrawerItem) convertView.getTag();
+            }
+
+            drawerItem.drawer_iv.setImageResource(icons[position]);
+            drawerItem.drawer_tv.setText(labels[position]);
+
+            return convertView;
+        }
+    }
+
+
+    /**
+     * 侧滑菜单的Item
+     */
+    class DrawerItem {
+        public ImageView drawer_iv;
+        public TextView drawer_tv;
+    }
 
 
     //=====================================================================
