@@ -20,6 +20,7 @@
         android:layout_marginLeft="15dp"
         android:layout_toRightOf="@id/drawer_iv"
         android:textSize="@dimen/drawer_text_size"
+        android:textColor="@color/drawer_text_color"
         android:layout_gravity="center_vertical"
         />
 </LinearLayout>

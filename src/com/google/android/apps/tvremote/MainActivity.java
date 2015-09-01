@@ -138,8 +138,10 @@ public class MainActivity extends BaseActivity implements KeyCodeButton.KeyCodeH
 
         final String[] values = new String[]{"扫一扫", "多屏互动", "游戏手柄", "体感手柄", "文件共享", "检查更新", "设置"};
 //        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, android.R.id.text1, values);
-        Integer[] icons = new Integer[] { R.drawable.scan, R.drawable.check_version, R.drawable
-                .virator, R.drawable.virator, R.drawable.virator, R.drawable.virator, R.drawable.virator};
+        Integer[] icons = new Integer[] { R.drawable.scan, R.drawable.miracast, R.drawable
+                .game_hand, R.drawable.somatic_hand, R.drawable.file_share, R.drawable.check_version, R
+                .drawable
+                .settings};
         DrawerAdapter adapter = new DrawerAdapter(this, values, icons); mDrawerList.setAdapter
                 (adapter);
 
@@ -147,33 +149,24 @@ public class MainActivity extends BaseActivity implements KeyCodeButton.KeyCodeH
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 switch (position) {
-                    case 0:
-//                        mDrawerToggle.setAnimateEnabled(false); // 关闭返回时恢复菜单动画
-//                        drawerArrow.setProgress(1f);
+                    case 0:  // 扫一扫
+
                         break;
-                    case 1:
-//                        mDrawerToggle.setAnimateEnabled(false); // 关闭变为箭头动画
-//                        drawerArrow.setProgress(0f);
+                    case 1:  // 多屏互动
+
                         break;
-                    case 2:
-//                        mDrawerToggle.setAnimateEnabled(true);  // 开启全部动画
-//                        mDrawerToggle.syncState();
+                    case 2:   // 游戏手柄
+
                         break;
-                    case 3:
-//                        if (drawerArrowColor) {
-//                            drawerArrowColor = false;
-//                            drawerArrow.setColor(R.color.ldrawer_color);
-//                        } else {
-//                            drawerArrowColor = true;
-//                            drawerArrow.setColor(R.color.drawer_arrow_second_color);
-//                        }
-//                        mDrawerToggle.syncState();
+                    case 3:    // 体感手柄
+//
                         break;
-                    case 4:
+                    case 4:    // 文件共享
 //                        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/IkiMuhendis/LDrawer"));
 //                        startActivity(browserIntent);
+
                         break;
-                    case 5:
+                    case 5:   // 检查更新
 //                        Intent share = new Intent(Intent.ACTION_SEND);
 //                        share.setType("text/plain");
 //                        share.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -184,7 +177,7 @@ public class MainActivity extends BaseActivity implements KeyCodeButton.KeyCodeH
 //                                getPackageName());
 //                        startActivity(Intent.createChooser(share, getString(R.string.app_name)));
                         break;
-                    case 6:
+                    case 6:  // 设置
 //                        String appUrl = "https://play.google.com/store/apps/details?id=" + getPackageName();
 //                        Intent rateIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(appUrl));
 //                        startActivity(rateIntent);
