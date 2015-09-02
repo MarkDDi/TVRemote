@@ -4,7 +4,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-    <com.google.android.apps.tvremote.widget.SoftDpad
+    <com.winside.tvremote.widget.SoftDpad
         android:id="@+id/SoftDpad"
         android:layout_width="wrap_content"
         android:layout_height="400dp"

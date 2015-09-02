@@ -1,6 +1,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:tools="http://schemas.android.com/tools"
-      tools:context="com.google.android.apps.tvremote.TutorialActivity">
+      tools:context="com.google.android.apps.com.TutorialActivity">
 
     <item android:id="@+id/action_settings"
           android:title="@string/share"

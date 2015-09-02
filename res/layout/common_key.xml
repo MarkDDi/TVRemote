@@ -8,7 +8,7 @@
               android:background="@color/bottom_bg"
     >
 
-    <com.google.android.apps.tvremote.widget.KeyCodeButton
+    <com.winside.tvremote.widget.KeyCodeButton
         android:id="@+id/menu_key"
         style="@style/common_key"
         android:layout_weight="1"
@@ -17,7 +17,7 @@
         android:layout_marginLeft="10dp"
         />
 
-    <com.google.android.apps.tvremote.widget.KeyCodeButton
+    <com.winside.tvremote.widget.KeyCodeButton
         android:id="@+id/home_key"
         style="@style/common_key"
         android:layout_marginLeft="10dp"
@@ -27,7 +27,7 @@
         app:key_code="KEYCODE_HOME"
         />
 
-    <com.google.android.apps.tvremote.widget.KeyCodeButton
+    <com.winside.tvremote.widget.KeyCodeButton
         android:id="@+id/back_key"
         style="@style/common_key"
         android:layout_weight="1"
