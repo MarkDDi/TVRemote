@@ -30,13 +30,13 @@ public class TutorialActivity extends Activity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    setContentView(R.layout.tutorial);
+    setContentView(R.layout.new_tutorial);
 
-    ((Button) findViewById(R.id.tutorial_button)).setOnClickListener(
-        new View.OnClickListener() {
-          public void onClick(View v) {
-            finish();
-          }
-        });
+//    ((Button) findViewById(R.id.tutorial_button)).setOnClickListener(
+//        new View.OnClickListener() {
+//          public void onClick(View v) {
+//            finish();
+//          }
+//        });
   }
 }
