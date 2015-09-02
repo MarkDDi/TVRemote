@@ -29,51 +29,47 @@ import android.widget.TextView;
 
 /**
  * About activity.
- *
  */
-public class AboutActivity extends Activity {
-  @Override
-  protected void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    setContentView(R.layout.about);
+public class AboutActivity extends CommonTitleActivity {
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.about);
 
-    TextView versionTextView = (TextView) findViewById(R.id.version_text);
+        TextView versionTextView = (TextView) findViewById(R.id.version_text);
 
-    String versionString = getString(R.string.unknown_build);
-    try {
-      PackageInfo info = getPackageManager().getPackageInfo(getPackageName(),
-          0 /* basic info */);
-      versionString = info.versionName;
-    } catch (NameNotFoundException e) {
-      // do nothing
+        actionBar.setTitle(R.string.about);
+
+        String versionString = getString(R.string.unknown_build);
+        try {
+            PackageInfo info = getPackageManager().getPackageInfo(getPackageName(), 0 /* basic info */);
+            versionString = info.versionName;
+        } catch (NameNotFoundException e) {
+            // do nothing
+        }
+        versionTextView.setText(getString(R.string.about_version_title, versionString));
+
+        ((Button) findViewById(R.id.button_tos)).setOnClickListener(new GoToLinkListener(R.string.tos_link));
+        ((Button) findViewById(R.id.button_privacy)).setOnClickListener(new GoToLinkListener(R.string.privacy_link));
+        ((Button) findViewById(R.id.button_tutorial)).setOnClickListener(new OnClickListener() {
+                    public void onClick(View v) {
+                        Intent intent = new Intent(AboutActivity.this, TutorialActivity.class);
+                        startActivity(intent);
+                    }
+                });
     }
-    versionTextView.setText(getString(R.string.about_version_title,
-        versionString));
 
-    ((Button) findViewById(R.id.button_tos)).setOnClickListener(
-        new GoToLinkListener(R.string.tos_link));
-    ((Button) findViewById(R.id.button_privacy)).setOnClickListener(
-        new GoToLinkListener(R.string.privacy_link));
-    ((Button) findViewById(R.id.button_tutorial)).setOnClickListener(
-        new OnClickListener() {
-          public void onClick(View v) {
-            Intent intent = new Intent(AboutActivity.this, TutorialActivity.class);
+    private class GoToLinkListener implements OnClickListener {
+        private String link;
+
+        public GoToLinkListener(int linkId) {
+            this.link = getString(linkId);
+        }
+
+        public void onClick(View view) {
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(Uri.parse(link));
             startActivity(intent);
-          }
-        });
-  }
-
-  private class GoToLinkListener implements OnClickListener {
-    private String link;
-
-    public GoToLinkListener(int linkId) {
-      this.link = getString(linkId);
+        }
     }
-
-    public void onClick(View view) {
-      Intent intent = new Intent(Intent.ACTION_VIEW);
-      intent.setData(Uri.parse(link));
-      startActivity(intent);
-    }
-  }
 }

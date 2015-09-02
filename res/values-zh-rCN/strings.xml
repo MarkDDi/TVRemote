@@ -11,7 +11,7 @@
     <string name="config_page_label">Your build is:</string>
 
     <!--  Main menu -->
-    <string name="menu_switch">连接其他电视</string>
+    <string name="menu_switch">搜索附近设备</string>
     <string name="menu_manual">手动输入IP</string>
     <string name="menu_settings">设置</string>
     <string name="menu_bazaar_feedback">反馈</string>
@@ -164,4 +164,6 @@
     <string name="tos_link">http://m.google.com/toscountry</string>
     <string name="privacy_link">http://m.google.com/static/en/privacy.html</string>
     <string name="entry_home">进入主界面</string>
+    <string name="share">分享</string>
+    <string name="about">关于</string>
 </resources>
