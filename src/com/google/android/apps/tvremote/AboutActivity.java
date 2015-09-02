@@ -38,7 +38,7 @@ public class AboutActivity extends CommonTitleActivity {
 
         TextView versionTextView = (TextView) findViewById(R.id.version_text);
 
-        actionBar.setTitle(R.string.about);
+       setActionBarTitle(R.string.about);
 
         String versionString = getString(R.string.unknown_build);
         try {

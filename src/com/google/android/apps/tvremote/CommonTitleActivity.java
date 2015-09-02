@@ -5,6 +5,9 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
+
+import com.google.android.apps.tvremote.util.LogUtils;
 
 /**
  * Author        : lu
@@ -12,16 +15,61 @@ import android.view.MenuItem;
  * Time          : 11:19
  * Decription    :
  */
-public class CommonTitleActivity extends Activity {
+public abstract class CommonTitleActivity extends Activity {
 
     protected ActionBar actionBar;
-
+    private float tempX = 0f;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         actionBar = getActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
     }
+
+
+    /**
+     * 子类使用修改ActionBar的标题
+     * @param title
+     */
+    protected void setActionBarTitle(String title) {
+        actionBar.setTitle(title);
+    }
+
+    protected void setActionBarTitle(int resId) {
+        actionBar.setTitle(resId);
+    }
+
+
+    /**
+     * 滑动返回
+     * @param event
+     * @return
+     */
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        float x = 0f;
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                x = event.getX();
+                tempX = event.getX();
+                break;
+            case MotionEvent.ACTION_MOVE:
+                x = event.getX();
+                break;
+            case MotionEvent.ACTION_UP:
+                x = event.getX();
+                float finalX = x - tempX;
+                if (finalX > 200f) {
+                    this.finish();
+                }
+                break;
+            default:
+
+                break;
+        }
+        return super.onTouchEvent(event);
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.

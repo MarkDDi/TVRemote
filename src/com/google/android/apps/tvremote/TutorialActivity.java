@@ -39,7 +39,7 @@ public class TutorialActivity extends CommonTitleActivity {
         setContentView(R.layout.welcome);
         ((Button) findViewById(R.id.entry_button)).setVisibility(View.GONE);
 
-        actionBar.setTitle(R.string.about_button_tutorial);
+        setActionBarTitle(R.string.about_button_tutorial);
     }
 
 }
