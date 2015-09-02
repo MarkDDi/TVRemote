@@ -23,21 +23,38 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.TextView;
+
+import com.winside.tvremote.util.PromptManager;
+
+import java.util.ArrayList;
 
 /**
  * About activity.
  */
 public class AboutActivity extends com.winside.tvremote.CommonTitleActivity {
+    private ListView about_list;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.about);
 
         TextView versionTextView = (TextView) findViewById(R.id.version_text);
+        about_list = ((ListView) findViewById(R.id.about_list));
 
-       setActionBarTitle(R.string.about);
+        final String[] lists = new String[] { "检查新版本", "用户反馈", "操作指南", "特别鸣谢", "多屏互动QQ群" };
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+               R.layout.about_item, lists);
+
+        about_list.setAdapter(adapter);
+
+
+        setActionBarTitle(R.string.about);
 
         String versionString = getString(R.string.unknown_build);
         try {
@@ -48,16 +65,14 @@ public class AboutActivity extends com.winside.tvremote.CommonTitleActivity {
         }
         versionTextView.setText(getString(R.string.about_version_title, versionString));
 
-        ((Button) findViewById(R.id.button_tos)).setOnClickListener(new GoToLinkListener(R.string.tos_link));
-        ((Button) findViewById(R.id.button_privacy)).setOnClickListener(new GoToLinkListener(R.string.privacy_link));
-        ((Button) findViewById(R.id.button_tutorial)).setOnClickListener(new OnClickListener() {
-                    public void onClick(View v) {
-                        Intent intent = new Intent(AboutActivity.this, com.winside.tvremote.TutorialActivity.class);
-                        startActivity(intent);
-                    }
-                });
+
     }
 
+
+
+    /**
+     * 点击跳转链接
+     */
     private class GoToLinkListener implements OnClickListener {
         private String link;
 

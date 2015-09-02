@@ -492,7 +492,7 @@ public class BaseActivity extends CoreServiceActivity implements ConnectionListe
     private void logConnectionStatus(CharSequence sequence) {
         String message = String.format("%s (%s)", sequence, getClass().getSimpleName());
         if (Debug.isDebugConnection()) {
-            Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+//            Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
         }
         LogUtils.d("Connection state: " + sequence);
     }
