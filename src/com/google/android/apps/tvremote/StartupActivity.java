@@ -29,20 +29,20 @@ import android.widget.Button;
 public class StartupActivity extends CoreServiceActivity {
 
     private boolean keystoreAvailable;
-//    private Button connectButton;
+    private Button entry;
 
     @Override
     protected void onServiceAvailable(CoreService coreService) {
         // Show UI.
         if (!getKeyStoreManager().hasServerIdentityAlias()) {
-            setContentView(R.layout.new_tutorial);
-     /* connectButton = (Button) findViewById(R.id.tutorial_button);
-      connectButton.setEnabled(false);
-      connectButton.setOnClickListener(new View.OnClickListener() {
-        public void onClick(View v) {
-          showMainActivity();
-        }
-      });*/
+            setContentView(R.layout.welcome);
+            entry = (Button) findViewById(R.id.entry_button);
+            entry.setEnabled(false);
+            entry.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    showMainActivity();
+                }
+            });
 
             new KeystoreInitializerTask(getUniqueId()).execute(getKeyStoreManager());
         } else {
@@ -94,8 +94,7 @@ public class StartupActivity extends CoreServiceActivity {
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
             keystoreAvailable = true;
-            //      connectButton.setEnabled(true);
-            showMainActivity();
+            entry.setEnabled(true);
         }
     }
 

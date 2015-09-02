@@ -23,20 +23,14 @@ import android.widget.Button;
 
 /**
  * Simple tutorial.
- *
  */
 public class TutorialActivity extends Activity {
 
-  @Override
-  protected void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    setContentView(R.layout.new_tutorial);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.welcome);
 
-//    ((Button) findViewById(R.id.tutorial_button)).setOnClickListener(
-//        new View.OnClickListener() {
-//          public void onClick(View v) {
-//            finish();
-//          }
-//        });
-  }
+        ((Button) findViewById(R.id.tutorial_button)).setVisibility(View.GONE);
+    }
 }
