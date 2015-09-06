@@ -7,6 +7,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 
+import com.winside.tvremote.util.LogUtils;
+
 /**
  * Author        : lu
  * Data          : 2015/9/2
@@ -60,6 +62,7 @@ public abstract class CommonTitleActivity extends Activity {
                 if (finalX > 200f) {
                     this.finish();
                 }
+                LogUtils.e("finalX = " + finalX);
                 break;
             default:
 

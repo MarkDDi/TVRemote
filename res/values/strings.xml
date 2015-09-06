@@ -170,4 +170,5 @@
     <string name="share">分享</string>
     <string name="about">关于</string>
     <string name="version">版本</string>
+    <string name="scan">扫一扫</string>
 </resources>

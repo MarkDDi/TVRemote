@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.winside.tvremote.R;
@@ -22,6 +23,7 @@ public class HomeFragment extends Fragment implements View.OnFocusChangeListener
     private TextView gesture;
     private TextView mouse;
     private ISwitchMode iSwitchMode = null;
+    private RelativeLayout title_layout;
 
     @Override
     public void onAttach(Activity activity) {
@@ -41,6 +43,7 @@ public class HomeFragment extends Fragment implements View.OnFocusChangeListener
         View view = inflater.inflate(R.layout.home, null);
         gesture = ((TextView) view.findViewById(R.id.gesture));
         mouse = ((TextView) view.findViewById(R.id.mouse));
+        title_layout = (RelativeLayout) view.findViewById(R.id.new_title);
 
         initListener();
 

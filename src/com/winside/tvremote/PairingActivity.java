@@ -16,17 +16,6 @@
 
 package com.winside.tvremote;
 
-import com.winside.tvremote.util.LogUtils;
-import com.google.polo.exception.PoloException;
-import com.google.polo.pairing.ClientPairingSession;
-import com.google.polo.pairing.PairingContext;
-import com.google.polo.pairing.PairingListener;
-import com.google.polo.pairing.PairingSession;
-import com.google.polo.pairing.message.EncodingOption;
-import com.google.polo.ssl.DummySSLSocketFactory;
-import com.google.polo.wire.PoloWireInterface;
-import com.google.polo.wire.WireFormat;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -41,6 +30,19 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.Toast;
+
+import com.google.polo.exception.PoloException;
+import com.google.polo.pairing.ClientPairingSession;
+import com.google.polo.pairing.PairingContext;
+import com.google.polo.pairing.PairingListener;
+import com.google.polo.pairing.PairingSession;
+import com.google.polo.pairing.message.EncodingOption;
+import com.google.polo.ssl.DummySSLSocketFactory;
+import com.google.polo.wire.PoloWireInterface;
+import com.google.polo.wire.WireFormat;
+import com.winside.tvremote.util.LogUtils;
+import com.winside.tvremote.util.PromptManager;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
@@ -146,7 +148,7 @@ public class PairingActivity extends CoreServiceActivity {
     }
 
     /**
-     *  在父类绑定完CoreService服务后。开始回调配对
+     * 在父类绑定完CoreService服务后。开始回调配对
      */
     private void startPairing() {
         if (pairing != null) {
@@ -164,16 +166,22 @@ public class PairingActivity extends CoreServiceActivity {
         final EditText pinEditText = (EditText) view.findViewById(R.id.pairing_pin_entry);
 
         builder.setPositiveButton(R.string.pairing_ok, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        alertDialog = null;
-                        client.setSecret(pinEditText.getText().toString());
-                    }
-                }).setNegativeButton(R.string.pairing_cancel, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        alertDialog = null;
-                        client.cancel();
-                    }
-                }).setCancelable(false).setTitle(R.string.pairing_label).setMessage(remoteDevice.getName()).setView(view);
+            public void onClick(DialogInterface dialog, int which) {
+                alertDialog = null;
+                client.setSecret(pinEditText.getText().toString());
+            }
+        }).setNegativeButton(R.string.pairing_cancel, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                alertDialog = null;
+                client.cancel();
+            }
+        }).setNeutralButton(R.string.scan, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // 扫一扫
+                PromptManager.showToastTest(PairingActivity.this, R.string.scan);
+            }
+        }).setCancelable(false).setTitle(R.string.pairing_label).setMessage(remoteDevice.getName()).setView(view);
         return builder.create();
     }
 
@@ -374,10 +382,10 @@ public class PairingActivity extends CoreServiceActivity {
             }
         });
         dialog.setButton(getString(R.string.pairing_cancel), new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialogInterface, int which) {
-                        cancelPairing();
-                    }
-                });
+            public void onClick(DialogInterface dialogInterface, int which) {
+                cancelPairing();
+            }
+        });
         return dialog;
     }
 

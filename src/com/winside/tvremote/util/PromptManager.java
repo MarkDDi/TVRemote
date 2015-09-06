@@ -50,6 +50,12 @@ public class PromptManager {
         }
     }
 
+    public static void showToastTest(Context context, int msgResId) {
+        if (isShow) {
+            Toast.makeText(context, msgResId, Toast.LENGTH_SHORT).show();
+        }
+    }
+
     public static void showToastTestLong(Context context, String msg) {
         if (isShow) {
             Toast.makeText(context, msg, Toast.LENGTH_LONG).show();

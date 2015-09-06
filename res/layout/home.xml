@@ -3,18 +3,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_centerHorizontal="true"
-                android:orientation="horizontal"
-
     >
 
     <RelativeLayout
         android:id="@+id/new_title"
-        android:layout_width="260dp"
-        android:layout_height="wrap_content"
+        android:layout_width="@dimen/title_width"
+        android:layout_height="@dimen/title_height"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="@dimen/title_marginTop"
         android:background="@drawable/top_switch_mode_shape"
-        android:orientation="horizontal"
         android:padding="5dp"
         >
 

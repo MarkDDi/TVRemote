@@ -21,6 +21,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
@@ -36,25 +37,25 @@ import java.util.ArrayList;
 /**
  * About activity.
  */
-public class AboutActivity extends com.winside.tvremote.CommonTitleActivity {
+public class AboutActivity extends CommonTitleActivity implements AdapterView.OnItemClickListener {
     private ListView about_list;
+    private String[] lists;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.about);
+        setActionBarTitle(R.string.about);
 
         TextView versionTextView = (TextView) findViewById(R.id.version_text);
         about_list = ((ListView) findViewById(R.id.about_list));
 
-        final String[] lists = new String[] { "检查新版本", "用户反馈", "操作指南", "特别鸣谢", "多屏互动QQ群" };
+        lists = new String[] { "检查新版本", "用户反馈", "操作指南", "特别鸣谢", "多屏互动QQ群" };
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
                R.layout.about_item, lists);
 
         about_list.setAdapter(adapter);
 
-
-        setActionBarTitle(R.string.about);
 
         String versionString = getString(R.string.unknown_build);
         try {
@@ -65,10 +66,47 @@ public class AboutActivity extends com.winside.tvremote.CommonTitleActivity {
         }
         versionTextView.setText(getString(R.string.about_version_title, versionString));
 
+        about_list.setOnItemClickListener(this);
 
     }
 
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        switch(position) {
+            case 0:
+                // 检查新版本
+                PromptManager.showToastTest(this, lists[position]);
+                break;
+            case 1:
+                // 用户反馈
+                PromptManager.showToastTest(this, lists[position]);
+                break;
+            case 2:
+                // 操作指南
+                Intent intent = new Intent(this, TutorialActivity.class);
+                startActivity(intent);
+                break;
+            case 3:
+                // 特别鸣谢
+                PromptManager.showToastTest(this, lists[position]);
+                break;
+            case 4:
+                // 多屏互动群
+                PromptManager.showToastTest(this, lists[position]);
+                break;
+            default:
 
+                break;
+        }
+    }
+
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        // 优先响应onTouchEvent
+        this.onTouchEvent(ev);
+        return super.dispatchTouchEvent(ev);
+    }
 
     /**
      * 点击跳转链接

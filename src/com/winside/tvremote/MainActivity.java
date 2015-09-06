@@ -29,6 +29,7 @@ import android.widget.Toast;
 import com.winside.tvremote.fragment.HomeFragment;
 import com.winside.tvremote.fragment.MouseFragment;
 import com.winside.tvremote.fragment.SoftDpadFragment;
+import com.winside.tvremote.systembar.SystemBarTintManager;
 import com.winside.tvremote.util.LogUtils;
 import com.winside.tvremote.util.PromptManager;
 import com.winside.tvremote.widget.ActionBarDrawerToggle;
@@ -109,6 +110,7 @@ public class MainActivity extends BaseActivity implements KeyCodeButton.KeyCodeH
 
 
         flingIntent(getIntent());
+
     }
 
     private void initDrawer() {

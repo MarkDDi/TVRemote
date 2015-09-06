@@ -22,6 +22,7 @@ import com.winside.tvremote.TrackballHandler.Listener;
 import com.winside.tvremote.TrackballHandler.Mode;
 import com.winside.tvremote.protocol.ICommandSender;
 import com.winside.tvremote.protocol.QueuingSender;
+import com.winside.tvremote.systembar.SystemBarTintManager;
 import com.winside.tvremote.util.Action;
 import com.winside.tvremote.util.Debug;
 import com.winside.tvremote.util.LogUtils;
@@ -31,6 +32,7 @@ import com.winside.tvremote.widget.SoftDpad.DpadListener;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.media.AudioManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -39,6 +41,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
@@ -53,6 +56,8 @@ import java.util.concurrent.TimeUnit;
 public class BaseActivity extends CoreServiceActivity implements ConnectionListener {
 
     private static final String LOG_TAG = "BaseActivity";
+
+    protected SystemBarTintManager mTintManager;
 
     /**
      * Request code used by this activity.
@@ -113,6 +118,24 @@ public class BaseActivity extends CoreServiceActivity implements ConnectionListe
         trackballHandler = createTrackballHandler();
         // 音量管理
         trackballHandler.setAudioManager(am);
+
+        // 沉浸式状态栏
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+//            setTranslucentStatus(true);
+//        }
+//        mTintManager = new SystemBarTintManager(this);
+    }
+
+    protected void setTranslucentStatus(boolean on) {
+        Window win = getWindow();
+        WindowManager.LayoutParams winParams = win.getAttributes();
+        final int bits = WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS;
+        if (on) {
+            winParams.flags |= bits;
+        } else {
+            winParams.flags &= ~bits;
+        }
+        win.setAttributes(winParams);
     }
 
     @Override
