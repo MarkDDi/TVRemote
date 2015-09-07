@@ -171,4 +171,6 @@
     <string name="about">关于</string>
     <string name="version">版本</string>
     <string name="scan">扫一扫</string>
+
+    <string name="scan_text">将二维码放入框内, 即可自动扫描</string>
 </resources>

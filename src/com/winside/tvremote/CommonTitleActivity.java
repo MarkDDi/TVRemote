@@ -2,11 +2,15 @@ package com.winside.tvremote;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.view.Window;
+import android.view.WindowManager;
 
+import com.winside.tvremote.systembar.SystemBarTintManager;
 import com.winside.tvremote.util.LogUtils;
 
 /**
@@ -19,11 +23,33 @@ public abstract class CommonTitleActivity extends Activity {
 
     protected ActionBar actionBar;
     private float tempX = 0f;
+    protected SystemBarTintManager mTintManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         actionBar = getActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
+        // 沉浸式状态栏
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            setTranslucentStatus(true);
+        }
+        mTintManager = new SystemBarTintManager(this);
+
+        mTintManager.setStatusBarTintEnabled(true);
+        mTintManager.setStatusBarTintResource(R.color.actionbar_color);
+    }
+
+    protected void setTranslucentStatus(boolean on) {
+        Window win = getWindow();
+        WindowManager.LayoutParams winParams = win.getAttributes();
+        final int bits = WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS;
+        if (on) {
+            winParams.flags |= bits;
+        } else {
+            winParams.flags &= ~bits;
+        }
+        win.setAttributes(winParams);
     }
 
 

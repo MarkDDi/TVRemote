@@ -120,10 +120,13 @@ public class BaseActivity extends CoreServiceActivity implements ConnectionListe
         trackballHandler.setAudioManager(am);
 
         // 沉浸式状态栏
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-//            setTranslucentStatus(true);
-//        }
-//        mTintManager = new SystemBarTintManager(this);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            setTranslucentStatus(true);
+        }
+        mTintManager = new SystemBarTintManager(this);
+
+        mTintManager.setStatusBarTintEnabled(true);
+        mTintManager.setStatusBarTintResource(R.color.actionbar_color);
     }
 
     protected void setTranslucentStatus(boolean on) {

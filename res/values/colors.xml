@@ -24,4 +24,9 @@
 
     <!-- 关于 -->
     <color name="about_text_color">#777777</color>
+
+    <!-- 二维码 -->
+    <color name="result_view">#b0000000</color>
+    <color name="viewfinder_mask">#60000000</color>
+    <color name="possible_result_points">#c0ffff00</color>
 </resources>
