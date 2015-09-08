@@ -80,7 +80,7 @@ public class MainActivity extends BaseActivity implements KeyCodeButton.KeyCodeH
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);  // 加载主界面
+        setContentView(R.layout.main); // 加载主界面
 
         ActionBar ab = getActionBar();
         ab.setDisplayHomeAsUpEnabled(true);
@@ -137,20 +137,21 @@ public class MainActivity extends BaseActivity implements KeyCodeButton.KeyCodeH
         mDrawerToggle.syncState();
 
         final String[] values = new String[]{"扫一扫", "多屏互动", "游戏手柄", "体感手柄", "文件共享", "检查更新", "设置"};
-//        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, android.R.id.text1, values);
-        Integer[] icons = new Integer[] { R.drawable.scan, R.drawable.miracast, R.drawable
-                .game_hand, R.drawable.somatic_hand, R.drawable.file_share, R.drawable.check_version, R
-                .drawable
-                .drawer_setting};
-        DrawerAdapter adapter = new DrawerAdapter(this, values, icons); mDrawerList.setAdapter
-                (adapter);
+        //        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, android.R.id.text1, values);
+        Integer[] icons = new Integer[]{R.drawable.scan, R.drawable.miracast, R.drawable.game_hand,
+                R.drawable.somatic_hand, R.drawable.file_share, R.drawable.check_version,
+                R.drawable.drawer_setting};
+        DrawerAdapter adapter = new DrawerAdapter(this, values, icons);
+
+        mDrawerList.setAdapter(adapter);
 
         mDrawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 switch (position) {
                     case 0:  // 扫一扫
-
+                            Intent scan = new Intent(MainActivity.this, MipcaActivityCapture.class);
+                            startActivity(scan);
                         break;
                     case 1:  // 多屏互动
 
@@ -159,28 +160,28 @@ public class MainActivity extends BaseActivity implements KeyCodeButton.KeyCodeH
 
                         break;
                     case 3:    // 体感手柄
-//
+                        //
                         break;
                     case 4:    // 文件共享
-//                        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/IkiMuhendis/LDrawer"));
-//                        startActivity(browserIntent);
+                        //                        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/IkiMuhendis/LDrawer"));
+                        //                        startActivity(browserIntent);
 
                         break;
                     case 5:   // 检查更新
-//                        Intent share = new Intent(Intent.ACTION_SEND);
-//                        share.setType("text/plain");
-//                        share.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//                        share.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.app_name));
-//                        share.putExtra(Intent.EXTRA_TEXT, getString(R.string.app_description) + "\n" +
-//                                "GitHub Page :  https://github.com/IkiMuhendis/LDrawer\n" +
-//                                "Sample App : https://play.google.com/store/apps/details?id=" +
-//                                getPackageName());
-//                        startActivity(Intent.createChooser(share, getString(R.string.app_name)));
+                        //                        Intent share = new Intent(Intent.ACTION_SEND);
+                        //                        share.setType("text/plain");
+                        //                        share.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        //                        share.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.app_name));
+                        //                        share.putExtra(Intent.EXTRA_TEXT, getString(R.string.app_description) + "\n" +
+                        //                                "GitHub Page :  https://github.com/IkiMuhendis/LDrawer\n" +
+                        //                                "Sample App : https://play.google.com/store/apps/details?id=" +
+                        //                                getPackageName());
+                        //                        startActivity(Intent.createChooser(share, getString(R.string.app_name)));
                         break;
                     case 6:  // 设置
-//                        String appUrl = "https://play.google.com/store/apps/details?id=" + getPackageName();
-//                        Intent rateIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(appUrl));
-//                        startActivity(rateIntent);
+                        //                        String appUrl = "https://play.google.com/store/apps/details?id=" + getPackageName();
+                        //                        Intent rateIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(appUrl));
+                        //                        startActivity(rateIntent);
                         break;
                 }
                 PromptManager.showToastTest(MainActivity.this, "点击了 " + values[position]);

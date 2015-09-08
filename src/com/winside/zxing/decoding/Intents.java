@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.winside.mini.zxing.decoding;
+package com.winside.zxing.decoding;
 
 /**
  * This class provides the constants to use when sending an Intent to Barcode Scanner.

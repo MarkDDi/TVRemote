@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.winside.mini.zxing.decoding;
+package com.winside.zxing.decoding;
 
 import java.util.Hashtable;
 import java.util.Vector;

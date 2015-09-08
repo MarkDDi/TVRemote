@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.winside.mini.zxing.decoding;
+package com.winside.zxing.decoding;
 import java.util.Hashtable;
 
 import android.os.Bundle;
@@ -29,8 +29,8 @@ import com.google.zxing.MultiFormatReader;
 import com.google.zxing.ReaderException;
 import com.google.zxing.Result;
 import com.google.zxing.common.HybridBinarizer;
-import com.winside.mini.zxing.camera.CameraManager;
-import com.winside.mini.zxing.camera.PlanarYUVLuminanceSource;
+import com.winside.zxing.camera.CameraManager;
+import com.winside.zxing.camera.PlanarYUVLuminanceSource;
 import com.winside.tvremote.MipcaActivityCapture;
 import com.winside.tvremote.R;
 

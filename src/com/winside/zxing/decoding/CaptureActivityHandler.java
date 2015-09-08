@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.winside.mini.zxing.decoding;
+package com.winside.zxing.decoding;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -27,8 +27,8 @@ import android.util.Log;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.Result;
-import com.winside.mini.zxing.camera.CameraManager;
-import com.winside.mini.zxing.view.ViewfinderResultPointCallback;
+import com.winside.zxing.camera.CameraManager;
+import com.winside.zxing.view.ViewfinderResultPointCallback;
 import com.winside.tvremote.MipcaActivityCapture;
 import com.winside.tvremote.R;
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.winside.mini.zxing.camera;
+package com.winside.zxing.camera;
 
 import android.graphics.Point;
 import android.hardware.Camera;

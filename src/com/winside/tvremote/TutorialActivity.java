@@ -33,7 +33,7 @@ public class TutorialActivity extends CommonTitleActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.welcome);
-        ((Button) findViewById(R.id.entry_button)).setVisibility(View.GONE);
+        ((Button) findViewById(R.id.entry_button)).setVisibility(View.INVISIBLE);
 
         setActionBarTitle(R.string.about_button_tutorial);
     }

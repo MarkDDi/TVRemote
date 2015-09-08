@@ -23,10 +23,10 @@ import android.widget.Toast;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.Result;
-import com.winside.mini.zxing.camera.CameraManager;
-import com.winside.mini.zxing.decoding.CaptureActivityHandler;
-import com.winside.mini.zxing.decoding.InactivityTimer;
-import com.winside.mini.zxing.view.ViewfinderView;
+import com.winside.zxing.camera.CameraManager;
+import com.winside.zxing.decoding.CaptureActivityHandler;
+import com.winside.zxing.decoding.InactivityTimer;
+import com.winside.zxing.view.ViewfinderView;
 
 /**
  * Initial the camera

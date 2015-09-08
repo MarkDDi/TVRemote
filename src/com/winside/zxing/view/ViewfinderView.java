@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.winside.mini.zxing.view;
+package com.winside.zxing.view;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -31,7 +31,7 @@ import android.util.AttributeSet;
 import android.view.View;
 
 import com.google.zxing.ResultPoint;
-import com.winside.mini.zxing.camera.CameraManager;
+import com.winside.zxing.camera.CameraManager;
 import com.winside.tvremote.R;
 
 /**
