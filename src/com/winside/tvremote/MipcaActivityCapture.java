@@ -32,7 +32,7 @@ import com.winside.zxing.view.ViewfinderView;
  * Initial the camera
  * @author Ryan.Tang
  */
-public class MipcaActivityCapture extends Activity implements Callback {
+public class MipcaActivityCapture extends CommonTitleActivity implements Callback {
 
 	private CaptureActivityHandler handler;
 	private ViewfinderView viewfinderView;
@@ -50,21 +50,23 @@ public class MipcaActivityCapture extends Activity implements Callback {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_capture);
+        setActionBarTitle(R.string.scan);
 		//ViewUtil.addTopView(getApplicationContext(), this, R.string.scan_card);
 		CameraManager.init(getApplication());
 		viewfinderView = (ViewfinderView) findViewById(R.id.viewfinder_view);
 		
-		Button mButtonBack = (Button) findViewById(R.id.button_back);
-		mButtonBack.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				MipcaActivityCapture.this.finish();
-				
-			}
-		});
+//		Button mButtonBack = (Button) findViewById(R.id.button_back);
+//		mButtonBack.setOnClickListener(new OnClickListener() {
+//
+//			@Override
+//			public void onClick(View v) {
+//				MipcaActivityCapture.this.finish();
+//
+//			}
+//		});
 		hasSurface = false;
 		inactivityTimer = new InactivityTimer(this);
+
 	}
 
 	@Override
