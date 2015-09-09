@@ -499,7 +499,10 @@ public final class CoreService extends Service implements ConnectionManager {
                 connect();
             } else if (target == null) {
                 LogUtils.e("未找到设备，弹出提示");
-                changeState(State.DEVICE_FINDER);  // 未找到远程设备
+                if (DeviceFinder.ISCANCEL != 1) {  // 第一次的时候自动弹出搜索，取消之后不再弹出
+                    // 在DeviceFinder buildTimeoutDialog 中进行修改
+                    changeState(State.DEVICE_FINDER);  // 未找到远程设备
+                }
             }
         }
 

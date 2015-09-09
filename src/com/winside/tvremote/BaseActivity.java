@@ -26,6 +26,7 @@ import com.winside.tvremote.systembar.SystemBarTintManager;
 import com.winside.tvremote.util.Action;
 import com.winside.tvremote.util.Debug;
 import com.winside.tvremote.util.LogUtils;
+import com.winside.tvremote.util.PromptManager;
 import com.winside.tvremote.widget.SoftDpad;
 import com.winside.tvremote.widget.SoftDpad.DpadListener;
 
@@ -290,10 +291,12 @@ public class BaseActivity extends CoreServiceActivity implements ConnectionListe
                             getConnectionManager().setTarget(remoteDevice);
                         }
                     }
+
                     getConnectionManager().deviceFinderFinished();
                     LogUtils.e("deviceFinderFinished...");
                     connectOrFinish();
                 } else if (requestCode == CODE_PAIRING) {
+                    LogUtils.e("CODE_PARIRING");
                     getConnectionManager().pairingFinished();
                     handlePairingResult(resultCode);
                 }
@@ -312,6 +315,7 @@ public class BaseActivity extends CoreServiceActivity implements ConnectionListe
                 connect();
                 break;
             case RESULT_CANCELED:
+
                 getConnectionManager().requestDeviceFinder();
                 break;
             case PairingActivity.RESULT_CONNECTION_FAILED:
@@ -529,7 +533,8 @@ public class BaseActivity extends CoreServiceActivity implements ConnectionListe
             if (getConnectionManager().getTarget() != null) {
                 connect();
             } else {
-                finish();
+//                finish();
+                PromptManager.showToastTest(BaseActivity.this, R.string.need_conn);
             }
         }
     }

@@ -81,7 +81,7 @@
     <string name="voice_search_send">搜索</string>
     <string name="voice_cancel">取消</string>
     <string name="voice_dialog_label">语音命令</string>
-    <string name="sender_missing">正在连接中...</string>
+    <string name="sender_missing">没有连接到设备...</string>
 
     <!--  Content Descriptions -->
     <string name="keyboard_hide_desc">隐藏键盘</string>
@@ -167,4 +167,5 @@
     <string name="share">分享</string>
     <string name="about">关于</string>
     <string name="version">版本</string>
+    <string name="need_conn">您需要连接到一个设备才能进行操作</string>
 </resources>

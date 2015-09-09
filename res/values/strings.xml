@@ -173,4 +173,5 @@
     <string name="scan">扫一扫</string>
 
     <string name="scan_text">将二维码放入框内, 即可自动扫描</string>
+    <string name="need_conn">您需要连接到一个设备才能进行操作</string>
 </resources>

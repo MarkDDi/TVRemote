@@ -73,6 +73,7 @@ public final class DeviceFinder extends Activity {
      * Request code used by wifi settings activity
      */
     private static final int CODE_WIFI_SETTINGS = 1;
+    public static int ISCANCEL = 0;
 
     private ProgressDialog progressDialog;
     private AlertDialog confirmationDialog;
@@ -205,7 +206,7 @@ public final class DeviceFinder extends Activity {
         finish();
     }
 
-    // 在启动的时候在onStart()调用
+    // 在启动的时候在onStart()调用，还有搜索未找到，取消时调用
     private void startBroadcast() {
         if (!isWifiAvailable()) {
             buildNoWifiDialog().show();
@@ -546,6 +547,7 @@ public final class DeviceFinder extends Activity {
         return builder.setMessage(message).setCancelable(false).setPositiveButton(R.string.finder_wait, retryListener).setNegativeButton(R.string.finder_cancel, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialogInterface, int id) {
                         setResult(RESULT_CANCELED, null);
+                        ISCANCEL = 1;
                         finish();
                     }
                 }).create();
