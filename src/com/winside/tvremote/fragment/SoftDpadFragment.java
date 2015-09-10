@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.winside.tvremote.MainActivity;
+import com.winside.tvremote.R;
 import com.winside.tvremote.widget.SoftDpad;
 
 /**
@@ -33,8 +34,8 @@ public class SoftDpadFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        View view = inflater.inflate(com.winside.tvremote.R.layout.softdpad, null);
-        softDpad = ((SoftDpad) view.findViewById(com.winside.tvremote.R.id.SoftDpad));
+        View view = inflater.inflate(R.layout.softdpad, null);
+        softDpad = ((SoftDpad) view.findViewById(R.id.SoftDpad));
         softDpad.setDpadListener(mainActivity.getDefaultDpadListener());
         return view;
     }

@@ -12,7 +12,7 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="@dimen/title_marginTop"
         android:background="@drawable/top_switch_mode_shape"
-        android:padding="5dp"
+        android:padding="@dimen/title_padding"
         >
 
         <TextView

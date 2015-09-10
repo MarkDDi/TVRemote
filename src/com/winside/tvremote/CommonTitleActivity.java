@@ -87,6 +87,7 @@ public abstract class CommonTitleActivity extends Activity {
                 float finalX = x - tempX;
                 if (finalX > 200f) {
                     this.finish();
+                    overridePendingTransition(android.R.anim.slide_in_left,android.R.anim.slide_out_right);
                 }
                 LogUtils.e("finalX = " + finalX);
                 break;

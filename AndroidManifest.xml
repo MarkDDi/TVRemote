@@ -65,7 +65,7 @@
             android:name=".KeyboardActivity"
             android:configChanges="orientation|keyboardHidden"
             android:screenOrientation="sensor"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:theme="@style/AppTheme"
             android:windowSoftInputMode="stateAlwaysVisible|adjustResize"/>
         <activity
             android:name=".ShortcutsActivity"
@@ -77,11 +77,10 @@
             android:name=".DeviceFinder"
             android:label="@string/finder_label"
             android:launchMode="singleTop"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
+            android:theme="@style/AppTheme"/>
         <activity
             android:name=".PairingActivity"
             android:label="@string/pairing_activity_label"
-            android:launchMode="singleTop"
             android:theme="@style/AppTheme"/>
         <activity
             android:name=".AboutActivity"
@@ -101,7 +100,6 @@
             android:theme="@style/AppTheme"/>
         <activity
             android:name=".MipcaActivityCapture"
-            android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme"/>
 

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Vector;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
@@ -18,11 +19,13 @@ import android.view.SurfaceHolder.Callback;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.Toast;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.Result;
+import com.winside.tvremote.util.PromptManager;
 import com.winside.zxing.camera.CameraManager;
 import com.winside.zxing.decoding.CaptureActivityHandler;
 import com.winside.zxing.decoding.InactivityTimer;
@@ -34,7 +37,8 @@ import com.winside.zxing.view.ViewfinderView;
  */
 public class MipcaActivityCapture extends CommonTitleActivity implements Callback {
 
-	private CaptureActivityHandler handler;
+    public static final String RESULT_STRING = "result";
+    private CaptureActivityHandler handler;
 	private ViewfinderView viewfinderView;
 	private boolean hasSurface;
 	private Vector<BarcodeFormat> decodeFormats;
@@ -54,7 +58,6 @@ public class MipcaActivityCapture extends CommonTitleActivity implements Callbac
 		//ViewUtil.addTopView(getApplicationContext(), this, R.string.scan_card);
 		CameraManager.init(getApplication());
 		viewfinderView = (ViewfinderView) findViewById(R.id.viewfinder_view);
-		
 //		Button mButtonBack = (Button) findViewById(R.id.button_back);
 //		mButtonBack.setOnClickListener(new OnClickListener() {
 //
@@ -123,9 +126,10 @@ public class MipcaActivityCapture extends CommonTitleActivity implements Callbac
 		}else {
 			Intent resultIntent = new Intent();
 			Bundle bundle = new Bundle();
-			bundle.putString("result", resultString);
+			bundle.putString(RESULT_STRING, resultString);
 			bundle.putParcelable("bitmap", barcode);
 			resultIntent.putExtras(bundle);
+//            PromptManager.showToast(this, "scan result = " + resultString);
 			this.setResult(RESULT_OK, resultIntent);
 		}
 		MipcaActivityCapture.this.finish();

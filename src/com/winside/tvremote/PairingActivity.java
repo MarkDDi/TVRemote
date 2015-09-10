@@ -25,6 +25,9 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Parcel;
+import android.os.Parcelable;
+import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -45,6 +48,7 @@ import com.winside.tvremote.util.LogUtils;
 import com.winside.tvremote.util.PromptManager;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.UnknownHostException;
 import java.security.GeneralSecurityException;
 import java.util.Arrays;
@@ -65,6 +69,9 @@ public class PairingActivity extends CoreServiceActivity {
     private static final String EXTRA_PAIRING_RESULT = "pairing_result";
     private static final String REMOTE_NAME = Build.MANUFACTURER + " " +
             Build.MODEL;
+    private static final int REQUEST_SCAN = 1;
+
+    private static boolean isScan = false;
 
     /**
      * Result for pairing failure due to connection problem.
@@ -120,11 +127,13 @@ public class PairingActivity extends CoreServiceActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        handler = new Handler();
-
-        progressDialog = buildProgressDialog();
-        progressDialog.show();
-
+        if (savedInstanceState != null) {
+            pairing = savedInstanceState.getParcelable("pairing");
+        } else {
+            handler = new Handler();
+            progressDialog = buildProgressDialog();
+            progressDialog.show();
+        }
         remoteDevice = getIntent().getParcelableExtra(EXTRA_REMOTE_DEVICE);
         if (remoteDevice == null) {
             throw new IllegalStateException();
@@ -132,13 +141,32 @@ public class PairingActivity extends CoreServiceActivity {
     }
 
     @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (pairing != null) {
+            outState.putParcelable("pairing", pairing);
+        }
+    }
+
+    @Override
     protected void onPause() {
+
+           /* if (pairing != null) {
+                pairing.cancel();
+                pairing = null;
+                PromptManager.showToast(this, "pairing set null");
+            }*/
+        hideKeyboard();
+        super.onPause();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
         if (pairing != null) {
             pairing.cancel();
             pairing = null;
         }
-        hideKeyboard();
-        super.onPause();
     }
 
     public static Intent createIntent(Context context, RemoteDevice remoteDevice) {
@@ -179,7 +207,13 @@ public class PairingActivity extends CoreServiceActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 // 扫一扫
-                PromptManager.showToastTest(PairingActivity.this, R.string.scan);
+                //                PromptManager.showToastTest(PairingActivity.this, R.string.scan);
+                alertDialog = null;
+                client.scanCode();
+                Intent scanActivity = new Intent(PairingActivity.this, MipcaActivityCapture.class);
+                scanActivity.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                PairingActivity.this.startActivityForResult(scanActivity, REQUEST_SCAN);
+
             }
         }).setCancelable(false).setTitle(R.string.pairing_label).setMessage(remoteDevice.getName()).setView(view);
         return builder.create();
@@ -195,9 +229,10 @@ public class PairingActivity extends CoreServiceActivity {
     /**
      * Pairing client thread, that handles pairing logic.
      */
-    private final class PairingClientThread extends Thread {
+    private final class PairingClientThread extends Thread implements Parcelable {
         private String secret;
         private boolean isCancelling;
+
 
         public synchronized void setSecret(String secretEntered) {
             if (secret != null) {
@@ -218,6 +253,15 @@ public class PairingActivity extends CoreServiceActivity {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+        }
+
+        public void scanCode() {
+            synchronized (this) {
+                LogUtils.d("Scan code: " + this);
+                isScan = true;
+                //                notify();
+            }
+
         }
 
         private synchronized String getSecret() {
@@ -311,8 +355,10 @@ public class PairingActivity extends CoreServiceActivity {
                                 LogUtils.d("Exception while setting secret: ", exception);
                                 session.teardown();
                             }
+                        } else if (isScan) {
+                            isScan = false;
                         } else {
-                            session.teardown();
+                            session.teardown();  // 去除TV端的配对对话框
                         }
                     }
 
@@ -336,6 +382,29 @@ public class PairingActivity extends CoreServiceActivity {
                 sendPairingResult(result);
             }
         }
+
+
+        @Override
+        public int describeContents() { return 0; }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeString(this.secret);
+            dest.writeByte(isCancelling ? (byte) 1 : (byte) 0);
+        }
+
+        public PairingClientThread() {}
+
+        protected PairingClientThread(Parcel in) {
+            this.secret = in.readString();
+            this.isCancelling = in.readByte() != 0;
+        }
+
+        public final Creator<PairingClientThread> CREATOR = new Creator<PairingClientThread>() {
+            public PairingClientThread createFromParcel(Parcel source) {return new PairingClientThread(source);}
+
+            public PairingClientThread[] newArray(int size) {return new PairingClientThread[size];}
+        };
     }
 
     // 在子线程中回调
@@ -423,5 +492,22 @@ public class PairingActivity extends CoreServiceActivity {
     private void showKeyboard() {
         InputMethodManager manager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         manager.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if (requestCode == REQUEST_SCAN && resultCode == MipcaActivityCapture.RESULT_OK) {
+            String scan_result = data.getStringExtra(MipcaActivityCapture.RESULT_STRING);
+            if (!TextUtils.isEmpty(scan_result)) {
+
+                if (pairing != null) {
+                    pairing.setSecret(scan_result);
+                    finishedPairing(Result.SUCCEEDED);
+                }
+            }
+        } else {
+            finish();
+        }
     }
 }
