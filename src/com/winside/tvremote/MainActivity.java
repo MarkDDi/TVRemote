@@ -184,7 +184,6 @@ public class MainActivity extends BaseActivity implements KeyCodeButton.KeyCodeH
                         //                        startActivity(rateIntent);
                         break;
                 }
-                PromptManager.showToastTest(MainActivity.this, "点击了 " + values[position]);
 
             }
         });
