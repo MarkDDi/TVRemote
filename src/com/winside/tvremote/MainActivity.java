@@ -13,6 +13,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings;
 import android.speech.RecognizerIntent;
 import android.support.v4.widget.DrawerLayout;
 import android.text.TextUtils;
@@ -146,6 +147,12 @@ public class MainActivity extends BaseActivity implements KeyCodeButton.KeyCodeH
         mDrawerList.setAdapter(adapter);
 
         mDrawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            /**
+             * @param parent
+             * @param view
+             * @param position
+             * @param id
+             */
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 switch (position) {
@@ -153,8 +160,9 @@ public class MainActivity extends BaseActivity implements KeyCodeButton.KeyCodeH
                             Intent scan = new Intent(MainActivity.this, MipcaActivityCapture.class);
                             startActivity(scan);
                         break;
-                    case 1:  // 多屏互动
-
+                    case 1:  // 多屏互动(无线显示)
+                            Intent wifi_display = new Intent(Settings. ACTION_SETTINGS);
+                            startActivity(wifi_display);
                         break;
                     case 2:   // 游戏手柄
 
