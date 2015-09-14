@@ -171,8 +171,6 @@ public class MainActivity extends BaseActivity implements KeyCodeButton.KeyCodeH
                         //
                         break;
                     case 4:    // 文件共享
-                        //                        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/IkiMuhendis/LDrawer"));
-                        //                        startActivity(browserIntent);
 
                         break;
                     case 5:   // 检查更新
