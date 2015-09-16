@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.winside.zxing.view;
+package com.winside.zxing.handle.view;
 
 import com.google.zxing.ResultPoint;
 import com.google.zxing.ResultPointCallback;
@@ -28,7 +28,7 @@ public final class ViewfinderResultPointCallback implements ResultPointCallback 
   }
 
   public void foundPossibleResultPoint(ResultPoint point) {
-//    viewfinderView.addPossibleResultPoint(point);
+    viewfinderView.addPossibleResultPoint(point);
   }
 
 }

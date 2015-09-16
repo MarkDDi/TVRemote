@@ -30,7 +30,6 @@ import android.graphics.Typeface;
 import android.util.AttributeSet;
 import android.view.View;
 
-import com.google.zxing.ResultPoint;
 import com.winside.zxing.camera.CameraManager;
 import com.winside.tvremote.R;
 
@@ -108,8 +107,8 @@ public final class ViewfinderView extends View {
 	private final int resultColor;
 	
 	private final int resultPointColor;
-	private Collection<ResultPoint> possibleResultPoints;
-	private Collection<ResultPoint> lastPossibleResultPoints;
+//	private Collection<ResultPoint> possibleResultPoints;
+//	private Collection<ResultPoint> lastPossibleResultPoints;
 
 	boolean isFirst;
 	
@@ -126,7 +125,7 @@ public final class ViewfinderView extends View {
 		resultColor = resources.getColor(R.color.result_view);
 
 		resultPointColor = resources.getColor(R.color.possible_result_points);
-		possibleResultPoints = new HashSet<ResultPoint>(5);
+//		possibleResultPoints = new HashSet<ResultPoint>(5);
 	}
 
 	@Override
@@ -203,7 +202,7 @@ public final class ViewfinderView extends View {
 			
 			
 
-			Collection<ResultPoint> currentPossible = possibleResultPoints;
+			/*Collection<ResultPoint> currentPossible = possibleResultPoints;
 			Collection<ResultPoint> currentLast = lastPossibleResultPoints;
 			if (currentPossible.isEmpty()) {
 				lastPossibleResultPoints = null;
@@ -224,7 +223,7 @@ public final class ViewfinderView extends View {
 					canvas.drawCircle(frame.left + point.getX(), frame.top
 							+ point.getY(), 3.0f, paint);
 				}
-			}
+			}*/
 
 			
 			//只刷新扫描框的内容，其他地方不刷新
@@ -251,8 +250,8 @@ public final class ViewfinderView extends View {
 		invalidate();
 	}
 
-	public void addPossibleResultPoint(ResultPoint point) {
-		possibleResultPoints.add(point);
-	}
+//	public void addPossibleResultPoint(ResultPoint point) {
+//		possibleResultPoints.add(point);
+//	}
 
 }

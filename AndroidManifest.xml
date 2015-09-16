@@ -103,6 +103,10 @@
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme"/>
 
+        <activity
+            android:name=".HandleActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme"/>
         <service
             android:name=".CoreService"
             android:enabled="true"

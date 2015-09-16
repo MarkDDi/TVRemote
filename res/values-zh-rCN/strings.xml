@@ -168,4 +168,33 @@
     <string name="about">关于</string>
     <string name="version">版本</string>
     <string name="need_conn">您需要连接到一个设备才能进行操作</string>
+
+
+    <!-- 体感手柄 -->
+    <string name="title_activity_launch">掌视体感</string>
+    <string name="wifi_alter">Wi-Fi状态</string>
+    <string name="wifi_disable">无线网络未打开</string>
+    <string name="wifi_error">无线网络未连接</string>
+    <string name="app_continue">继续</string>
+    <string name="app_ok">确定</string>
+    <string name="app_cancel">取消</string>
+    <string name="app_setting">设置</string>
+    <string name="app_exit">退出</string>
+    <string name="app_tips">提示</string>
+    <string name="scan_select">主机选择</string>
+    <string name="scan_waiting_title">扫描主机,请稍候</string>
+    <string name="ip_input_title">请输入主机的IP地址</string>
+    <string name="ip_input_error_title">IP地址错误</string>
+    <string name="ip_input_error1">输入格式错误[范例：10.0.0.101]</string>
+    <string name="ip_input_error2">输入地址不符合规范，数字应该在0-255之间</string>
+    <string name="mode_select">功能选择</string>
+    <string name="mode_1">体感(空中鼠标) 模式</string>
+    <string name="mode_2">体感(触摸鼠标) 模式</string>
+    <string name="mode_3">触摸屏 模式</string>
+    <string name="mode_4">键盘 模式</string>
+    <string name="set_back">主机 [返回] 键</string>
+    <string name="set_exit">退出</string>
+    <string name="set_AutoPrintScreenOn">打开 [同步屏幕]</string>
+    <string name="set_AutoPrintScreenOff">关闭 [同步屏幕]</string>
+    <string name="exit_message">是否确定要退出?</string>
 </resources>

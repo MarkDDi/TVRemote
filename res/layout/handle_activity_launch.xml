@@ -1,0 +1,39 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/handle_img_launch_bg" >
+
+    <ImageButton
+        android:id="@+id/imageButton_ip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:src="@drawable/handle_img_ip_off" />
+
+    <ImageButton
+        android:id="@+id/imageButton_exit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:src="@drawable/handle_img_exit_off" />
+
+    <ImageButton
+        android:id="@+id/imageButton_scan"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/imageButton_ip"
+        android:layout_alignParentLeft="true"
+        android:src="@drawable/handle_img_scan_off" />
+
+    <ImageButton
+        android:id="@+id/imageButton_barcode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/imageButton_exit"
+        android:layout_alignParentRight="true"
+        android:src="@drawable/handle_img_bc_off" />
+
+</RelativeLayout>

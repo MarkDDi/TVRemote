@@ -161,14 +161,15 @@ public class MainActivity extends BaseActivity implements KeyCodeButton.KeyCodeH
                             startActivity(scan);
                         break;
                     case 1:  // 多屏互动(无线显示)
-                            Intent wifi_display = new Intent(Settings. ACTION_SETTINGS);
+                            Intent wifi_display = new Intent(Settings.ACTION_SETTINGS);
                             startActivity(wifi_display);
                         break;
                     case 2:   // 游戏手柄
 
                         break;
                     case 3:    // 体感手柄
-                        //
+                        Intent handle = new Intent(MainActivity.this, HandleActivity.class);
+                        startActivity(handle);
                         break;
                     case 4:    // 文件共享
 
