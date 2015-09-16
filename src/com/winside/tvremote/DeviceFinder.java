@@ -437,7 +437,7 @@ public final class DeviceFinder extends Activity {
         }
     }
 
-    // 弹出搜索进度框
+    // 弹出搜索进度框，在startBroadcasts()调用
     private ProgressDialog buildBroadcastProgressDialog() {
         String message;
         String networkName = getNetworkName();
