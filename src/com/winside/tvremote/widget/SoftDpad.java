@@ -17,6 +17,7 @@
 package com.winside.tvremote.widget;
 
 import com.winside.tvremote.ConstValues;
+import com.winside.tvremote.R;
 import com.winside.tvremote.util.LogUtils;
 
 import android.content.Context;
@@ -164,15 +165,14 @@ public final class SoftDpad extends ImageView {
 
         sharedPreferences = getContext().getSharedPreferences(ConstValues.settings, Context.MODE_PRIVATE);
 
-        LogUtils.e("SoftDpad 构造，获取xml属性");
         vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
 
-        TypedArray a = context.obtainStyledAttributes(attrs, com.winside.tvremote.R.styleable.SoftDpad);
+        TypedArray a = context.obtainStyledAttributes(attrs,R.styleable.SoftDpad);
 
         try {
-            radiusPercent = a.getFloat(com.winside.tvremote.R.styleable.SoftDpad_radius_percent, 100.0f);
-            radiusPercentOk = a.getFloat(com.winside.tvremote.R.styleable.SoftDpad_radius_percent_ok, 20.0f);
-            radiusPercentIgnore = a.getFloat(com.winside.tvremote.R.styleable.SoftDpad_radius_percent_ignore_touch, radiusPercent);
+            radiusPercent = a.getFloat(R.styleable.SoftDpad_radius_percent, 100.0f);
+            radiusPercentOk = a.getFloat(R.styleable.SoftDpad_radius_percent_ok, 20.0f);
+            radiusPercentIgnore = a.getFloat(R.styleable.SoftDpad_radius_percent_ignore_touch, radiusPercent);
 
             if (radiusPercentIgnore < radiusPercent) {
                 throw new IllegalStateException("Ignored area smaller than touchable area");
@@ -238,7 +238,6 @@ public final class SoftDpad extends ImageView {
      * Initializes the widget. Must be called after the view has been inflated.
      */
     public void prepare() {
-        LogUtils.e("SoftDpad prepar()方法被调用");
         int w = getWidth() - getPaddingLeft() - getPaddingRight();
         radiusTouchable = (int) (radiusPercent * w / 200);
         radiusIgnore = (int) (radiusPercentIgnore * w / 200);
@@ -575,7 +574,6 @@ public final class SoftDpad extends ImageView {
 
         private static final int MAX_POOL_SIZE = 10;
         private static final Pools.SimplePool<TouchHistory> sPool = new Pools.SimplePool<TouchHistory>(MAX_POOL_SIZE);
-
         public static TouchHistory obtain(float x, float y, float pressure) {
             TouchHistory data = sPool.acquire();
             if (data == null) {

@@ -197,4 +197,5 @@
     <string name="set_AutoPrintScreenOn">打开 [同步屏幕]</string>
     <string name="set_AutoPrintScreenOff">关闭 [同步屏幕]</string>
     <string name="exit_message">是否确定要退出?</string>
+    <string name="handle">体感手柄</string>
 </resources>

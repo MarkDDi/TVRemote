@@ -39,6 +39,7 @@ import android.widget.ImageButton;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.Result;
+import com.winside.tvremote.util.LogUtils;
 import com.winside.zxing.camera.CameraManager;
 
 import com.winside.zxing.decoding.InactivityTimer;
@@ -81,8 +82,8 @@ import java.util.regex.Pattern;
 //import android.view.SurfaceView;
 //import android.view.ViewGroup.LayoutParams;
 
-public class HandleActivity extends Activity implements SensorEventListener, Callback {
-    private static String _TAG = "TDwifiRemote";
+public class HandleActivity extends CommonTitleActivity implements SensorEventListener, Callback {
+//    private static String _TAG = "TDwifiRemote";
     private static int _OutputReportLen = 150;
 
     private static int _HWVer = 0x5002;
@@ -279,15 +280,16 @@ public class HandleActivity extends Activity implements SensorEventListener, Cal
         super.onCreate(savedInstanceState);
 
         //no title bar
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        requestWindowFeature(Window.FEATURE_PROGRESS);
+//        requestWindowFeature(Window.FEATURE_NO_TITLE);
+//        requestWindowFeature(Window.FEATURE_PROGRESS);
         //no status bar
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+//        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         //keep screen on
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+//        getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         getWindowManager().getDefaultDisplay().getMetrics(_DM);
 
+        actionBar.setTitle(R.string.handle);
         LoadCaliInfo();
 
         _LaunchHandler.post(_LaunchRunnable);
@@ -318,25 +320,25 @@ public class HandleActivity extends Activity implements SensorEventListener, Cal
                     case Sensor.TYPE_ACCELEROMETER: //加速度
                         _Ability |= 0x01;
                         mSensorManager.registerListener(this, tsen, SensorManager.SENSOR_DELAY_GAME);
-                        Log.e(_TAG, "registered sensor: " + tsen.getName() + "--" + tsen.getType());
+                        LogUtils.e("registered sensor: " + tsen.getName() + "--" + tsen.getType());
                         break;
                     case Sensor.TYPE_GYROSCOPE: //陀螺仪
                         _Ability |= 0x02;
                         mSensorManager.registerListener(this, tsen, SensorManager.SENSOR_DELAY_GAME);
-                        Log.e(_TAG, "registered sensor: " + tsen.getName() + "--" + tsen.getType());
+                        LogUtils.e("registered sensor: " + tsen.getName() + "--" + tsen.getType());
                         break;
                     case Sensor.TYPE_MAGNETIC_FIELD://地磁
                         _Ability |= 0x04;
                         mSensorManager.registerListener(this, tsen, SensorManager.SENSOR_DELAY_GAME);
-                        Log.e(_TAG, "registered sensor: " + tsen.getName() + "--" + tsen.getType());
+                        LogUtils.e("registered sensor: " + tsen.getName() + "--" + tsen.getType());
                         break;
                     case Sensor.TYPE_ORIENTATION: // 方向传感
                         _Ability |= 0x08;
                         mSensorManager.registerListener(this, tsen, SensorManager.SENSOR_DELAY_GAME);
-                        Log.e(_TAG, "registered sensor: " + tsen.getName() + "--" + tsen.getType());
+                        LogUtils.e("registered sensor: " + tsen.getName() + "--" + tsen.getType());
                         break;
                     default:
-                        Log.e(_TAG, "sensor found: " + tsen.getName() + " " + tsen.getType());
+                        LogUtils.e("sensor found: " + tsen.getName() + " " + tsen.getType());
                         break;
                 }
             }
@@ -354,8 +356,9 @@ public class HandleActivity extends Activity implements SensorEventListener, Cal
         }
 
         mSensorManager.unregisterListener(this);
+        unregisterReceiver(mBatInfoReceiver);
         mSensorManager = null;
-        System.gc();
+//        System.gc();
     }
 
     protected void onDestroy() {
@@ -368,16 +371,15 @@ public class HandleActivity extends Activity implements SensorEventListener, Cal
 
         DisconnectHost();
 
-        System.gc();
-        System.runFinalization();
-        System.exit(0);
+//        System.gc();
+//        System.runFinalization();
+//        System.exit(0);
 
         super.onDestroy();
     }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        // TODO Auto-generated method stub
         //Log.i ("Virtual Key Test", "onKeyDown: " + keyCode + ";  getKeyCode: " + event.getKeyCode());
         //Log.i(_TAG, "onKeyDown :" + keyCode);
 
@@ -388,7 +390,7 @@ public class HandleActivity extends Activity implements SensorEventListener, Cal
             }
         }
 
-        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+/*        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
             //dialog 提示 是否确定要退出
             final AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle(R.string.app_tips);
@@ -403,14 +405,14 @@ public class HandleActivity extends Activity implements SensorEventListener, Cal
 
             builder.show();
             //Log.i (_TAG, "KEYCODE_BACK");
-            return false;
-        }
+           return false;
+      }
+      */
         return super.onKeyDown(keyCode, event);
     }
 
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
-        // TODO Auto-generated method stub
         //Log.i(_TAG, "onKeyUp :" + keyCode);
         if (keyCode < MaxKeyCodeNum) {
             int keyboardcode = KeyCodeToKeyboardCode[keyCode];
@@ -509,7 +511,7 @@ public class HandleActivity extends Activity implements SensorEventListener, Cal
                 break;
             }
             case 0x10: {
-                Log.i(_TAG, "0x10 in");
+                LogUtils.i("0x10 in");
                 setContentView(R.layout.handle_activity_bcview);
                 bcInit();
                 break;
@@ -1020,12 +1022,12 @@ public class HandleActivity extends Activity implements SensorEventListener, Cal
         //mac address 程序先执行 获取mac
         String hostmac = info.getMacAddress();
         ConvertMACAddr(hostmac);
-        Log.i(_TAG, "mac addr: " + hostmac);
+        LogUtils.i("mac addr: " + hostmac);
 
         //ip address  获取IP address
         int hostip = info.getIpAddress();
         _IPAddr = hostip;
-        Log.i(_TAG, "Local IP Address: " + hostip);
+        LogUtils.i("Local IP Address: " + hostip);
 
         //dialog
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -1110,7 +1112,7 @@ public class HandleActivity extends Activity implements SensorEventListener, Cal
                     return;
                 }
                 //开始查找主机
-                Log.i(_TAG, "QueryHost start....");
+                LogUtils.i("QueryHost start....");
 
                 DisconnectHost();
                 t_ipArray.clear();
@@ -1141,7 +1143,7 @@ public class HandleActivity extends Activity implements SensorEventListener, Cal
 
                 //print host address  查找到的主机地址列表
                 for (int i = 0; i < t_ipArray.size(); i++) {
-                    Log.i(_TAG, "QueryHost " + t_ipArray.get(i));
+                    LogUtils.i("QueryHost " + t_ipArray.get(i));
                 }
 
                 if (t_ipArray.size() > 0)        //
@@ -1172,7 +1174,7 @@ public class HandleActivity extends Activity implements SensorEventListener, Cal
 
                     ipSelect.show();
                 }
-                Log.i(_TAG, "QueryHost end....");
+                LogUtils.i("QueryHost end....");
 
                 Btn_ip.setEnabled(true);
                 Btn_barcode.setEnabled(true);
@@ -1180,7 +1182,7 @@ public class HandleActivity extends Activity implements SensorEventListener, Cal
 
             if (_StartIPInput)  // 
             {
-                Log.i(_TAG, "_StartIPInput start....");
+                LogUtils.i("_StartIPInput start....");
 
                 _StartIPInput = false;
                 DisconnectHost();
@@ -1206,7 +1208,7 @@ public class HandleActivity extends Activity implements SensorEventListener, Cal
                         String ip;
                         ip = ipinput.getText().toString();
 
-                        Log.i(_TAG, "ipinput: " + ip);
+                        LogUtils.i("ipinput: " + ip);
 
                         Pattern patt = Pattern.compile("\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}");
                         Matcher mat = patt.matcher(ip);
@@ -1287,9 +1289,9 @@ public class HandleActivity extends Activity implements SensorEventListener, Cal
 
         public void run() {
             if (ConnectHost(ipaddr)) {
-                Log.i(_TAG, "ConnectHost Success");
+                LogUtils.i("ConnectHost Success");
             } else {
-                Log.i(_TAG, "ConnectHost fail");
+                LogUtils.i("ConnectHost fail");
             }
         }
     }
@@ -1419,7 +1421,6 @@ public class HandleActivity extends Activity implements SensorEventListener, Cal
     ;
 
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
-        // TODO Auto-generated method stub
     }
 
     public void onSensorChanged(SensorEvent event) {
@@ -1488,7 +1489,7 @@ public class HandleActivity extends Activity implements SensorEventListener, Cal
                     if ((_RemoteMode == 3) && (_AutoPrintScreen)) {
                         if (((System.currentTimeMillis() - _AskPrintScreenTime) > 3000) || ((_PrintScreenRecTime != 0) && ((System.currentTimeMillis() - _PrintScreenRecTime) > 500))) {
                             _AskPrintScreenTime = System.currentTimeMillis();
-                            Log.i(_TAG, "Send PS report");
+                            LogUtils.i("Send PS report");
                             RemoteSend0x71Report();
                         }
                     }
@@ -1711,10 +1712,10 @@ public class HandleActivity extends Activity implements SensorEventListener, Cal
             _Dout.write(data);
             //_Dout.flush();
         } catch (IOException e) {
-            Log.e(_TAG, "_ErrCount (write)");
+            LogUtils.e("_ErrCount (write)");
             if (!TryReconnect()) {
                 //连接断开
-                Log.e(_TAG, "Reconnect failed, disconnect");
+                LogUtils.e("Reconnect failed, disconnect");
                 DisconnectHost();
             }
             return false;
@@ -2165,7 +2166,7 @@ public class HandleActivity extends Activity implements SensorEventListener, Cal
         inactivityTimer.onActivity();
         //viewfinderView.drawResultBitmap(barcode);
         if (ipCheck(obj.getText())) {
-            Log.i(_TAG, obj.getBarcodeFormat().toString() + ":" + obj.getText());
+            LogUtils.i(obj.getBarcodeFormat().toString() + ":" + obj.getText());
             bcExit();
             InitUI((byte) 0x00);
 
@@ -2173,7 +2174,7 @@ public class HandleActivity extends Activity implements SensorEventListener, Cal
             Thread thread = new Thread(new _RConnectHost(_TargetIpAddr));
             thread.start();
         } else {
-            Log.i(_TAG, "restart - " + obj.getBarcodeFormat().toString() + ":" + obj.getText());
+            LogUtils.i("restart - " + obj.getBarcodeFormat().toString() + ":" + obj.getText());
             bcExit();
             bcInit();
         }

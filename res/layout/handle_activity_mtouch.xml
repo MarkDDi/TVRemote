@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/layout_mw_bg"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@drawable/handle_img_mw_bg"
-    android:orientation="vertical"
-    android:padding="0.0px" >
+<RelativeLayout android:id="@+id/layout_mw_bg"
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+
+                android:padding="0.0px">
+    <!--android:background="@drawable/handle_img_mw_bg"-->
+
 
     <ImageButton
         android:id="@+id/imageButton_mw_setting"
@@ -14,6 +16,6 @@
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
         android:layout_marginRight="15dp"
-        android:src="@drawable/handle_img_settingw_off" />
+        android:src="@drawable/handle_img_settingw_off"/>
 
 </RelativeLayout>
