@@ -32,18 +32,18 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 
 import com.google.zxing.BarcodeFormat;
 import com.winside.tvremote.util.LogUtils;
 import com.winside.tvremote.util.PromptManager;
-
 import com.winside.zxing.decoding.InactivityTimer;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -58,7 +58,13 @@ import java.util.Vector;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class HandleActivity extends CommonTitleActivity implements SensorEventListener {
+/**
+ * Author        : lu
+ * Data          : 2015/9/22
+ * Time          : 15:01
+ * Decription    :
+ */
+public class GameHandleActivity extends CommonTitleActivity implements SensorEventListener {
 
     // 连接的目标主机端口
     private static final int DST_PORT = 4215;
@@ -95,7 +101,7 @@ public class HandleActivity extends CommonTitleActivity implements SensorEventLi
     private DataInputStream _Din = null;                //receive data
     private boolean _ServReconnect = false;
 
-    //scan mode 
+    //scan mode
     private ArrayList<String> t_ipArray = new ArrayList<String>();        //server's ip address
     private Lock _QHLock = new ReentrantLock();
     private int _QHRunnableCnt = 0;                            //Query Host Runnable count 搜索主机地址线程数量
@@ -408,13 +414,13 @@ public class HandleActivity extends CommonTitleActivity implements SensorEventLi
 
     private void InitUI(byte mode) {
 
-        //dialog 
+        //dialog
         final AlertDialog.Builder exit_builder = new AlertDialog.Builder(this);
         exit_builder.setTitle(R.string.app_tips);
         exit_builder.setMessage(R.string.exit_message);
         exit_builder.setIcon(android.R.drawable.ic_dialog_alert);
         exit_builder.setPositiveButton(R.string.app_exit, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {HandleActivity.this.finish();}
+            public void onClick(DialogInterface dialog, int which) {GameHandleActivity.this.finish();}
         });
         exit_builder.setNegativeButton(R.string.app_cancel, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {}
@@ -424,7 +430,7 @@ public class HandleActivity extends CommonTitleActivity implements SensorEventLi
 
             // 已连接到体感游戏
             case 0x01: {
-                setContentView(R.layout.handle_activity_remote);
+                setContentView(R.layout.handle_activity_remote_new);
 
                 final ImageButton Btn_A = (ImageButton) findViewById(R.id.imageButton_m1_a);
                 final ImageButton Btn_B = (ImageButton) findViewById(R.id.imageButton_m1_b);
@@ -552,7 +558,7 @@ public class HandleActivity extends CommonTitleActivity implements SensorEventLi
                             item[3] = getResources().getString(R.string.set_exit);
 
                             //dialog
-                            final AlertDialog.Builder modeSelect = new AlertDialog.Builder(HandleActivity.this);
+                            final AlertDialog.Builder modeSelect = new AlertDialog.Builder(GameHandleActivity.this);
 
                             //dialog
                             modeSelect.setTitle(R.string.mode_select);
@@ -663,7 +669,7 @@ public class HandleActivity extends CommonTitleActivity implements SensorEventLi
                             item[3] = getResources().getString(R.string.set_exit);
 
                             //dialog
-                            final AlertDialog.Builder modeSelect = new AlertDialog.Builder(HandleActivity.this);
+                            final AlertDialog.Builder modeSelect = new AlertDialog.Builder(GameHandleActivity.this);
 
                             //dialog
                             modeSelect.setTitle(R.string.mode_select);
@@ -720,7 +726,7 @@ public class HandleActivity extends CommonTitleActivity implements SensorEventLi
                             item[5] = getResources().getString(R.string.set_exit);
 
                             //dialog
-                            final AlertDialog.Builder modeSelect = new AlertDialog.Builder(HandleActivity.this);
+                            final AlertDialog.Builder modeSelect = new AlertDialog.Builder(GameHandleActivity.this);
 
                             //dialog
                             modeSelect.setTitle(R.string.mode_select);
@@ -877,7 +883,7 @@ public class HandleActivity extends CommonTitleActivity implements SensorEventLi
                             item[3] = getResources().getString(R.string.set_exit);
 
                             //dialog
-                            final AlertDialog.Builder modeSelect = new AlertDialog.Builder(HandleActivity.this);
+                            final AlertDialog.Builder modeSelect = new AlertDialog.Builder(GameHandleActivity.this);
 
                             //dialog
                             modeSelect.setTitle(R.string.mode_select);
@@ -945,7 +951,7 @@ public class HandleActivity extends CommonTitleActivity implements SensorEventLi
             public void onClick(DialogInterface dialog, int which) {startActivityForResult(new Intent(android.provider.Settings.ACTION_WIFI_SETTINGS), 0);}
         });
         builder.setNegativeButton(R.string.app_cancel, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {HandleActivity.this.finish();}
+            public void onClick(DialogInterface dialog, int which) {GameHandleActivity.this.finish();}
         });
 
         if (mWifiManager.getWifiState() != WifiManager.WIFI_STATE_ENABLED)        //wifi off
@@ -1073,7 +1079,7 @@ public class HandleActivity extends CommonTitleActivity implements SensorEventLi
                     }
 
                     //dialog
-                    final AlertDialog.Builder ipSelect = new AlertDialog.Builder(HandleActivity.this);
+                    final AlertDialog.Builder ipSelect = new AlertDialog.Builder(GameHandleActivity.this);
 
                     //dialog
                     ipSelect.setTitle(R.string.scan_select);  //主机选择
@@ -1108,7 +1114,7 @@ public class HandleActivity extends CommonTitleActivity implements SensorEventLi
                     Thread thread = new Thread(new _RConnectHost(_TargetIpAddr));
                     thread.start();
                 } else {
-                    PromptManager.showToast(HandleActivity.this, "目标IP地址为空");
+                    PromptManager.showToast(GameHandleActivity.this, "目标IP地址为空");
                 }
             }
 
@@ -1155,7 +1161,7 @@ public class HandleActivity extends CommonTitleActivity implements SensorEventLi
             } else {
                 LogUtils.i("ConnectHost fail");
                 Looper.prepare();
-                PromptManager.showToastLong(HandleActivity.this, R.string.connectHost_fail);
+                PromptManager.showToastLong(GameHandleActivity.this, R.string.connectHost_fail);
                 Looper.loop();
             }
         }
@@ -1547,7 +1553,7 @@ public class HandleActivity extends CommonTitleActivity implements SensorEventLi
         return true;
     }
 
-    //code: 1 - Mag Calibrate data; 2 - Gyro Calibrate data 
+    //code: 1 - Mag Calibrate data; 2 - Gyro Calibrate data
     private boolean RemoteSend0x31Report(int code) {
         switch (code) {
             case 1:        //mag
@@ -1900,30 +1906,30 @@ public class HandleActivity extends CommonTitleActivity implements SensorEventLi
 
     /*
     @SuppressLint("SdCardPath")
-	private void CopyFileFromLocalToSDcard (String fFile, String tFile, Boolean rewrite)
+    private void CopyFileFromLocalToSDcard (String fFile, String tFile, Boolean rewrite)
     {
-		File toFile		=new File(Environment.getExternalStorageDirectory(), tFile);
+        File toFile		=new File(Environment.getExternalStorageDirectory(), tFile);
 
-    	if (!toFile.getParentFile().exists()) 	{toFile.getParentFile().mkdirs();}
-    	if (toFile.exists() && rewrite) 		{toFile.delete();}
+        if (!toFile.getParentFile().exists()) 	{toFile.getParentFile().mkdirs();}
+        if (toFile.exists() && rewrite) 		{toFile.delete();}
 
-    	try {
-    		FileInputStream fosfrom = openFileInput (fFile);
-    		java.io.FileOutputStream fosto = new FileOutputStream(toFile);
-    		
-    		byte bt[] = new byte[1024];
-    		//int count = 0;
-    		int c;
-    		while ((c = fosfrom.read(bt)) > 0) {
-    			fosto.write(bt, 0, c); //将内容写到新文件当中
-        		//count += c;
-    		}
-    		//Log.i(_TAG, "CopyFileFromLocalToSDcard: count = " + count);
-    		fosfrom.close();
-    		fosto.close();
-    	} 
-    	catch (Exception ex) {Log.e("readfile", ex.getMessage());}
-    }    
+        try {
+            FileInputStream fosfrom = openFileInput (fFile);
+            java.io.FileOutputStream fosto = new FileOutputStream(toFile);
+
+            byte bt[] = new byte[1024];
+            //int count = 0;
+            int c;
+            while ((c = fosfrom.read(bt)) > 0) {
+                fosto.write(bt, 0, c); //将内容写到新文件当中
+                //count += c;
+            }
+            //Log.i(_TAG, "CopyFileFromLocalToSDcard: count = " + count);
+            fosfrom.close();
+            fosto.close();
+        }
+        catch (Exception ex) {Log.e("readfile", ex.getMessage());}
+    }
 */
     private void SetTouchBG(Boolean reset) {
         View background;
@@ -1945,7 +1951,7 @@ public class HandleActivity extends CommonTitleActivity implements SensorEventLi
             matrixSR.postScale(scaleW, scaleH);
             matrixSR.postRotate(90);
 
-            Bitmap SRBitmap = Bitmap.createBitmap(bitmapOrg, 0, 0, bitmapOrg.getWidth(), bitmapOrg.getHeight(), matrixSR, true); //  
+            Bitmap SRBitmap = Bitmap.createBitmap(bitmapOrg, 0, 0, bitmapOrg.getWidth(), bitmapOrg.getHeight(), matrixSR, true); //
             BitmapDrawable bmd = new BitmapDrawable(SRBitmap);
 
             background.setBackgroundDrawable(bmd);
@@ -1958,6 +1964,5 @@ public class HandleActivity extends CommonTitleActivity implements SensorEventLi
             return;
         }
     }
-
 
 }

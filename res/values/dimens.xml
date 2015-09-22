@@ -27,4 +27,7 @@
     <dimen name="softdpad_height">400dp</dimen>
     <dimen name="entery_home">20sp</dimen>
     <dimen name="handle_prompt_height">40dp</dimen>
+    <dimen name="handle_down_marginTop">135dp</dimen>
+    <dimen name="handle_left_marginEnd">50dp</dimen>
+    <dimen name="handle_left_marginTop">85dp</dimen>
 </resources>

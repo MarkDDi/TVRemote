@@ -120,7 +120,7 @@
     <string name="touchpad_dpad_desc">Directional Pad</string>
 
     <!-- Pairing -->
-    <string name="pairing_activity_label">正在与电视进行配对</string>
+    <string name="pairing_activity_label">正在与远程设备进行配对</string>
     <string name="pairing_label">输入PIN码</string>
     <string name="pairing_hint">输入PIN码</string>
     <string name="pairing_ok">配对</string>

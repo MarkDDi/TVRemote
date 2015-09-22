@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="handle_down_marginTop">110dp</dimen>
+    <dimen name="handle_left_marginEnd">50dp</dimen>
+    <dimen name="handle_left_marginTop">75dp</dimen>
+</resources>

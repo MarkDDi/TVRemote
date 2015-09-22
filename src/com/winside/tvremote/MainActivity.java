@@ -165,7 +165,8 @@ public class MainActivity extends BaseActivity implements KeyCodeButton.KeyCodeH
                             startActivity(wifi_display);
                         break;
                     case 2:   // 游戏手柄
-
+                        Intent game = new Intent(MainActivity.this, GameHandleActivity.class);
+                        startActivity(game);
                         break;
                     case 3:    // 体感手柄
                         Intent handle = new Intent(MainActivity.this, HandleActivity.class);
