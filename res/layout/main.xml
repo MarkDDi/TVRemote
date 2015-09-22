@@ -11,25 +11,33 @@
         android:id="@+id/new_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fitsSystemWindows="true"
         android:clipToPadding="false"
+        android:fitsSystemWindows="true"
         >
 
     </FrameLayout>
 
-
-    <!-- The navigation drawer -->
-    <ListView
-        android:id="@+id/navdrawer"
-        android:layout_width="@dimen/navdrawer_width"
+    <!--侧滑菜单-->
+   <!-- <LinearLayout
+        android:id="@+id/drawer_linear"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:background="@android:color/white"
-        android:choiceMode="singleChoice"
-        android:divider="@color/drawer_divider_color"
-        android:dividerHeight="1dp"
-        >
-    </ListView>
+        android:background="#fff"
+        >-->
+
+        <ListView
+            android:id="@+id/navdrawer"
+            android:layout_width="@dimen/navdrawer_width"
+            android:layout_height="match_parent"
+            android:background="@android:color/white"
+            android:layout_gravity="left|start"
+            android:choiceMode="singleChoice"
+            android:divider="@color/drawer_divider_color"
+            android:dividerHeight="1dp"
+            >
+        </ListView>
+    <!--</LinearLayout>-->
 
 </android.support.v4.widget.DrawerLayout>
 

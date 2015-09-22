@@ -267,7 +267,7 @@ public final class SoftDpad extends ImageView {
 
                 int id = event.getPointerId(0);
 
-                LogUtils.e("getX() = " + event.getX() + " getX(0) = " + event.getX(0));
+//                LogUtils.e("getX() = " + event.getX() + " getX(0) = " + event.getX(0));
                 TouchHistory data = TouchHistory.obtain(event.getX(0), event.getY(0), event.getPressure(0));
 
                 LogUtils.e("getPressure = " + event.getPressure(0));
@@ -539,7 +539,7 @@ public final class SoftDpad extends ImageView {
         float pressure = Math.min(data.pressure, 1f);
         float radius = pressure * mCircleRadius;
 
-        LogUtils.e("data.x = " + data.x + " data.y = " + data.y + " radius = " + radius);
+//        LogUtils.e("data.x = " + data.x + " data.y = " + data.y + " radius = " + radius);
         canvas.drawCircle(data.x, (data.y) - (radius / 2f), radius, mCirclePaint);
 
         // draw all historical points with a lower alpha value
@@ -614,7 +614,7 @@ public final class SoftDpad extends ImageView {
             p.x = x;
             p.y = y;
 
-            LogUtils.e("x = " + x + " y = " + y);
+//            LogUtils.e("x = " + x + " y = " + y);
 
             historyIndex = (historyIndex + 1) % history.length;
 

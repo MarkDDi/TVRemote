@@ -25,4 +25,6 @@
     <dimen name="title_marginTop">10dp</dimen>
     <dimen name="title_padding">5dp</dimen>
     <dimen name="softdpad_height">400dp</dimen>
+    <dimen name="entery_home">20sp</dimen>
+    <dimen name="handle_prompt_height">40dp</dimen>
 </resources>

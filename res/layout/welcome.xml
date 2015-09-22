@@ -21,6 +21,9 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="10dp"
-        android:background="@drawable/entry"
+        android:background="@drawable/entery_selector"
+        android:text="@string/entry_home"
+        android:textSize="@dimen/entery_home"
+        android:textColor="@color/white"
         />
 </RelativeLayout>

@@ -53,4 +53,7 @@
     <color name="transparent">#00000000</color>
     <color name="viewfinder_frame">#ff000000</color>
     <color name="viewfinder_laser">#ffff0000</color>
+    <color name="entry_disable">#8a8a8a</color>
+    <color name="entry_press">#0b7dbb</color>
+    <color name="entry_normal">#07a1e9</color>
 </resources>

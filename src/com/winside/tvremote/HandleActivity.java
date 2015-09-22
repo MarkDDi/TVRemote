@@ -20,8 +20,10 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.SystemClock;
 import android.os.Vibrator;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -40,11 +42,10 @@ import android.widget.ImageButton;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.Result;
 import com.winside.tvremote.util.LogUtils;
+import com.winside.tvremote.util.PromptManager;
 import com.winside.zxing.camera.CameraManager;
 
 import com.winside.zxing.decoding.InactivityTimer;
-import com.winside.zxing.handle.decoding.CaptureActivityHandler;
-import com.winside.zxing.handle.view.ViewfinderView;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -61,29 +62,12 @@ import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-//import java.io.File;
-//import java.lang.reflect.Method;
-//import java.lang.Math;
-//import jp.sourceforge.qrcode.QRCodeDecoder;
-//import jp.sourceforge.qrcode.data.QRCodeImage;
-//import android.os.Environment;
-//import android.annotation.SuppressLint;
-//import android.graphics.Canvas;
-//import android.graphics.Paint;
-//import android.graphics.PixelFormat;
-//import android.graphics.drawable.Drawable;
-//import android.hardware.Camera;
-//import android.hardware.Camera.PictureCallback;
-//import android.hardware.Camera.AutoFocusCallback;
-//import android.view.SurfaceHolder;
-//import android.view.SurfaceView;
-//import android.view.ViewGroup.LayoutParams;
+public class HandleActivity extends CommonTitleActivity implements SensorEventListener {
 
-public class HandleActivity extends CommonTitleActivity implements SensorEventListener, Callback {
-//    private static String _TAG = "TDwifiRemote";
+    // 连接的目标主机端口
+    private static final int DST_PORT = 4215;
+    //    private static String _TAG = "TDwifiRemote";
     private static int _OutputReportLen = 150;
 
     private static int _HWVer = 0x5002;
@@ -165,10 +149,6 @@ public class HandleActivity extends CommonTitleActivity implements SensorEventLi
     private boolean _PrintScreenRefresh = false;
     private boolean _AutoPrintScreen = false;
 
-    //for zxing 扫码二维码
-    private CaptureActivityHandler handler;
-    private ViewfinderView viewfinderView;
-    private boolean hasSurface = false;
 
     //条码格式
     private Vector<BarcodeFormat> decodeFormats = null;
@@ -280,17 +260,26 @@ public class HandleActivity extends CommonTitleActivity implements SensorEventLi
         super.onCreate(savedInstanceState);
 
         //no title bar
-//        requestWindowFeature(Window.FEATURE_NO_TITLE);
-//        requestWindowFeature(Window.FEATURE_PROGRESS);
+        //        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        //        requestWindowFeature(Window.FEATURE_PROGRESS);
         //no status bar
-//        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        //        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         //keep screen on
-//        getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        //        getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         getWindowManager().getDefaultDisplay().getMetrics(_DM);
 
         actionBar.setTitle(R.string.handle);
         LoadCaliInfo();
+
+        String ip = getIntent().getStringExtra("ip");
+
+        if (!TextUtils.isEmpty(ip)) {
+            _TargetIpAddr = ip;
+            _RemoteMode = 0x01;
+            LogUtils.e("Intent ip = " + ip);
+            _StartIPInput = true;
+        }
 
         _LaunchHandler.post(_LaunchRunnable);
         _TSendThread.start(); //发送数据线程
@@ -301,15 +290,18 @@ public class HandleActivity extends CommonTitleActivity implements SensorEventLi
         mVibrator = (Vibrator) getApplication().getSystemService(Service.VIBRATOR_SERVICE);
         //注册广播接收
         registerReceiver(mBatInfoReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
-    }
-
-    protected void onResume() {
-        super.onResume();
 
         //初始化界面UI
         InitUI(_RemoteMode);
         //初始化WiFi状态
         InitWifi();
+    }
+
+    protected void onResume() {
+        super.onResume();
+
+        LogUtils.e("onResume RemoteMode = " + _RemoteMode);
+
         //传感器控制
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         List<Sensor> sensors_list = mSensorManager.getSensorList(Sensor.TYPE_ALL);
@@ -352,13 +344,13 @@ public class HandleActivity extends CommonTitleActivity implements SensorEventLi
             ShowKeyboard(false);
         }
         if (_RemoteMode == 0x10) {
-            bcExit();
+            //            bcExit();
         }
 
         mSensorManager.unregisterListener(this);
-        unregisterReceiver(mBatInfoReceiver);
+        //        unregisterReceiver(mBatInfoReceiver);
         mSensorManager = null;
-//        System.gc();
+        //        System.gc();
     }
 
     protected void onDestroy() {
@@ -371,9 +363,7 @@ public class HandleActivity extends CommonTitleActivity implements SensorEventLi
 
         DisconnectHost();
 
-//        System.gc();
-//        System.runFinalization();
-//        System.exit(0);
+        unregisterReceiver(mBatInfoReceiver);
 
         super.onDestroy();
     }
@@ -390,24 +380,7 @@ public class HandleActivity extends CommonTitleActivity implements SensorEventLi
             }
         }
 
-/*        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
-            //dialog 提示 是否确定要退出
-            final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle(R.string.app_tips);
-            builder.setMessage(R.string.exit_message);
-            builder.setIcon(android.R.drawable.ic_dialog_alert);
-            builder.setPositiveButton(R.string.app_exit, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {HandleActivity.this.finish();}
-                    });
-            builder.setNegativeButton(R.string.app_cancel, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {}
-                    });
 
-            builder.show();
-            //Log.i (_TAG, "KEYCODE_BACK");
-           return false;
-      }
-      */
         return super.onKeyDown(keyCode, event);
     }
 
@@ -439,7 +412,6 @@ public class HandleActivity extends CommonTitleActivity implements SensorEventLi
     }
 
     private void InitUI(byte mode) {
-        _RemoteMode = mode;
 
         //dialog 
         final AlertDialog.Builder exit_builder = new AlertDialog.Builder(this);
@@ -447,75 +419,15 @@ public class HandleActivity extends CommonTitleActivity implements SensorEventLi
         exit_builder.setMessage(R.string.exit_message);
         exit_builder.setIcon(android.R.drawable.ic_dialog_alert);
         exit_builder.setPositiveButton(R.string.app_exit, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {HandleActivity.this.finish();}
-                });
+            public void onClick(DialogInterface dialog, int which) {HandleActivity.this.finish();}
+        });
         exit_builder.setNegativeButton(R.string.app_cancel, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {}
-                });
+            public void onClick(DialogInterface dialog, int which) {}
+        });
 
         switch (mode) {
-            case 0x00: {
-                setContentView(R.layout.handle_activity_launch);
 
-                Btn_scan = (ImageButton) findViewById(R.id.imageButton_scan);
-                Btn_barcode = (ImageButton) findViewById(R.id.imageButton_barcode);
-                Btn_ip = (ImageButton) findViewById(R.id.imageButton_ip);
-                Btn_exit = (ImageButton) findViewById(R.id.imageButton_exit);
-
-                //scan
-                Btn_scan.setOnTouchListener(new View.OnTouchListener() {
-                    public boolean onTouch(View v, MotionEvent e) {
-                        int t = touchBtn(Btn_scan, e.getAction(), R.drawable.handle_img_scan_on, R.drawable.handle_img_scan_off);
-                        if (t == 0) {
-                            Btn_ip.setEnabled(false);
-                            Btn_barcode.setEnabled(false);
-                            _StartScanHost = true;
-                        }
-                        return true;
-                    }
-                });
-
-                //barcode
-                Btn_barcode.setOnTouchListener(new View.OnTouchListener() {
-                    public boolean onTouch(View v, MotionEvent e) {
-                        int t = touchBtn(Btn_barcode, e.getAction(), R.drawable.handle_img_bc_on, R.drawable.handle_img_bc_off);
-                        if (t == 0) {
-                            InitUI((byte) 0x10);
-                        }
-                        return true;
-                    }
-                });
-
-                //ip
-                Btn_ip.setOnTouchListener(new View.OnTouchListener() {
-                    public boolean onTouch(View v, MotionEvent e) {
-                        int t = touchBtn(Btn_ip, e.getAction(), R.drawable.handle_img_ip_on, R.drawable.handle_img_ip_off);
-                        if (t == 0) {
-                            _StartIPInput = true;
-                        }
-                        return true;
-                    }
-                });
-
-                //exit
-                Btn_exit.setOnTouchListener(new View.OnTouchListener() {
-                    public boolean onTouch(View v, MotionEvent e) {
-                        int t = touchBtn(Btn_exit, e.getAction(), R.drawable.handle_img_exit_on, R.drawable.handle_img_exit_off);
-                        if (t == 0) {
-                            HandleActivity.this.finish();
-                        }
-                        return true;
-                    }
-                });
-
-                break;
-            }
-            case 0x10: {
-                LogUtils.i("0x10 in");
-                setContentView(R.layout.handle_activity_bcview);
-                bcInit();
-                break;
-            }
+            // 已连接到体感游戏
             case 0x01: {
                 setContentView(R.layout.handle_activity_remote);
 
@@ -1035,11 +947,11 @@ public class HandleActivity extends CommonTitleActivity implements SensorEventLi
         builder.setCancelable(false);
         builder.setIcon(android.R.drawable.ic_dialog_alert);
         builder.setPositiveButton(R.string.app_setting, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {startActivityForResult(new Intent(android.provider.Settings.ACTION_WIFI_SETTINGS), 0);}
-                });
-        builder.setNegativeButton(R.string.app_exit, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {HandleActivity.this.finish();}
-                });
+            public void onClick(DialogInterface dialog, int which) {startActivityForResult(new Intent(android.provider.Settings.ACTION_WIFI_SETTINGS), 0);}
+        });
+        builder.setNegativeButton(R.string.app_cancel, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {HandleActivity.this.finish();}
+        });
 
         if (mWifiManager.getWifiState() != WifiManager.WIFI_STATE_ENABLED)        //wifi off
         {
@@ -1054,11 +966,16 @@ public class HandleActivity extends CommonTitleActivity implements SensorEventLi
         }
     }
 
+    /**
+     * 连接TV端的体感游戏
+     * @param addr
+     * @return
+     */
     private boolean ConnectHost(String addr) {
         if (_ServEnable) return true;
 
         try {
-            _ServSK = new Socket(addr, 4215);
+            _ServSK = new Socket(addr, DST_PORT);
             _ServSK.setTcpNoDelay(true);
             _ServSK.setSendBufferSize(8192);
             _Dout = new DataOutputStream(_ServSK.getOutputStream());
@@ -1180,74 +1097,18 @@ public class HandleActivity extends CommonTitleActivity implements SensorEventLi
                 Btn_barcode.setEnabled(true);
             }
 
-            if (_StartIPInput)  // 
-            {
+            if (_StartIPInput) {
                 LogUtils.i("_StartIPInput start....");
 
                 _StartIPInput = false;
-                DisconnectHost();
 
-                final EditText ipinput = new EditText(HandleActivity.this);
-
-                final AlertDialog.Builder ipInsert = new AlertDialog.Builder(HandleActivity.this);
-                final AlertDialog.Builder ipInsertErr = new AlertDialog.Builder(HandleActivity.this);
-
-                ipInsertErr.setTitle(R.string.ip_input_error_title);
-                ipInsertErr.setCancelable(false);
-                ipInsertErr.setIcon(android.R.drawable.ic_dialog_alert);
-                ipInsertErr.setPositiveButton(R.string.app_ok, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {_StartIPInput = true;}
-                });
-
-                //insert ip
-                ipInsert.setTitle(R.string.ip_input_title);
-                ipInsert.setIcon(android.R.drawable.ic_dialog_info);
-                ipInsert.setView(ipinput);
-                ipInsert.setPositiveButton(R.string.app_ok, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        String ip;
-                        ip = ipinput.getText().toString();
-
-                        LogUtils.i("ipinput: " + ip);
-
-                        Pattern patt = Pattern.compile("\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}");
-                        Matcher mat = patt.matcher(ip);
-
-                        if (!mat.matches())            //error1
-                        {
-                            ipInsertErr.setMessage(R.string.ip_input_error1);
-                            ipInsertErr.show();
-                            return;
-                        }
-
-                        int ipaddr[] = new int[4];
-                        int position1 = ip.indexOf(".");
-                        int position2 = ip.indexOf(".", position1 + 1);
-                        int position3 = ip.indexOf(".", position2 + 1);
-
-                        ipaddr[0] = (int) Long.parseLong(ip.substring(0, position1));
-                        ipaddr[1] = (int) Long.parseLong(ip.substring(position1 + 1, position2));
-                        ipaddr[2] = (int) Long.parseLong(ip.substring(position2 + 1, position3));
-                        ipaddr[3] = (int) Long.parseLong(ip.substring(position3 + 1));
-                        for (int i = 0; i < 4; i++) {
-                            if ((ipaddr[i] > 255) || (ipaddr[i] < 0))        //error2
-                            {
-                                ipInsertErr.setMessage(R.string.ip_input_error2);
-                                ipInsertErr.show();
-                                return;
-                            }
-                        }
-
-                        _TargetIpAddr = ip;
-                        Thread thread = new Thread(new _RConnectHost(_TargetIpAddr));
-                        thread.start();
-                    }
-                });
-                ipInsert.setNegativeButton(R.string.app_cancel, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {}
-                });
-
-                ipInsert.show();
+                if (!TextUtils.isEmpty(_TargetIpAddr)) {
+                    LogUtils.e("_TargetIpAddr = " + _TargetIpAddr + " 开始连接主机");
+                    Thread thread = new Thread(new _RConnectHost(_TargetIpAddr));
+                    thread.start();
+                } else {
+                    PromptManager.showToast(HandleActivity.this, "目标IP地址为空");
+                }
             }
 
             if (_ServEnable) {
@@ -1272,7 +1133,7 @@ public class HandleActivity extends CommonTitleActivity implements SensorEventLi
                     if (_RemoteMode == 0x04) {
                         ShowKeyboard(false);
                     }
-                    InitUI((byte) 0x00);
+//                    InitUI((byte) 0x00);
                 }
             }
 
@@ -1292,11 +1153,12 @@ public class HandleActivity extends CommonTitleActivity implements SensorEventLi
                 LogUtils.i("ConnectHost Success");
             } else {
                 LogUtils.i("ConnectHost fail");
+                Looper.prepare();
+                PromptManager.showToastLong(HandleActivity.this, R.string.connectHost_fail);
+                Looper.loop();
             }
         }
     }
-
-    ;
 
     private class _RQueryHost implements Runnable {
         private int ipStart;
@@ -1457,7 +1319,7 @@ public class HandleActivity extends CommonTitleActivity implements SensorEventLi
 
         public void onLongPress(MotionEvent e) {
             if (_RemoteMode == 0x10) {
-                bcExit();
+                //                bcExit();
                 InitUI((byte) 0x00);
             }
         }
@@ -1489,7 +1351,7 @@ public class HandleActivity extends CommonTitleActivity implements SensorEventLi
                     if ((_RemoteMode == 3) && (_AutoPrintScreen)) {
                         if (((System.currentTimeMillis() - _AskPrintScreenTime) > 3000) || ((_PrintScreenRecTime != 0) && ((System.currentTimeMillis() - _PrintScreenRecTime) > 500))) {
                             _AskPrintScreenTime = System.currentTimeMillis();
-                            LogUtils.i("Send PS report");
+                            LogUtils.e("Send PS report");
                             RemoteSend0x71Report();
                         }
                     }
@@ -1525,47 +1387,12 @@ public class HandleActivity extends CommonTitleActivity implements SensorEventLi
                                 byte[] buffer = new byte[1500];
                                 int rlen = _Din.read(buffer);
 
-                                //								if (rlen > 22)		//save print screen data to temp file
-                                //								{
-                                //									if (_PrintScreenDataLen > 0) 
-                                //									{
-                                //										try 
-                                //										{									
-                                //											int mode =  (_PSDataCount == 0) ? Activity.MODE_PRIVATE : Activity.MODE_APPEND;
-                                //											FileOutputStream mFile = openFileOutput ("printscreen.jpg", mode);
-                                //											mFile.write(buffer, 0, rlen);
-                                //											mFile.flush();
-                                //											mFile.close();
-                                //										} 
-                                //										catch (FileNotFoundException e) {e.printStackTrace();} 
-                                //										catch (IOException e) {e.printStackTrace();}    	
-                                //
-                                //										_PSDataCount += rlen;
-                                //										//Log.i(_TAG, "PS data rec: " + _PSDataCount + "total: " + _PrintScreenDataLen);
-                                //										if (_PrintScreenDataLen == _PSDataCount)		//print screen data finished
-                                //										{
-                                //											//CopyFileFromLocalToSDcard ("printscreen.jpg", "printscreen.jpg", true);
-                                //											//SetTouchBG (true);
-                                //											_PrintScreenRefresh = true;
-                                //											Log.i(_TAG, "PS data rec finished: " + _PSDataCount);
-                                //											_PrintScreenDataLen = 0;
-                                //											_PSDataCount = 0;
-                                //										}
-                                //									}
-                                //								}
-                                //								else 
+
                                 if (rlen > 0) {
                                     RemoteParseReport(buffer, rlen);
                                 } else {
                                     break;
                                 }
-/*								else if (rlen == -1)		
-                                {
-									Log.e(_TAG, "_ErrCount (read): " + _ErrCount); 
-									_ErrCount ++;
-									if (_ErrCount > 10) {DisconnectHost(); break;}
-								} //host disconnect			
-*/
                             } catch (IOException e) {
                                 break;
                             }//timeout
@@ -1681,9 +1508,6 @@ public class HandleActivity extends CommonTitleActivity implements SensorEventLi
             }
             case 0x2f:        //response
             {
-                //Log.i(_TAG, "0x2f, flag1");
-                //if (len != 17)				break;
-                //Log.i(_TAG, "0x2f, flag2");
                 if ((data[1] == (byte) 0x74) && (data[2] == (byte) 0x92) && (data[3] == (byte) 0x13) && (data[4] == (byte) 0xe2) && (data[5] == (byte) 0xa1) && (data[6] == (byte) 0x9a)) {
                     //valid
                     //	Log.i(_TAG, "0x2f, flag3");
@@ -2017,7 +1841,7 @@ public class HandleActivity extends CommonTitleActivity implements SensorEventLi
             //Log.i("load file", len + " : " + msg);
             for (int i = 0; (i < newsplitstr.length) & (i < 7); i++) {
                 int imsg = Integer.parseInt(newsplitstr[i]);
-                //Log.i("load file", "data: " + imsg);
+                LogUtils.i("load file data: " + imsg);
                 if (i < 3) {
                     _GyroCali[i] = imsg;
                 } else {
@@ -2133,128 +1957,6 @@ public class HandleActivity extends CommonTitleActivity implements SensorEventLi
             e.printStackTrace();
             return;
         }
-    }
-
-    //////////////////////////////zxing////////////////////////
-    public Handler getHandler() {
-        return handler;
-    }
-
-    public ViewfinderView getViewfinderView() {
-        return viewfinderView;
-    }
-
-    public void drawViewfinder() {
-        viewfinderView.drawViewfinder();
-    }
-
-    public void surfaceCreated(SurfaceHolder holder) {
-        if (!hasSurface) {
-            hasSurface = true;
-            initCamera(holder);
-        }
-    }
-
-    public void surfaceDestroyed(SurfaceHolder holder) {
-        hasSurface = false;
-    }
-
-    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-    }
-
-    public void handleDecode(Result obj, Bitmap barcode) {
-        inactivityTimer.onActivity();
-        //viewfinderView.drawResultBitmap(barcode);
-        if (ipCheck(obj.getText())) {
-            LogUtils.i(obj.getBarcodeFormat().toString() + ":" + obj.getText());
-            bcExit();
-            InitUI((byte) 0x00);
-
-            _TargetIpAddr = obj.getText();
-            Thread thread = new Thread(new _RConnectHost(_TargetIpAddr));
-            thread.start();
-        } else {
-            LogUtils.i("restart - " + obj.getBarcodeFormat().toString() + ":" + obj.getText());
-            bcExit();
-            bcInit();
-        }
-    }
-
-    private boolean ipCheck(String ipa) {
-        //String		ip;
-        //ip = strQR2;
-
-        //Log.i(_TAG, "ipinput: " + ip);
-
-        Pattern patt = Pattern.compile("\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}");
-        Matcher mat = patt.matcher(ipa);
-
-        if (mat.matches())            //error1
-        {
-            int ipaddr[] = new int[4];
-            int position1 = ipa.indexOf(".");
-            int position2 = ipa.indexOf(".", position1 + 1);
-            int position3 = ipa.indexOf(".", position2 + 1);
-
-            ipaddr[0] = (int) Long.parseLong(ipa.substring(0, position1));
-            ipaddr[1] = (int) Long.parseLong(ipa.substring(position1 + 1, position2));
-            ipaddr[2] = (int) Long.parseLong(ipa.substring(position2 + 1, position3));
-            ipaddr[3] = (int) Long.parseLong(ipa.substring(position3 + 1));
-
-            boolean err = false;
-            for (int i = 0; i < 4; i++) {
-                if ((ipaddr[i] > 255) || (ipaddr[i] < 0))        //error2
-                {
-                    err = true;
-                    break;
-                }
-            }
-            if (!err) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private void initCamera(SurfaceHolder surfaceHolder) {
-        try {
-            CameraManager.get().openDriver(surfaceHolder);
-        } catch (IOException ioe) {
-            return;
-        } catch (RuntimeException e) {
-            return;
-        }
-
-        if (handler == null) {
-            handler = new CaptureActivityHandler(this, decodeFormats, characterSet);
-        }
-    }
-
-    private void bcInit() {
-        CameraManager.init(getApplication());
-
-        inactivityTimer = new InactivityTimer(this);
-
-        viewfinderView = (ViewfinderView) findViewById(R.id.viewfinder_view);
-
-        surfaceView = (SurfaceView) findViewById(R.id.preview_view);
-        surfaceHolder = surfaceView.getHolder();
-
-        if (hasSurface) {
-            initCamera(surfaceHolder);
-        } else {
-            surfaceHolder.addCallback(this);
-            surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-        }
-    }
-
-    private void bcExit() {
-        if (handler != null) {
-            handler.quitSynchronously();
-            handler = null;
-        }
-        CameraManager.get().closeDriver();
-        inactivityTimer.shutdown();
     }
 
 

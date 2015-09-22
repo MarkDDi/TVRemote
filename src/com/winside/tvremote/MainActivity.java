@@ -23,6 +23,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -89,7 +90,6 @@ public class MainActivity extends BaseActivity implements KeyCodeButton.KeyCodeH
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerList = (ListView) findViewById(R.id.navdrawer);
-
         initDrawer();
 
 
@@ -169,6 +169,9 @@ public class MainActivity extends BaseActivity implements KeyCodeButton.KeyCodeH
                         break;
                     case 3:    // 体感手柄
                         Intent handle = new Intent(MainActivity.this, HandleActivity.class);
+                        String address = getCoreService().getTarget().getAddress().getHostAddress();
+                        LogUtils.e("address = " + address);
+                        handle.putExtra("ip", address);
                         startActivity(handle);
                         break;
                     case 4:    // 文件共享

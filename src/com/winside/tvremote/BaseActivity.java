@@ -102,6 +102,8 @@ public class BaseActivity extends CoreServiceActivity implements ConnectionListe
     private boolean isScreenDimmed;
 
     private Handler handler;
+    public int actionBarHeight = 0;
+    public int statusBarHeight = 0;
 
     /**
      * Constructor.
@@ -120,14 +122,19 @@ public class BaseActivity extends CoreServiceActivity implements ConnectionListe
         // 音量管理
         trackballHandler.setAudioManager(am);
 
-        // 沉浸式状态栏
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-//            setTranslucentStatus(true);
-//        }
-//        mTintManager = new SystemBarTintManager(this);
-//
-//        mTintManager.setStatusBarTintEnabled(true);
-//        mTintManager.setStatusBarTintResource(R.color.actionbar_color);
+        // 沉浸式状态栏，因为会遮挡住drawerlayout中的一部分，暂时不用
+       /* if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            setTranslucentStatus(true);
+            mTintManager = new SystemBarTintManager(this);
+
+            mTintManager.setStatusBarTintEnabled(true);
+            mTintManager.setStatusBarTintResource(R.color.actionbar_color);
+            SystemBarTintManager.SystemBarConfig config = mTintManager.getConfig();
+            actionBarHeight = config.getActionBarHeight();
+            statusBarHeight = config.getStatusBarHeight();
+            LogUtils.e("actionBarHeight = " + actionBarHeight + " statusBarHeight = " + statusBarHeight);
+        }*/
+
 
     }
 

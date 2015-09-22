@@ -98,7 +98,6 @@ public final class Pools {
         @Override
         @SuppressWarnings("unchecked")
         public T acquire() {
-            LogUtils.e("mPoolSize = " + mPoolSize);
             if (mPoolSize > 0) {
                 final int lastPooledIndex = mPoolSize - 1;
                 T instance = (T) mPool[lastPooledIndex];

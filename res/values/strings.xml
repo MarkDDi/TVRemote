@@ -175,4 +175,7 @@
     <string name="scan_text">将二维码放入框内, 即可自动扫描</string>
     <string name="need_conn">您需要连接到一个设备才能进行操作</string>
     <string name="handle">体感手柄</string>
+    <string name="connectHost_fail">连接体感游戏失败，请确认是否已打开体感游戏</string>
+    <string name="handle_prompt">温馨提示</string>
+    <string name="handle_prompt_content">为避免砸到花花草草\n请在使用时紧握手机</string>
 </resources>
