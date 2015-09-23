@@ -270,7 +270,7 @@ public final class SoftDpad extends ImageView {
 //                LogUtils.e("getX() = " + event.getX() + " getX(0) = " + event.getX(0));
                 TouchHistory data = TouchHistory.obtain(event.getX(0), event.getY(0), event.getPressure(0));
 
-                LogUtils.e("getPressure = " + event.getPressure(0));
+//                LogUtils.e("getPressure = " + event.getPressure(0));
                 /*
                  * Store the data under its pointer identifier. The pointer
                  * number stays consistent for the duration of a gesture,

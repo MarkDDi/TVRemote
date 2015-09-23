@@ -166,7 +166,11 @@ public class MainActivity extends BaseActivity implements KeyCodeButton.KeyCodeH
                         break;
                     case 2:   // 游戏手柄
                         Intent game = new Intent(MainActivity.this, GameHandleActivity.class);
+                        String addre = getCoreService().getTarget().getAddress().getHostAddress();
+                        LogUtils.e("address = " + addre);
+                        game.putExtra("ip", addre);
                         startActivity(game);
+//                        mDrawerLayout.closeDrawer(mDrawerList);
                         break;
                     case 3:    // 体感手柄
                         Intent handle = new Intent(MainActivity.this, HandleActivity.class);

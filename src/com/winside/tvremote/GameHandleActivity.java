@@ -20,22 +20,19 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
-import android.os.SystemClock;
+import android.os.Message;
 import android.os.Vibrator;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
-import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageButton;
-import android.widget.RelativeLayout;
 
 import com.google.zxing.BarcodeFormat;
 import com.winside.tvremote.util.LogUtils;
@@ -48,8 +45,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -64,7 +59,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * Time          : 15:01
  * Decription    :
  */
-public class GameHandleActivity extends CommonTitleActivity implements SensorEventListener {
+public class GameHandleActivity extends CommonTitleActivity implements SensorEventListener, View.OnTouchListener {
 
     // 连接的目标主机端口
     private static final int DST_PORT = 4215;
@@ -89,11 +84,6 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
     //目标地址
     private String _TargetIpAddr = "";
 
-    private ImageButton Btn_scan;//搜索按钮
-    private ImageButton Btn_barcode;//二维码按钮
-    private ImageButton Btn_ip;//手动输入IP
-    private ImageButton Btn_exit;//退出按钮
-
     //wifi link info
     private boolean _ServEnable = false;            //server connect or not ?
     private Socket _ServSK = null;                //local socket
@@ -102,9 +92,9 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
     private boolean _ServReconnect = false;
 
     //scan mode
-    private ArrayList<String> t_ipArray = new ArrayList<String>();        //server's ip address
-    private Lock _QHLock = new ReentrantLock();
-    private int _QHRunnableCnt = 0;                            //Query Host Runnable count 搜索主机地址线程数量
+    //    private ArrayList<String> t_ipArray = new ArrayList<String>();        //server's ip address
+    //    private Lock _QHLock = new ReentrantLock();
+    //    private int _QHRunnableCnt = 0;                            //Query Host Runnable count 搜索主机地址线程数量
 
     //flag
     private boolean _StartScanHost = false; //开始搜索主机
@@ -112,8 +102,6 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
 
     //remote data
     private SensorManager mSensorManager; //传感器
-    private GestureDetector detector;//手势识别
-    private myGestureListener gListener;
     private Vibrator mVibrator; //震动
 
     private byte _Battery = 50;
@@ -149,15 +137,6 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
     private int _PSDataCount = 0;
     private boolean _PrintScreenRefresh = false;
     private boolean _AutoPrintScreen = false;
-
-
-    //条码格式
-    private Vector<BarcodeFormat> decodeFormats = null;
-    private String characterSet = null;
-    private InactivityTimer inactivityTimer;
-
-    private SurfaceView surfaceView;
-    private SurfaceHolder surfaceHolder;
 
     //////////////
     private static int MaxKeyCodeNum = 92;
@@ -266,7 +245,7 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
         //no status bar
         //        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         //keep screen on
-        //        getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         getWindowManager().getDefaultDisplay().getMetrics(_DM);
 
@@ -277,18 +256,20 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
 
         if (!TextUtils.isEmpty(ip)) {
             _TargetIpAddr = ip;
-            _RemoteMode = 0x01;
             LogUtils.e("Intent ip = " + ip);
             _StartConnect = true;
         }
 
+        _RemoteMode = 0x01;
+
         _LaunchHandler.post(_LaunchRunnable);
         _TSendThread.start(); //发送数据线程
         _TReadThread.start(); //读取数据线程
-        gListener = new myGestureListener();
-        detector = new GestureDetector(this, gListener);
 
+        // 振动器服务
         mVibrator = (Vibrator) getApplication().getSystemService(Service.VIBRATOR_SERVICE);
+        //传感器服务
+        mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         //注册广播接收
         registerReceiver(mBatInfoReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
 
@@ -303,8 +284,6 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
 
         LogUtils.e("onResume RemoteMode = " + _RemoteMode);
 
-        //传感器控制
-        mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         List<Sensor> sensors_list = mSensorManager.getSensorList(Sensor.TYPE_ALL);
         if (sensors_list.size() > 0) {
             for (int i = 0; i < sensors_list.size(); i++) {
@@ -341,13 +320,7 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
     protected void onPause() {
         super.onPause();
 
-        if (_RemoteMode == 0x04) {
-            ShowKeyboard(false);
-        }
-        if (_RemoteMode == 0x10) {
-            //            bcExit();
-        }
-
+        // 取消传感器接收，推荐在onPause()方法中进行
         mSensorManager.unregisterListener(this);
         //        unregisterReceiver(mBatInfoReceiver);
         mSensorManager = null;
@@ -397,15 +370,14 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
         return super.onKeyUp(keyCode, event);
     }
 
-    private int touchBtn(ImageButton btn, int actionType, int downID, int upID) {
+
+    private int touchBtn(int actionType) {
         switch (actionType) {
             case MotionEvent.ACTION_DOWN: {
                 RemoteSetVibrator(10);
-                btn.setImageDrawable(getResources().getDrawable(downID));
                 return 1;
             }
             case MotionEvent.ACTION_UP:
-                btn.setImageDrawable(getResources().getDrawable(upID));
                 return 0;
             default:
                 return -1;
@@ -431,32 +403,31 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
             // 已连接到体感游戏
             case 0x01: {
                 setContentView(R.layout.handle_activity_remote_new);
+                // A 键，确定键
+                final ImageButton Btn_A = (ImageButton) findViewById(R.id.handle_a_key);
+                // B键。同Y键
+                final ImageButton Btn_B = (ImageButton) findViewById(R.id.handle_b_key);
+                // D 键，校正对焦
+                final ImageButton Btn_D = (ImageButton) findViewById(R.id.handle_d_key);
+                // X 键，同D键
+                final ImageButton Btn_X = (ImageButton) findViewById(R.id.handle_x_key);
+                // Y 键，退出菜单键
+                final ImageButton Btn_Y = (ImageButton) findViewById(R.id.handle_y_key);
 
-                final ImageButton Btn_A = (ImageButton) findViewById(R.id.imageButton_m1_a);
-                final ImageButton Btn_B = (ImageButton) findViewById(R.id.imageButton_m1_b);
-                final ImageButton Btn_M = (ImageButton) findViewById(R.id.imageButton_m1_m);
-                final ImageButton Btn_J = (ImageButton) findViewById(R.id.imageButton_m1_j);
-                final ImageButton Btn_Up = (ImageButton) findViewById(R.id.imageButton_m1_up);
-                final ImageButton Btn_Down = (ImageButton) findViewById(R.id.imageButton_m1_down);
-                final ImageButton Btn_Left = (ImageButton) findViewById(R.id.imageButton_m1_left);
-                final ImageButton Btn_Right = (ImageButton) findViewById(R.id.imageButton_m1_right);
-                final ImageButton Btn_Setting = (ImageButton) findViewById(R.id.imageButton_m1_setting);
+                // 上下左右控制
+                final ImageButton Btn_Up = (ImageButton) findViewById(R.id.handle_up_img_btn);
+                final ImageButton Btn_Down = (ImageButton) findViewById(R.id.handle_down_img_btn);
+                final ImageButton Btn_Left = (ImageButton) findViewById(R.id.handle_left_img_btn);
+                final ImageButton Btn_Right = (ImageButton) findViewById(R.id.handle_right_img_btn);
 
-                //A
-                Btn_A.setOnTouchListener(new View.OnTouchListener() {
-                    public boolean onTouch(View v, MotionEvent e) {
-                        int t = touchBtn(Btn_A, e.getAction(), R.drawable.handle_img_ma_a_on, R.drawable.handle_img_ma_a_off);
-                        if (t == 1) {
-                            _Btn |= 0x02;
-                        } else if (t == 0) {
-                            _Btn &= 0xfd;
-                        }
-                        return true;
-                    }
-                });
-
+                // 逻辑代码在onTouch()方法中
+                Btn_A.setOnTouchListener(this);
+                Btn_B.setOnTouchListener(this);
+                Btn_D.setOnTouchListener(this);
+                Btn_X.setOnTouchListener(this);
+                Btn_Y.setOnTouchListener(this);
                 //B
-                Btn_B.setOnTouchListener(new View.OnTouchListener() {
+               /* Btn_B.setOnTouchListener(new View.OnTouchListener() {
                     public boolean onTouch(View v, MotionEvent e) {
                         int t = touchBtn(Btn_B, e.getAction(), R.drawable.handle_img_ma_b_on, R.drawable.handle_img_ma_b_off);
                         if (t == 1) {
@@ -466,461 +437,72 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
                         }
                         return true;
                     }
-                });
-
-                //M
-                Btn_M.setOnTouchListener(new View.OnTouchListener() {
-                    public boolean onTouch(View v, MotionEvent e) {
-                        int t = touchBtn(Btn_M, e.getAction(), R.drawable.handle_img_ma_m_on, R.drawable.handle_img_ma_m_off);
-                        if (t == 1) {
-                            _Btn |= 0x08;
-                        } else if (t == 0) {
-                            _Btn &= 0xf7;
-                        }
-                        return true;
-                    }
-                });
-
-                //J
-                Btn_J.setOnTouchListener(new View.OnTouchListener() {
-                    public boolean onTouch(View v, MotionEvent e) {
-                        int t = touchBtn(Btn_J, e.getAction(), R.drawable.handle_img_ma_j_on, R.drawable.handle_img_ma_j_off);
-                        if (t == 1) {
-                            _Btn |= 0x01;
-                        } else if (t == 0) {
-                            _Btn &= 0xfe;
-                        }
-                        return true;
-                    }
-                });
+                });*/
 
                 //UP
                 Btn_Up.setOnTouchListener(new View.OnTouchListener() {
                     public boolean onTouch(View v, MotionEvent e) {
-                        int t = touchBtn(Btn_Up, e.getAction(), R.drawable.handle_img_ma_up_on, R.drawable.handle_img_ma_up_off);
+                        int t = touchBtn(e.getAction());
                         if (t == 1) {
                             _Btn |= 0x10;
                         } else if (t == 0) {
                             _Btn &= 0xef;
                         }
-                        return true;
+                        return false;
                     }
                 });
 
                 //DOWN
                 Btn_Down.setOnTouchListener(new View.OnTouchListener() {
                     public boolean onTouch(View v, MotionEvent e) {
-                        int t = touchBtn(Btn_Down, e.getAction(), R.drawable.handle_img_ma_down_on, R.drawable.handle_img_ma_down_off);
+                        int t = touchBtn(e.getAction());
                         if (t == 1) {
                             _Btn |= 0x20;
                         } else if (t == 0) {
                             _Btn &= 0xdf;
                         }
-                        return true;
+                        return false;
                     }
                 });
 
                 //LEFT
                 Btn_Left.setOnTouchListener(new View.OnTouchListener() {
                     public boolean onTouch(View v, MotionEvent e) {
-                        int t = touchBtn(Btn_Left, e.getAction(), R.drawable.handle_img_ma_left_on, R.drawable.handle_img_ma_left_off);
+                        int t = touchBtn(e.getAction());
                         if (t == 1) {
                             _Btn |= 0x40;
                         } else if (t == 0) {
                             _Btn &= 0xbf;
                         }
-                        return true;
+                        return false;
                     }
                 });
 
                 //RIGHT
                 Btn_Right.setOnTouchListener(new View.OnTouchListener() {
                     public boolean onTouch(View v, MotionEvent e) {
-                        int t = touchBtn(Btn_Right, e.getAction(), R.drawable.handle_img_ma_right_on, R.drawable.handle_img_ma_right_off);
+                        int t = touchBtn(e.getAction());
                         if (t == 1) {
                             _Btn |= 0x80;
                         } else if (t == 0) {
                             _Btn &= 0x7f;
                         }
-                        return true;
-                    }
-                });
-
-                //Setting
-                Btn_Setting.setOnTouchListener(new View.OnTouchListener() {
-                    public boolean onTouch(View v, MotionEvent e) {
-                        int t = touchBtn(Btn_Setting, e.getAction(), R.drawable.handle_img_setting_on, R.drawable.handle_img_setting_off);
-                        if (t == 0) {
-                            final String[] item = new String[4];
-                            item[0] = getResources().getString(R.string.mode_2);
-                            item[1] = getResources().getString(R.string.mode_3);
-                            item[2] = getResources().getString(R.string.mode_4);
-                            item[3] = getResources().getString(R.string.set_exit);
-
-                            //dialog
-                            final AlertDialog.Builder modeSelect = new AlertDialog.Builder(GameHandleActivity.this);
-
-                            //dialog
-                            modeSelect.setTitle(R.string.mode_select);
-                            modeSelect.setNegativeButton(R.string.app_cancel, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {}
-                            });
-                            modeSelect.setItems(item, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {
-                                    switch (which) {
-                                        case 0: {
-                                            InitUI((byte) 0x02);
-                                            break;
-                                        }
-                                        case 1: {
-                                            InitUI((byte) 0x03);
-                                            break;
-                                        }
-                                        case 2: {
-                                            InitUI((byte) 0x04);
-                                            break;
-                                        }
-                                        case 3: {
-                                            exit_builder.show();
-                                            break;
-                                        }
-                                    }
-                                }
-                            });
-
-                            modeSelect.show();
-                        }
-                        return true;
+                        return false;
                     }
                 });
 
                 break;
             }
-            case 0x02: {
-                setContentView(R.layout.handle_activity_mouse);
 
-                final ImageButton Btn_A = (ImageButton) findViewById(R.id.imageButton_m2_a);
-                final ImageButton Btn_B = (ImageButton) findViewById(R.id.imageButton_m2_b);
-                final ImageButton Btn_M = (ImageButton) findViewById(R.id.imageButton_m2_m);
-                final ImageButton Btn_J = (ImageButton) findViewById(R.id.imageButton_m2_j);
-                final ImageButton Btn_Setting = (ImageButton) findViewById(R.id.imageButton_m2_setting);
-
-                //A
-                Btn_A.setOnTouchListener(new View.OnTouchListener() {
-                    public boolean onTouch(View v, MotionEvent e) {
-                        int t = touchBtn(Btn_A, e.getAction(), R.drawable.handle_img_ma_a_on, R.drawable.handle_img_ma_a_off);
-                        if (t == 1) {
-                            _Btn |= 0x02;
-                        } else if (t == 0) {
-                            _Btn &= 0xfd;
-                        }
-                        return true;
-                    }
-                });
-
-                //B
-                Btn_B.setOnTouchListener(new View.OnTouchListener() {
-                    public boolean onTouch(View v, MotionEvent e) {
-                        int t = touchBtn(Btn_B, e.getAction(), R.drawable.handle_img_ma_b_on, R.drawable.handle_img_ma_b_off);
-                        if (t == 1) {
-                            _Btn |= 0x04;
-                        } else if (t == 0) {
-                            _Btn &= 0xfb;
-                        }
-                        return true;
-                    }
-                });
-
-                //M
-                Btn_M.setOnTouchListener(new View.OnTouchListener() {
-                    public boolean onTouch(View v, MotionEvent e) {
-                        int t = touchBtn(Btn_M, e.getAction(), R.drawable.handle_img_ma_m_on, R.drawable.handle_img_ma_m_off);
-                        if (t == 1) {
-                            _Btn |= 0x08;
-                        } else if (t == 0) {
-                            _Btn &= 0xf7;
-                        }
-                        return true;
-                    }
-                });
-
-                //J
-                Btn_J.setOnTouchListener(new View.OnTouchListener() {
-                    public boolean onTouch(View v, MotionEvent e) {
-                        int t = touchBtn(Btn_J, e.getAction(), R.drawable.handle_img_ma_jo_on, R.drawable.handle_img_ma_jo_off);
-                        if (t == 1) {
-                            _Btn |= 0x01;
-                        } else if (t == 0) {
-                            _Btn &= 0xfe;
-                        }
-                        return true;
-                    }
-                });
-
-                //Setting
-                Btn_Setting.setOnTouchListener(new View.OnTouchListener() {
-                    public boolean onTouch(View v, MotionEvent e) {
-                        int t = touchBtn(Btn_Setting, e.getAction(), R.drawable.handle_img_setting_on, R.drawable.handle_img_setting_off);
-                        if (t == 0) {
-                            final String[] item = new String[4];
-                            item[0] = getResources().getString(R.string.mode_1);
-                            item[1] = getResources().getString(R.string.mode_3);
-                            item[2] = getResources().getString(R.string.mode_4);
-                            item[3] = getResources().getString(R.string.set_exit);
-
-                            //dialog
-                            final AlertDialog.Builder modeSelect = new AlertDialog.Builder(GameHandleActivity.this);
-
-                            //dialog
-                            modeSelect.setTitle(R.string.mode_select);
-                            modeSelect.setNegativeButton(R.string.app_cancel, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {}
-                            });
-                            modeSelect.setItems(item, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {
-                                    switch (which) {
-                                        case 0: {
-                                            InitUI((byte) 0x01);
-                                            break;
-                                        }
-                                        case 1: {
-                                            InitUI((byte) 0x03);
-                                            break;
-                                        }
-                                        case 2: {
-                                            InitUI((byte) 0x04);
-                                            break;
-                                        }
-                                        case 3: {
-                                            exit_builder.show();
-                                            break;
-                                        }
-                                    }
-                                }
-                            });
-
-                            modeSelect.show();
-                        }
-                        return true;
-                    }
-                });
+            case 0x02:
 
                 break;
-            }
             case 0x03: {
-                setContentView(R.layout.handle_activity_mtouch);
-
-                final ImageButton Btn_Setting = (ImageButton) findViewById(R.id.imageButton_mw_setting);
-
-                //Setting
-                Btn_Setting.setOnTouchListener(new View.OnTouchListener() {
-                    public boolean onTouch(View v, MotionEvent e) {
-                        int t = touchBtn(Btn_Setting, e.getAction(), R.drawable.handle_img_settingw_on, R.drawable.handle_img_settingw_off);
-                        if (t == 0) {
-                            final String[] item = new String[6];
-                            item[0] = getResources().getString(R.string.mode_1);
-                            item[1] = getResources().getString(R.string.mode_2);
-                            item[2] = getResources().getString(R.string.mode_4);
-                            item[3] = getResources().getString(R.string.set_back);
-                            item[4] = _AutoPrintScreen ? getResources().getString(R.string.set_AutoPrintScreenOff) : getResources().getString(R.string.set_AutoPrintScreenOn);
-                            item[5] = getResources().getString(R.string.set_exit);
-
-                            //dialog
-                            final AlertDialog.Builder modeSelect = new AlertDialog.Builder(GameHandleActivity.this);
-
-                            //dialog
-                            modeSelect.setTitle(R.string.mode_select);
-                            modeSelect.setNegativeButton(R.string.app_cancel, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {}
-                            });
-                            modeSelect.setItems(item, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {
-                                    switch (which) {
-                                        case 0: {
-                                            InitUI((byte) 0x01);
-                                            break;
-                                        }
-                                        case 1: {
-                                            InitUI((byte) 0x02);
-                                            break;
-                                        }
-                                        case 2: {
-                                            //_SetBack = true;
-                                            InitUI((byte) 0x04);
-                                            break;
-                                        }
-                                        case 3: {
-                                            _SetBack = true;
-                                            break;
-                                        }
-                                        case 4: {
-                                            _AutoPrintScreen = !_AutoPrintScreen;
-                                            break;
-                                        }
-                                        case 5: {
-                                            exit_builder.show();
-                                            break;
-                                        }
-                                    }
-                                }
-                            });
-
-                            modeSelect.show();
-                        }
-                        return true;
-                    }
-                });
 
                 break;
             }
             case 0x04: {
-                setContentView(R.layout.handle_activity_keyboard);
-                ShowKeyboard(true);
 
-                final ImageButton Btn_J = (ImageButton) findViewById(R.id.imageButton_mk_j);
-                final ImageButton Btn_Up = (ImageButton) findViewById(R.id.imageButton_mk_up);
-                final ImageButton Btn_Down = (ImageButton) findViewById(R.id.imageButton_mk_down);
-                final ImageButton Btn_Left = (ImageButton) findViewById(R.id.imageButton_mk_left);
-                final ImageButton Btn_Right = (ImageButton) findViewById(R.id.imageButton_mk_right);
-                final ImageButton Btn_M = (ImageButton) findViewById(R.id.imageButton_mk_m);
-                final ImageButton Btn_Setting = (ImageButton) findViewById(R.id.imageButton_mk_setting);
-
-                Btn_J.setFocusable(false);
-                Btn_Up.setFocusable(false);
-                Btn_Down.setFocusable(false);
-                Btn_Left.setFocusable(false);
-                Btn_Right.setFocusable(false);
-                Btn_M.setFocusable(false);
-                Btn_Setting.setFocusable(false);
-
-                //J
-                Btn_J.setOnTouchListener(new View.OnTouchListener() {
-                    public boolean onTouch(View v, MotionEvent e) {
-                        int t = touchBtn(Btn_J, e.getAction(), R.drawable.handle_img_ma_j_on, R.drawable.handle_img_ma_j_off);
-                        if (t == 1) {
-                            _Btn |= 0x01;
-                        } else if (t == 0) {
-                            _Btn &= 0xfe;
-                        }
-                        return true;
-                    }
-                });
-
-                //UP
-                Btn_Up.setOnTouchListener(new View.OnTouchListener() {
-                    public boolean onTouch(View v, MotionEvent e) {
-                        int t = touchBtn(Btn_Up, e.getAction(), R.drawable.handle_img_ma_up_on, R.drawable.handle_img_ma_up_off);
-                        if (t == 1) {
-                            _Btn |= 0x10;
-                        } else if (t == 0) {
-                            _Btn &= 0xef;
-                        }
-                        return true;
-                    }
-                });
-
-                //DOWN
-                Btn_Down.setOnTouchListener(new View.OnTouchListener() {
-                    public boolean onTouch(View v, MotionEvent e) {
-                        int t = touchBtn(Btn_Down, e.getAction(), R.drawable.handle_img_ma_down_on, R.drawable.handle_img_ma_down_off);
-                        if (t == 1) {
-                            _Btn |= 0x20;
-                        } else if (t == 0) {
-                            _Btn &= 0xdf;
-                        }
-                        return true;
-                    }
-                });
-
-                //LEFT
-                Btn_Left.setOnTouchListener(new View.OnTouchListener() {
-                    public boolean onTouch(View v, MotionEvent e) {
-                        int t = touchBtn(Btn_Left, e.getAction(), R.drawable.handle_img_ma_left_on, R.drawable.handle_img_ma_left_off);
-                        if (t == 1) {
-                            _Btn |= 0x40;
-                        } else if (t == 0) {
-                            _Btn &= 0xbf;
-                        }
-                        return true;
-                    }
-                });
-
-                //RIGHT
-                Btn_Right.setOnTouchListener(new View.OnTouchListener() {
-                    public boolean onTouch(View v, MotionEvent e) {
-                        int t = touchBtn(Btn_Right, e.getAction(), R.drawable.handle_img_ma_right_on, R.drawable.handle_img_ma_right_off);
-                        if (t == 1) {
-                            _Btn |= 0x80;
-                        } else if (t == 0) {
-                            _Btn &= 0x7f;
-                        }
-                        return true;
-                    }
-                });
-
-                //M
-                Btn_M.setOnTouchListener(new View.OnTouchListener() {
-                    public boolean onTouch(View v, MotionEvent e) {
-                        int t = touchBtn(Btn_M, e.getAction(), R.drawable.handle_img_ma_m_on, R.drawable.handle_img_ma_m_off);
-                        if (t == 1) {
-                            _Btn |= 0x08;
-                        } else if (t == 0) {
-                            _Btn &= 0xf7;
-                        }
-                        return true;
-                    }
-                });
-
-                //Setting
-                Btn_Setting.setOnTouchListener(new View.OnTouchListener() {
-                    public boolean onTouch(View v, MotionEvent e) {
-                        int t = touchBtn(Btn_Setting, e.getAction(), R.drawable.handle_img_setting_on, R.drawable.handle_img_setting_off);
-                        if (t == 0) {
-                            final String[] item = new String[4];
-                            item[0] = getResources().getString(R.string.mode_1);
-                            item[1] = getResources().getString(R.string.mode_2);
-                            item[2] = getResources().getString(R.string.mode_3);
-                            item[3] = getResources().getString(R.string.set_exit);
-
-                            //dialog
-                            final AlertDialog.Builder modeSelect = new AlertDialog.Builder(GameHandleActivity.this);
-
-                            //dialog
-                            modeSelect.setTitle(R.string.mode_select);
-                            modeSelect.setNegativeButton(R.string.app_cancel, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {}
-                            });
-                            modeSelect.setItems(item, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {
-                                    switch (which) {
-                                        case 0: {
-                                            InitUI((byte) 0x01);
-                                            ShowKeyboard(false);
-                                            break;
-                                        }
-                                        case 1: {
-                                            InitUI((byte) 0x02);
-                                            ShowKeyboard(false);
-                                            break;
-                                        }
-                                        case 2: {
-                                            InitUI((byte) 0x03);
-                                            ShowKeyboard(false);
-                                            break;
-                                        }
-                                        case 3: {
-                                            exit_builder.show();
-                                            break;
-                                        }
-                                    }
-                                }
-                            });
-
-                            modeSelect.show();
-                        }
-                        return true;
-                    }
-                });
                 break;
             }
         }
@@ -967,11 +549,7 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
         }
     }
 
-    /**
-     * 连接TV端的体感游戏
-     * @param addr
-     * @return
-     */
+
     private boolean ConnectHost(String addr) {
         if (_ServEnable) return true;
 
@@ -996,10 +574,7 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
         return true;
     }
 
-    /**
-     * 断开TV端的体感游戏连接
-     * @return
-     */
+
     private boolean DisconnectHost() {
         if (_ServSK == null) {
             return true;
@@ -1030,7 +605,7 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
     private Handler _LaunchHandler = new Handler();
     private Runnable _LaunchRunnable = new Runnable() {
         public void run() {
-            if (_StartScanHost) {  // 开始扫描可连接的远程主机
+            /*if (_StartScanHost) {  // 开始扫描可连接的远程主机，新版本采用外部传进的IP参数
                 _StartScanHost = false;
                 if (!_WifiEnable) {
                     return;
@@ -1100,9 +675,7 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
                 }
                 LogUtils.i("QueryHost end....");
 
-                Btn_ip.setEnabled(true);
-                Btn_barcode.setEnabled(true);
-            }  // end scan  结束扫描
+            }*/  // end scan  结束扫描
 
             if (_StartConnect) {  // 开始连接
                 LogUtils.i("_StartConnect start....");
@@ -1148,6 +721,40 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
         }
     };
 
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        switch (v.getId()) {
+            case R.id.handle_x_key:
+            case R.id.handle_d_key:
+                int d_key = touchBtn(event.getAction());
+                if (d_key == 1) {
+                    _Btn |= 0x01;
+                } else if (d_key == 0) {
+                    _Btn &= 0xfe;
+                }
+                break;
+            case R.id.handle_b_key:
+            case R.id.handle_y_key:
+                int y_key = touchBtn(event.getAction());
+                if (y_key == 1) {
+                    _Btn |= 0x08;
+                } else if (y_key == 0) {
+                    _Btn &= 0xf7;
+                }
+                break;
+            case R.id.handle_a_key:
+                int a_key = touchBtn(event.getAction());
+                if (a_key == 1) {
+                    _Btn |= 0x02;
+                } else if (a_key == 0) {
+                    _Btn &= 0xfd;
+                }
+                break;
+        }
+
+        return false;
+    }
+
     private class _RConnectHost implements Runnable {
         private String ipaddr;
 
@@ -1160,14 +767,35 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
                 LogUtils.i("ConnectHost Success");
             } else {
                 LogUtils.i("ConnectHost fail");
-                Looper.prepare();
-                PromptManager.showToastLong(GameHandleActivity.this, R.string.connectHost_fail);
-                Looper.loop();
+                connectStateHandler.sendEmptyMessage(CONNECT_FAILD);
             }
         }
     }
 
-    private class _RQueryHost implements Runnable {
+    private static final int CONNECT_FAILD = 0;  // 连接失败
+    private static final int DISCONNECT = -1;  // 连接断开
+
+    private Handler connectStateHandler = new Handler() {
+
+        @Override
+        public void handleMessage(Message msg) {
+
+            switch (msg.what) {
+                case CONNECT_FAILD:
+                    PromptManager.showToastLong(GameHandleActivity.this, R.string.connectHost_fail);
+                    break;
+                case DISCONNECT:
+                    PromptManager.showToastLong(GameHandleActivity.this, R.string.disconnect);
+                    break;
+                default:
+
+                    break;
+            }
+        }
+    };
+
+    // 新版本采用外部传入的IP参数，无需扫描
+   /* private class _RQueryHost implements Runnable {
         private int ipStart;
         private int ipEnd;
 
@@ -1206,8 +834,7 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
             _QHRunnableCnt--;
             _QHLock.unlock();
         }
-    }
-
+    }*/
     ;
 
     private void ConvertMACAddr(String mac) {
@@ -1280,14 +907,9 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
         }
         //Log.i("onTouchEvent", "_TouchStatus: " + _TouchStatus);
 
-        if (detector.onTouchEvent(event)) {
-            return detector.onTouchEvent(event);
-        } else {
-            return super.onTouchEvent(event);
-        }
-    }
 
-    ;
+        return super.onTouchEvent(event);
+    }
 
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
     }
@@ -1319,27 +941,6 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
         }
     }
 
-    public class myGestureListener implements GestureDetector.OnGestureListener {
-        public boolean onDown(MotionEvent e) {return false;}
-
-        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {return false;}
-
-        public void onLongPress(MotionEvent e) {
-            if (_RemoteMode == 0x10) {
-                //                bcExit();
-                InitUI((byte) 0x00);
-            }
-        }
-
-        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {return false;}
-
-        public void onShowPress(MotionEvent e) {}
-
-        public boolean onSingleTapUp(MotionEvent e) {
-            _SingleTap = true;
-            return false;
-        }
-    }
 
     private void RemoteSetVibrator(int ms) {
         if (ms > 0) {
@@ -1546,6 +1147,7 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
             if (!TryReconnect()) {
                 //连接断开
                 LogUtils.e("Reconnect failed, disconnect");
+                connectStateHandler.sendEmptyMessage(DISCONNECT);
                 DisconnectHost();
             }
             return false;
@@ -1904,33 +1506,6 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
         }
     }
 
-    /*
-    @SuppressLint("SdCardPath")
-    private void CopyFileFromLocalToSDcard (String fFile, String tFile, Boolean rewrite)
-    {
-        File toFile		=new File(Environment.getExternalStorageDirectory(), tFile);
-
-        if (!toFile.getParentFile().exists()) 	{toFile.getParentFile().mkdirs();}
-        if (toFile.exists() && rewrite) 		{toFile.delete();}
-
-        try {
-            FileInputStream fosfrom = openFileInput (fFile);
-            java.io.FileOutputStream fosto = new FileOutputStream(toFile);
-
-            byte bt[] = new byte[1024];
-            //int count = 0;
-            int c;
-            while ((c = fosfrom.read(bt)) > 0) {
-                fosto.write(bt, 0, c); //将内容写到新文件当中
-                //count += c;
-            }
-            //Log.i(_TAG, "CopyFileFromLocalToSDcard: count = " + count);
-            fosfrom.close();
-            fosto.close();
-        }
-        catch (Exception ex) {Log.e("readfile", ex.getMessage());}
-    }
-*/
     private void SetTouchBG(Boolean reset) {
         View background;
         background = (View) findViewById(R.id.layout_mw_bg);

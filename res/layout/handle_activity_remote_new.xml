@@ -19,10 +19,11 @@
         >
 
         <ImageButton
-            android:id="@+id/handle_top_img_btn"
+            android:id="@+id/handle_up_img_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/handle_top_selector"
+            android:background="@drawable/handle_up_selector"
+            android:layout_marginTop="@dimen/handle_top_mariginTop"
             />
 
     </RelativeLayout>
@@ -56,4 +57,60 @@
         android:layout_marginStart="50dp"/>
 
 
+    <ImageButton
+        android:id="@+id/handle_d_key"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/handle_d_key_selector"
+        android:layout_marginTop="25dp"
+        android:layout_below="@id/handle_down_img_btn"
+        android:layout_centerHorizontal="true"
+        />
+
+    <RelativeLayout
+        android:layout_width="220dp"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/handle_d_key"
+        android:layout_marginTop="15dp"
+        >
+        <ImageButton
+            android:id="@+id/handle_y_key"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/handle_y_key_selector"
+            android:layout_marginTop="20dp"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentLeft="true"
+            />
+        <ImageButton
+            android:id="@+id/handle_b_key"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/handle_b_key_selector"
+            android:layout_marginTop="20dp"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentRight="true"
+            />
+
+        <ImageButton
+            android:id="@+id/handle_x_key"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/handle_x_key_selector"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@id/handle_y_key"
+            />
+        <ImageButton
+            android:id="@+id/handle_a_key"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/handle_a_key_selector"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentRight="true"
+            android:layout_below="@id/handle_b_key"
+            />
+
+    </RelativeLayout>
 </RelativeLayout>
