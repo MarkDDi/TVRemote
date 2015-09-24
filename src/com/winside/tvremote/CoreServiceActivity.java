@@ -23,6 +23,7 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 
+import com.winside.tvremote.component.CoreService;
 import com.winside.tvremote.util.LogUtils;
 
 import java.util.LinkedList;

@@ -33,7 +33,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import com.google.polo.exception.PoloException;
 import com.google.polo.pairing.ClientPairingSession;
@@ -44,11 +43,10 @@ import com.google.polo.pairing.message.EncodingOption;
 import com.google.polo.ssl.DummySSLSocketFactory;
 import com.google.polo.wire.PoloWireInterface;
 import com.google.polo.wire.WireFormat;
+import com.winside.tvremote.component.CoreService;
 import com.winside.tvremote.util.LogUtils;
-import com.winside.tvremote.util.PromptManager;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.net.UnknownHostException;
 import java.security.GeneralSecurityException;
 import java.util.Arrays;

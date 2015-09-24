@@ -3,11 +3,9 @@ package com.winside.tvremote;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Service;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -24,20 +22,17 @@ import android.os.Message;
 import android.os.Vibrator;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
-import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageButton;
 
-import com.google.zxing.BarcodeFormat;
+import com.winside.tvremote.component.BatteryBroadcastListener;
+import com.winside.tvremote.component.ScreenBroadcastListener;
 import com.winside.tvremote.util.LogUtils;
 import com.winside.tvremote.util.PromptManager;
-import com.winside.zxing.decoding.InactivityTimer;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -47,11 +42,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Author        : lu
@@ -233,6 +224,8 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
             0,    //KEYCODE_MEDIA_FAST_FORWARD = 90;
             0,    //KEYCODE_MUTE = 91;
     };
+    private BatteryBroadcastListener batteryBroadcastListener;
+    private ScreenBroadcastListener screenBroadcastListener;
 
 
     @Override
@@ -270,14 +263,47 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
         mVibrator = (Vibrator) getApplication().getSystemService(Service.VIBRATOR_SERVICE);
         //传感器服务
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+
         //注册广播接收
-        registerReceiver(mBatInfoReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+        initBroadcast();
 
         //初始化界面UI
         InitUI(_RemoteMode);
         //初始化WiFi状态
         InitWifi();
+
     }
+
+    private void initBroadcast() {
+
+        batteryBroadcastListener = new BatteryBroadcastListener(this);
+        batteryBroadcastListener.begin(new BatteryBroadcastListener.BatteryChangeListener() {
+            @Override
+            public void onBatteryChangeListener(Intent intent) {
+                int ilevel = intent.getIntExtra("level", 0);
+                int iScale = intent.getIntExtra("scale", 100);
+                _Battery = (byte) ((ilevel * 100) / iScale);
+                LogUtils.i("battery level: " + _Battery);
+            }
+        });
+
+        screenBroadcastListener = new ScreenBroadcastListener(this);
+        screenBroadcastListener.begin(new ScreenBroadcastListener.ScreenStateListener() {
+            @Override
+            public void onScreenOn() {
+
+            }
+
+            @Override
+            public void onScreenOff() {
+                // 锁屏会导致系统关闭所有的传感器监听，为防止程序崩溃，
+                // 当接收到锁屏事件时就结束掉当前Activity
+                LogUtils.e("接收到锁屏事件....");
+                GameHandleActivity.this.finish();
+            }
+        });
+    }
+
 
     protected void onResume() {
         super.onResume();
@@ -337,8 +363,8 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
 
         DisconnectHost();
 
-        unregisterReceiver(mBatInfoReceiver);
-
+        batteryBroadcastListener.unregisterBroadcast();
+        screenBroadcastListener.unregisterBroadcast();
         super.onDestroy();
     }
 
@@ -693,6 +719,7 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
 
             if (_ServEnable) {
                 if (_RemoteMode == 0) {
+                    LogUtils.e("_Ability & 0x02" + (_Ability & 0x02));
                     InitUI(((_Ability & 0x02) != 0x00) ? (byte) 0x01 : (byte) 0x02);
                 }
 
@@ -848,20 +875,6 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
     private byte CharToByte(char c) {
         return (byte) "0123456789ABCDEF".indexOf(c);
     }
-
-    /////////////////////////////////////
-
-    private BroadcastReceiver mBatInfoReceiver = new BroadcastReceiver() {
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if (Intent.ACTION_BATTERY_CHANGED.equals(action)) {
-                int ilevel = intent.getIntExtra("level", 0);
-                int iScale = intent.getIntExtra("scale", 100);
-                _Battery = (byte) ((ilevel * 100) / iScale);
-                //Log.i(_TAG, "battery level: " + _Battery);
-            }
-        }
-    };
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
