@@ -181,4 +181,5 @@
     <string name="disconnect">连接已断开</string>
 
     <string name="touch_mode">touch screen mode</string>
+    <string name="air_mode">air mouse mode</string>
 </resources>

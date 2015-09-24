@@ -17,4 +17,9 @@
         <attr name="radius_percent_ok" format="float"/>
         <attr name="radius_percent_ignore_touch" format="float"/>
     </declare-styleable>
+
+    <declare-styleable name="GameTouchMode">
+        <attr name="percent" format="float"/>
+        <attr name="percent_ok" format="float"/>
+    </declare-styleable>
 </resources>

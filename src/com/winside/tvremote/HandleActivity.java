@@ -706,66 +706,6 @@ public class HandleActivity extends CommonTitleActivity implements SensorEventLi
             case 0x03: {
                 setContentView(R.layout.handle_activity_mtouch);
 
-                final ImageButton Btn_Setting = (ImageButton) findViewById(R.id.imageButton_mw_setting);
-
-                //Setting
-                Btn_Setting.setOnTouchListener(new View.OnTouchListener() {
-                    public boolean onTouch(View v, MotionEvent e) {
-                        int t = touchBtn(Btn_Setting, e.getAction(), R.drawable.handle_img_settingw_on, R.drawable.handle_img_settingw_off);
-                        if (t == 0) {
-                            final String[] item = new String[6];
-                            item[0] = getResources().getString(R.string.mode_1);
-                            item[1] = getResources().getString(R.string.mode_2);
-                            item[2] = getResources().getString(R.string.mode_4);
-                            item[3] = getResources().getString(R.string.set_back);
-                            item[4] = _AutoPrintScreen ? getResources().getString(R.string.set_AutoPrintScreenOff) : getResources().getString(R.string.set_AutoPrintScreenOn);
-                            item[5] = getResources().getString(R.string.set_exit);
-
-                            //dialog
-                            final AlertDialog.Builder modeSelect = new AlertDialog.Builder(HandleActivity.this);
-
-                            //dialog
-                            modeSelect.setTitle(R.string.mode_select);
-                            modeSelect.setNegativeButton(R.string.app_cancel, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {}
-                            });
-                            modeSelect.setItems(item, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {
-                                    switch (which) {
-                                        case 0: {
-                                            InitUI((byte) 0x01);
-                                            break;
-                                        }
-                                        case 1: {
-                                            InitUI((byte) 0x02);
-                                            break;
-                                        }
-                                        case 2: {
-                                            //_SetBack = true;
-                                            InitUI((byte) 0x04);
-                                            break;
-                                        }
-                                        case 3: {
-                                            _SetBack = true;
-                                            break;
-                                        }
-                                        case 4: {
-                                            _AutoPrintScreen = !_AutoPrintScreen;
-                                            break;
-                                        }
-                                        case 5: {
-                                            exit_builder.show();
-                                            break;
-                                        }
-                                    }
-                                }
-                            });
-
-                            modeSelect.show();
-                        }
-                        return true;
-                    }
-                });
 
                 break;
             }
@@ -1929,7 +1869,7 @@ public class HandleActivity extends CommonTitleActivity implements SensorEventLi
 */
     private void SetTouchBG(Boolean reset) {
         View background;
-        background = (View) findViewById(R.id.layout_mw_bg);
+        background = (View) findViewById(R.id.game_mouse);
 
         if (reset) {
             background.setBackgroundResource(R.drawable.handle_img_mw_bg);

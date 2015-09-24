@@ -203,4 +203,5 @@
     <string name="disconnect">连接已断开</string>
 
     <string name="touch_mode">触摸屏模式</string>
+    <string name="air_mode">空中鼠标模式</string>
 </resources>

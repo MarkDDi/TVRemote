@@ -2,8 +2,13 @@
       xmlns:tools="http://schemas.android.com/tools"
       tools:context="com.google.android.apps.com.TutorialActivity">
 
-    <item android:id="@+id/touch_screen_mode"
+    <item android:id="@+id/touch_mouse_mode"
           android:title="@string/touch_mode"
+          android:orderInCategory="100"
+          android:showAsAction="never"/>
+
+    <item android:id="@+id/air_mouse_mode"
+          android:title="@string/air_mode"
           android:orderInCategory="100"
           android:showAsAction="never"/>
 </menu>

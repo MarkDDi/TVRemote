@@ -33,6 +33,7 @@ import com.winside.tvremote.widget.SoftDpad.DpadListener;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.media.AudioManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -222,9 +223,13 @@ public class BaseActivity extends CoreServiceActivity implements ConnectionListe
         super.onCreateOptionsMenu(menu);
         MenuInflater inflater = new MenuInflater(this);
         inflater.inflate(R.menu.main, menu);
-        for (int i = 0; i < menu.size(); i++) {
-            menu.getItem(i).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
+            for (int i = 0; i < menu.size(); i++) {
+                menu.getItem(i).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+            }
         }
+
         return super.onCreateOptionsMenu(menu);
     }
 

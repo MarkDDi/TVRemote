@@ -31,13 +31,13 @@ public abstract class CommonTitleActivity extends Activity {
         actionBar = getActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
         // 沉浸式状态栏
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+       /* if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             setTranslucentStatus(true);
         }
         mTintManager = new SystemBarTintManager(this);
 
         mTintManager.setStatusBarTintEnabled(true);
-        mTintManager.setStatusBarTintResource(R.color.actionbar_color);
+        mTintManager.setStatusBarTintResource(R.color.actionbar_color);*/
     }
 
     protected void setTranslucentStatus(boolean on) {
