@@ -222,7 +222,10 @@ public class BaseActivity extends CoreServiceActivity implements ConnectionListe
         super.onCreateOptionsMenu(menu);
         MenuInflater inflater = new MenuInflater(this);
         inflater.inflate(R.menu.main, menu);
-        return true;
+        for (int i = 0; i < menu.size(); i++) {
+            menu.getItem(i).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        }
+        return super.onCreateOptionsMenu(menu);
     }
 
     // MENU HANDLER

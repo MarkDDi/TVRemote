@@ -190,7 +190,7 @@
     <string name="mode_select">功能选择</string>
     <string name="mode_1">体感(空中鼠标) 模式</string>
     <string name="mode_2">体感(触摸鼠标) 模式</string>
-    <string name="mode_3">触摸屏 模式</string>
+    <string name="mode_3">触摸屏模式</string>
     <string name="mode_4">键盘 模式</string>
     <string name="set_back">主机 [返回] 键</string>
     <string name="set_exit">退出</string>
@@ -201,4 +201,6 @@
     <string name="connectHost_fail">连接体感游戏失败，请确认是否已启动体感游戏</string>
     <string name="handle_prompt">温馨提示</string>
     <string name="disconnect">连接已断开</string>
+
+    <string name="touch_mode">触摸屏模式</string>
 </resources>

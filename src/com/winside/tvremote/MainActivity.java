@@ -19,6 +19,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
@@ -39,6 +40,7 @@ import com.winside.tvremote.widget.DrawerArrowDrawable;
 import com.winside.tvremote.widget.KeyCodeButton;
 import com.google.anymote.Key;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 /**
@@ -83,6 +85,7 @@ public class MainActivity extends BaseActivity implements KeyCodeButton.KeyCodeH
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main); // 加载主界面
+
 
         ActionBar ab = getActionBar();
         ab.setDisplayHomeAsUpEnabled(true);

@@ -24,6 +24,8 @@ import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
@@ -43,6 +45,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -246,11 +249,12 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
         actionBar.setTitle(R.string.handle);
         LoadCaliInfo();
 
+        // 由MainActivity跳转的时候传入参数
         String ip = getIntent().getStringExtra("ip");
 
         if (!TextUtils.isEmpty(ip)) {
             _TargetIpAddr = ip;
-            LogUtils.e("Intent ip = " + ip);
+            LogUtils.e("remote ip = " + ip);
             _StartConnect = true;
         }
 
@@ -350,6 +354,30 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
         batteryBroadcastListener.unregisterBroadcast();
         super.onDestroy();
     }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.game, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                this.finish();
+                break;
+            case R.id.touch_screen_mode:
+                _RemoteMode = 0x03;
+                InitUI(_RemoteMode);
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -507,7 +535,68 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
 
                 break;
             case 0x03: {
+                setContentView(R.layout.handle_activity_mtouch);
 
+                final ImageButton Btn_Setting = (ImageButton) findViewById(R.id.imageButton_mw_setting);
+
+                //Setting
+                Btn_Setting.setOnTouchListener(new View.OnTouchListener() {
+                    public boolean onTouch(View v, MotionEvent e) {
+                        int t = touchBtn(e.getAction());
+                        if (t == 0) {
+                            final String[] item = new String[6];
+                            item[0] = getResources().getString(R.string.mode_1);
+                            item[1] = getResources().getString(R.string.mode_2);
+                            item[2] = getResources().getString(R.string.mode_4);
+                            item[3] = getResources().getString(R.string.set_back);
+                            item[4] = _AutoPrintScreen ? getResources().getString(R.string.set_AutoPrintScreenOff) : getResources().getString(R.string.set_AutoPrintScreenOn);
+                            item[5] = getResources().getString(R.string.set_exit);
+
+                            //dialog
+                            final AlertDialog.Builder modeSelect = new AlertDialog.Builder(GameHandleActivity.this);
+
+                            //dialog
+                            modeSelect.setTitle(R.string.mode_select);
+                            modeSelect.setNegativeButton(R.string.app_cancel, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {}
+                            });
+                            modeSelect.setItems(item, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    switch (which) {
+                                        case 0: {
+                                            InitUI((byte) 0x01);
+                                            break;
+                                        }
+                                        case 1: {
+                                            InitUI((byte) 0x02);
+                                            break;
+                                        }
+                                        case 2: {
+                                            //_SetBack = true;
+                                            InitUI((byte) 0x04);
+                                            break;
+                                        }
+                                        case 3: {
+                                            _SetBack = true;
+                                            break;
+                                        }
+                                        case 4: {
+                                            _AutoPrintScreen = !_AutoPrintScreen;
+                                            break;
+                                        }
+                                        case 5: {
+                                            exit_builder.show();
+                                            break;
+                                        }
+                                    }
+                                }
+                            });
+
+                            modeSelect.show();
+                        }
+                        return true;
+                    }
+                });
                 break;
             }
             case 0x04: {
@@ -696,7 +785,7 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
                     Thread thread = new Thread(new _RConnectHost(_TargetIpAddr));
                     thread.start();
                 } else {
-                    PromptManager.showToast(GameHandleActivity.this, "目标IP地址为空");
+                    connectStateHandler.sendEmptyMessage(NEED_CONN);
                 }
             }
 
@@ -784,6 +873,7 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
 
     private static final int CONNECT_FAILD = 0;  // 连接失败
     private static final int DISCONNECT = -1;  // 连接断开
+    private static final int NEED_CONN = -2;  // 未连接
 
     private Handler connectStateHandler = new Handler() {
 
@@ -797,6 +887,10 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
                 case DISCONNECT:
                     PromptManager.showToastLong(GameHandleActivity.this, R.string.disconnect);
                     break;
+                case NEED_CONN:
+                    PromptManager.showToastLong(GameHandleActivity.this, R.string.need_conn);
+                    break;
+
                 default:
 
                     break;
@@ -904,7 +998,7 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
         //Log.i("onTouchEvent", "_TouchStatus: " + _TouchStatus);
 
 
-        return super.onTouchEvent(event);
+        return false;
     }
 
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
@@ -1214,11 +1308,12 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
         curlen += 2;
 
         //HWVer, SWVer
-        data[curlen] = (byte) ((_HWVer >> 8) & 0x000000ff);
-        data[curlen + 1] = (byte) ((_HWVer) & 0x000000ff);
-        data[curlen + 2] = (byte) ((_SWVer >> 8) & 0x000000ff);
-        data[curlen + 3] = (byte) ((_SWVer) & 0x000000ff);
-        curlen += 4;
+        // curlen = 3    _HWVer = 0x5002  _SWVer = 0x0707
+        data[curlen] = (byte) ((_HWVer >> 8) & 0x000000ff); // 0x50 == 80
+        data[curlen + 1] = (byte) ((_HWVer) & 0x000000ff); // 0x02
+        data[curlen + 2] = (byte) ((_SWVer >> 8) & 0x000000ff); // 0x07
+        data[curlen + 3] = (byte) ((_SWVer) & 0x000000ff); // 0x07
+        curlen += 4; // 7
 
         //MAC addr
         for (int i = 0; i < 6; i++) {

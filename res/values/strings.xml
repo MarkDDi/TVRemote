@@ -179,4 +179,6 @@
     <string name="handle_prompt">温馨提示</string>
     <string name="handle_prompt_content">为避免砸到花花草草\n请在使用时紧握手机</string>
     <string name="disconnect">连接已断开</string>
+
+    <string name="touch_mode">touch screen mode</string>
 </resources>
