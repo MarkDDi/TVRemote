@@ -22,6 +22,7 @@ import android.os.Message;
 import android.os.Vibrator;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -259,10 +260,6 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
         _TSendThread.start(); //发送数据线程
         _TReadThread.start(); //读取数据线程
 
-        // 振动器服务
-        mVibrator = (Vibrator) getApplication().getSystemService(Service.VIBRATOR_SERVICE);
-        //传感器服务
-        mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
         //注册广播接收
         initBroadcast();
@@ -286,29 +283,16 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
                 LogUtils.i("battery level: " + _Battery);
             }
         });
-
-        screenBroadcastListener = new ScreenBroadcastListener(this);
-        screenBroadcastListener.begin(new ScreenBroadcastListener.ScreenStateListener() {
-            @Override
-            public void onScreenOn() {
-
-            }
-
-            @Override
-            public void onScreenOff() {
-                // 锁屏会导致系统关闭所有的传感器监听，为防止程序崩溃，
-                // 当接收到锁屏事件时就结束掉当前Activity
-                LogUtils.e("接收到锁屏事件....");
-                GameHandleActivity.this.finish();
-            }
-        });
     }
-
 
     protected void onResume() {
         super.onResume();
 
         LogUtils.e("onResume RemoteMode = " + _RemoteMode);
+        // 振动器服务
+        mVibrator = (Vibrator) getApplication().getSystemService(Service.VIBRATOR_SERVICE);
+        //传感器服务，必须要放在onResume方法中，防止锁屏后再打开出现程序崩溃，mSensorManager空指针
+        mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
         List<Sensor> sensors_list = mSensorManager.getSensorList(Sensor.TYPE_ALL);
         if (sensors_list.size() > 0) {
@@ -345,7 +329,7 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
 
     protected void onPause() {
         super.onPause();
-
+        LogUtils.e("onPause ....");
         // 取消传感器接收，推荐在onPause()方法中进行
         mSensorManager.unregisterListener(this);
         //        unregisterReceiver(mBatInfoReceiver);
@@ -364,7 +348,6 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
         DisconnectHost();
 
         batteryBroadcastListener.unregisterBroadcast();
-        screenBroadcastListener.unregisterBroadcast();
         super.onDestroy();
     }
 

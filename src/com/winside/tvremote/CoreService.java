@@ -14,13 +14,8 @@
  * limitations under the License.
  */
 
-package com.winside.tvremote.component;
+package com.winside.tvremote;
 
-import com.winside.tvremote.ConnectionManager;
-import com.winside.tvremote.DeviceFinder;
-import com.winside.tvremote.KeyStoreManager;
-import com.winside.tvremote.R;
-import com.winside.tvremote.RemoteDevice;
 import com.winside.tvremote.protocol.AnymoteSender;
 import com.winside.tvremote.protocol.DummySender;
 import com.winside.tvremote.util.Debug;

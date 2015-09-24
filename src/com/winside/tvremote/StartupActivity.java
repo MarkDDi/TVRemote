@@ -23,8 +23,6 @@ import android.provider.Settings;
 import android.view.View;
 import android.widget.Button;
 
-import com.winside.tvremote.component.CoreService;
-
 /**
  * Startup activity that checks if certificates are generated, and if not
  * begins async generation of certificates, and displays remote logo.

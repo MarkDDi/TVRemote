@@ -113,7 +113,7 @@
             android:theme="@style/AppTheme"/>
 
         <service
-            android:name=".component.CoreService"
+            android:name=".CoreService"
             android:enabled="true"
             android:exported="true"
             android:label="@string/core_service_label"

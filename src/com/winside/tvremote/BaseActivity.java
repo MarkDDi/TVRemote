@@ -20,7 +20,6 @@ import com.winside.tvremote.ConnectionManager.ConnectionListener;
 import com.winside.tvremote.TrackballHandler.Direction;
 import com.winside.tvremote.TrackballHandler.Listener;
 import com.winside.tvremote.TrackballHandler.Mode;
-import com.winside.tvremote.component.CoreService;
 import com.winside.tvremote.protocol.ICommandSender;
 import com.winside.tvremote.protocol.QueuingSender;
 import com.winside.tvremote.systembar.SystemBarTintManager;

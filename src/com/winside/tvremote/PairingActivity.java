@@ -43,7 +43,6 @@ import com.google.polo.pairing.message.EncodingOption;
 import com.google.polo.ssl.DummySSLSocketFactory;
 import com.google.polo.wire.PoloWireInterface;
 import com.google.polo.wire.WireFormat;
-import com.winside.tvremote.component.CoreService;
 import com.winside.tvremote.util.LogUtils;
 
 import java.io.IOException;

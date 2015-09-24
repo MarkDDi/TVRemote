@@ -33,7 +33,7 @@ import com.winside.zxing.view.ViewfinderView;
 
 /**
  * Initial the camera
- * @author Ryan.Tang
+ * 二维码扫描
  */
 public class MipcaActivityCapture extends CommonTitleActivity implements Callback {
 

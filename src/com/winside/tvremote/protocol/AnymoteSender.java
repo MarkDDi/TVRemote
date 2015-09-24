@@ -16,7 +16,7 @@
 
 package com.winside.tvremote.protocol;
 
-import com.winside.tvremote.component.CoreService;
+import com.winside.tvremote.CoreService;
 import com.winside.tvremote.util.LogUtils;
 import com.google.anymote.Key.Action;
 import com.google.anymote.Key.Code;
