@@ -99,11 +99,10 @@ public class MainActivity extends BaseActivity implements KeyCodeButton.KeyCodeH
         // 设置手势模式滑动带有振动效果
         sharedPreferences = getSharedPreferences(ConstValues.settings, MODE_PRIVATE);
         boolean vibrator = sharedPreferences.getBoolean(ConstValues.vibrator, true);
-
         // 可关闭振动
-//        SharedPreferences.Editor edit = sharedPreferences.edit();
-//        edit.putBoolean(ConstValues.vibrator, false);
-//        edit.commit();
+        SharedPreferences.Editor edit = sharedPreferences.edit();
+        edit.putBoolean(ConstValues.vibrator, vibrator);
+        edit.commit();
 
         // 控制方向及确认键
         softFragment = new SoftDpadFragment();
@@ -200,6 +199,8 @@ public class MainActivity extends BaseActivity implements KeyCodeButton.KeyCodeH
                         //                        String appUrl = "https://play.google.com/store/apps/details?id=" + getPackageName();
                         //                        Intent rateIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(appUrl));
                         //                        startActivity(rateIntent);
+                        Intent settings = new Intent(MainActivity.this, SettingsActivity.class);
+                        startActivity(settings);
                         break;
                 }
 

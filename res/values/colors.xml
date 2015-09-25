@@ -56,4 +56,7 @@
     <color name="entry_disable">#8a8a8a</color>
     <color name="entry_press">#0b7dbb</color>
     <color name="entry_normal">#07a1e9</color>
+
+
+    <color name="setting_description_color">#919191</color>
 </resources>

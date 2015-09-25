@@ -70,7 +70,6 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
 
     private GestureDetector detector;//手势识别
 
-
     //多点触摸
     private static int _TouchMaxCount = 5;
 
@@ -93,10 +92,6 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
     private DataInputStream _Din = null;                //receive data
     private boolean _ServReconnect = false;
 
-    //scan mode
-    //    private ArrayList<String> t_ipArray = new ArrayList<String>();        //server's ip address
-    //    private Lock _QHLock = new ReentrantLock();
-    //    private int _QHRunnableCnt = 0;                            //Query Host Runnable count 搜索主机地址线程数量
 
     //flag
     private boolean _StartScanHost = false; //开始搜索主机

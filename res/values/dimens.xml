@@ -30,4 +30,7 @@
     <dimen name="handle_down_marginTop">135dp</dimen>
     <dimen name="handle_left_marginEnd">50dp</dimen>
     <dimen name="handle_left_marginTop">85dp</dimen>
+    <dimen name="setting_item_height">40dp</dimen>
+    <dimen name="setting_item_textsize">22sp</dimen>
+    <dimen name="setting_item_description_textsize">17sp</dimen>
 </resources>
