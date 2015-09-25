@@ -99,11 +99,11 @@ public class MainActivity extends BaseActivity implements KeyCodeButton.KeyCodeH
         // 设置手势模式滑动带有振动效果
         sharedPreferences = getSharedPreferences(ConstValues.settings, MODE_PRIVATE);
         boolean vibrator = sharedPreferences.getBoolean(ConstValues.vibrator, true);
-        SharedPreferences.Editor edit = sharedPreferences.edit();
 
         // 可关闭振动
-        edit.putBoolean(ConstValues.vibrator, false);
-        edit.commit();
+//        SharedPreferences.Editor edit = sharedPreferences.edit();
+//        edit.putBoolean(ConstValues.vibrator, false);
+//        edit.commit();
 
         // 控制方向及确认键
         softFragment = new SoftDpadFragment();

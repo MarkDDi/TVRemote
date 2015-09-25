@@ -68,7 +68,6 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
     private static int _HWVer = 0x5002;
     private static int _SWVer = 0x0707;
 
-    private myGestureListener gListener;
     private GestureDetector detector;//手势识别
 
 
@@ -307,7 +306,7 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
 
         LogUtils.e("onResume RemoteMode = " + _RemoteMode);
         // 振动器服务
-        mVibrator = (Vibrator) getApplication().getSystemService(Service.VIBRATOR_SERVICE);
+        mVibrator = (Vibrator) getSystemService(Service.VIBRATOR_SERVICE);
         //传感器服务，必须要放在onResume方法中，防止锁屏后再打开出现程序崩溃，mSensorManager空指针
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
@@ -408,6 +407,8 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
 
         if (keyCode < MaxKeyCodeNum) {
             int keyboardcode = KeyCodeToKeyboardCode[keyCode];
+            LogUtils.e("onKeyDown keyCode = " + keyCode + " KeyCodeToKeyboardCode[keyCode] = " +
+                    keyboardcode);
             if (keyboardcode > 0) {
                 RemoteKeyboardUpdate(keyboardcode, true);
             }
@@ -583,21 +584,16 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
                             _TouchStatus |= (byte) (0x0100 >> (8 - current));
                             _TouchX[current] = event.getX(pointer);
                             _TouchY[current] = event.getY(pointer);
-                            LogUtils.i("onTouchEvent index: " + current + "_TouchX: " +
-                                    _TouchX[current] +
-                                    "_TouchY: " + _TouchY[current]);
                         } else {
                             _TouchStatus &= (byte) (0xFEFF >> (8 - current));
                         }
                     }
-
-
                 });
                 RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
                 params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
                 params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
                 gameTouchMode.setLayoutParams(params);
-                gameTouchMode.setBackgroundResource(R.drawable.new_dpad);
+                gameTouchMode.setBackgroundResource(R.drawable.soft_pad);
                 game_mouse.addView(gameTouchMode);
 
                 // 游戏触摸屏模式的单击确定键事件
@@ -712,77 +708,6 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
     private Handler _LaunchHandler = new Handler();
     private Runnable _LaunchRunnable = new Runnable() {
         public void run() {
-            /*if (_StartScanHost) {  // 开始扫描可连接的远程主机，新版本采用外部传进的IP参数
-                _StartScanHost = false;
-                if (!_WifiEnable) {
-                    return;
-                }
-                //开始查找主机
-                LogUtils.i("QueryHost start....");
-
-                DisconnectHost();
-                t_ipArray.clear();
-
-                int threadnum = 10;
-                int ipstep = 253 / threadnum;
-                int ipstart = 2;
-
-                for (; ; ) {
-                    int ipend = ipstart + ipstep;
-                    ipend = (ipend > 254) ? 254 : ipend;
-                    Log.e("LaunchActivity", "ipend = " + ipend);
-                    _QHLock.lock();
-                    _QHRunnableCnt++;
-                    _QHLock.unlock();
-                    Thread thread = new Thread(new _RQueryHost(ipstart, ipend));
-                    thread.start();
-
-                    ipstart += ipstep + 1;
-                    if (ipstart > 254) {
-                        break;
-                    }
-                }
-
-                while (_QHRunnableCnt != 0) {
-                    SystemClock.sleep(100);
-                }
-
-                //print host address  查找到的主机地址列表
-                for (int i = 0; i < t_ipArray.size(); i++) {
-                    LogUtils.i("QueryHost " + t_ipArray.get(i));
-                }
-
-                if (t_ipArray.size() > 0)        //
-                {
-                    //Log.i(_TAG, "QueryHost ShowBuilder");
-                    final String[] item = new String[t_ipArray.size()];
-                    for (int i = 0; i < t_ipArray.size(); i++) {
-                        item[i] = t_ipArray.get(i);
-                    }
-
-                    //dialog
-                    final AlertDialog.Builder ipSelect = new AlertDialog.Builder(GameHandleActivity.this);
-
-                    //dialog
-                    ipSelect.setTitle(R.string.scan_select);  //主机选择
-                    ipSelect.setCancelable(false);
-                    ipSelect.setNegativeButton(R.string.app_cancel, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {t_ipArray.clear();}
-                    });
-                    ipSelect.setItems(item, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            t_ipArray.clear();
-                            _TargetIpAddr = item[which];
-                            Thread thread = new Thread(new _RConnectHost(_TargetIpAddr));
-                            thread.start();
-                        }
-                    });
-
-                    ipSelect.show();
-                }
-                LogUtils.i("QueryHost end....");
-
-            }*/  // end scan  结束扫描
 
             if (_StartConnect) {  // 开始连接
                 LogUtils.i("_StartConnect start....");
@@ -962,57 +887,6 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
         return (byte) "0123456789ABCDEF".indexOf(c);
     }
 
-   /* @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        switch (event.getAction()) {
-            case MotionEvent.ACTION_UP: {
-                _TouchStatus = 0x00;
-                break;
-            }
-            case MotionEvent.ACTION_DOWN: {
-                _TouchX[0] = event.getX();
-                _TouchY[0] = event.getY();
-            }
-            case MotionEvent.ACTION_POINTER_1_UP:
-            case MotionEvent.ACTION_POINTER_2_UP:
-            case MotionEvent.ACTION_POINTER_3_UP:
-            case MotionEvent.ACTION_POINTER_1_DOWN:
-            case MotionEvent.ACTION_POINTER_2_DOWN:
-            case MotionEvent.ACTION_POINTER_3_DOWN: {
-                for (int i = 0; i < _TouchMaxCount; i++) {
-                    int p = event.findPointerIndex(i);
-                    if (p != -1) {
-                        _TouchStatus |= (byte) (0x0100 >> (8 - i));
-                    } else {
-                        _TouchStatus &= (byte) (0xFEFF >> (8 - i));
-                    }
-                }
-                break;
-            }
-            case MotionEvent.ACTION_MOVE: {
-                for (int i = 0; i < _TouchMaxCount; i++) {
-                    int p = event.findPointerIndex(i);
-                    if (p != -1) {
-                        _TouchStatus |= (byte) (0x0100 >> (8 - i));
-                        _TouchX[i] = event.getX(p);
-                        _TouchY[i] = event.getY(p);
-                        //Log.i("onTouchEvent", "index: " + i + "_TouchX: " + _TouchX[i] + "_TouchY: " + _TouchY[i]);
-                    } else {
-                        _TouchStatus &= (byte) (0xFEFF >> (8 - i));
-                    }
-                }
-                break;
-            }
-        }
-        //Log.i("onTouchEvent", "_TouchStatus: " + _TouchStatus);
-
-        if (detector.onTouchEvent(event)) {
-            return detector.onTouchEvent(event);
-        } else {
-            return false;
-        }
-
-    }*/
 
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
     }
@@ -1047,6 +921,7 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
 
     private void RemoteSetVibrator(int ms) {
         if (ms > 0) {
+            LogUtils.e("点击振动...");
             mVibrator.vibrate((ms > 2550) ? 2550 : ms);
         } else {
             mVibrator.cancel();
@@ -1641,29 +1516,6 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
         } catch (IOException e) {
             e.printStackTrace();
             return;
-        }
-    }
-
-    public class myGestureListener implements GestureDetector.OnGestureListener {
-        public boolean onDown(MotionEvent e) {return false;}
-
-        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {return false;}
-
-        public void onLongPress(MotionEvent e) {
-            if (_RemoteMode == 0x10) {
-                //                bcExit ();
-                InitUI((byte) 0x00);
-            }
-        }
-
-        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {return false;}
-
-        public void onShowPress(MotionEvent e) {}
-
-        public boolean onSingleTapUp(MotionEvent e) {
-            _SingleTap = true;
-            LogUtils.e("触摸模式，单击");
-            return false;
         }
     }
 
