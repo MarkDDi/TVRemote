@@ -291,11 +291,12 @@ public final class SoftDpad extends ImageView {
                         // get pointer id for data stored at this index
                         int id_ = event.getPointerId(0);
                         // get the data stored externally about this pointer.
-                        TouchHistory history = mTouches.get(id_);
+                        TouchHistory history = mTouches.get(0);
 
                         // add previous position to history and add new values
                         history.addHistory(history.x, history.y);
-                        history.setTouch(event.getX(index), event.getY(index), event.getPressure(index));
+                        history.setTouch(event.getX(0), event.getY(0), event.getPressure
+                                (0));
 
                     }
                 }
@@ -306,7 +307,7 @@ public final class SoftDpad extends ImageView {
                 if (isDpadFocused) {
                     handleActionUp(x, y);
                     int id_ = event.getPointerId(0);
-                    TouchHistory touchHistory = mTouches.get(id_);
+                    TouchHistory touchHistory = mTouches.get(0);
                     mTouches.remove(0);
                     touchHistory.recycle();
 
