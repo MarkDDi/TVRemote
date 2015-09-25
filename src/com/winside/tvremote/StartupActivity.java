@@ -53,6 +53,11 @@ public class StartupActivity extends CoreServiceActivity {
                 @Override
                 public void run() {
                     showMainActivity();
+                    // 在TV端使用浏览器打开指定网址
+                   /* Intent intent = new Intent(StartupActivity.this, MainActivity.class);
+                    intent.setAction(Intent.ACTION_SEND);
+                    intent.putExtra(Intent.EXTRA_TEXT, "http://baidu.com");
+                    startActivity(intent);*/
                 }
             }, 3000);
 

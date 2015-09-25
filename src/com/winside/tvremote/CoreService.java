@@ -236,7 +236,7 @@ public final class CoreService extends Service implements ConnectionManager {
      * @return {@code true} if the config was saved
      */
     private boolean storeConfig() {
-        SharedPreferences pref = getSharedPreferences(ConstValues.connect_device, MODE_PRIVATE);
+        SharedPreferences pref = getSharedPreferences(ConstValues.connected_device, MODE_PRIVATE);
         SharedPreferences.Editor prefEdit = pref.edit();
         prefEdit.clear();
 
@@ -265,7 +265,7 @@ public final class CoreService extends Service implements ConnectionManager {
      * Loads an existing configuration, and builds the socket to the target.
      */
     private void loadConfig() {
-        SharedPreferences pref = getSharedPreferences(ConstValues.connect_device, MODE_PRIVATE);
+        SharedPreferences pref = getSharedPreferences(ConstValues.connected_device, MODE_PRIVATE);
 
         RemoteDevice restoredTarget = loadRemoteDevice(pref, "");
 

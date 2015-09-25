@@ -99,9 +99,11 @@ public class MainActivity extends BaseActivity implements KeyCodeButton.KeyCodeH
         // 设置手势模式滑动带有振动效果
         sharedPreferences = getSharedPreferences(ConstValues.settings, MODE_PRIVATE);
         boolean vibrator = sharedPreferences.getBoolean(ConstValues.vibrator, true);
+        boolean auto_connect_device = sharedPreferences.getBoolean(ConstValues.auto_connect_device, true);
         // 可关闭振动
         SharedPreferences.Editor edit = sharedPreferences.edit();
         edit.putBoolean(ConstValues.vibrator, vibrator);
+        edit.putBoolean(ConstValues.auto_connect_device,auto_connect_device);
         edit.commit();
 
         // 控制方向及确认键
@@ -112,7 +114,8 @@ public class MainActivity extends BaseActivity implements KeyCodeButton.KeyCodeH
         getFragmentManager().beginTransaction().replace(R.id.new_container, homeFragment).commit();
 
 
-        flingIntent(getIntent());
+        // 在TV端打开指定网址
+//        flingIntent(getIntent());
 
     }
 
@@ -185,20 +188,9 @@ public class MainActivity extends BaseActivity implements KeyCodeButton.KeyCodeH
 
                         break;
                     case 5:   // 检查更新
-                        //                        Intent share = new Intent(Intent.ACTION_SEND);
-                        //                        share.setType("text/plain");
-                        //                        share.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        //                        share.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.app_name));
-                        //                        share.putExtra(Intent.EXTRA_TEXT, getString(R.string.app_description) + "\n" +
-                        //                                "GitHub Page :  https://github.com/IkiMuhendis/LDrawer\n" +
-                        //                                "Sample App : https://play.google.com/store/apps/details?id=" +
-                        //                                getPackageName());
-                        //                        startActivity(Intent.createChooser(share, getString(R.string.app_name)));
+                        //
                         break;
                     case 6:  // 设置
-                        //                        String appUrl = "https://play.google.com/store/apps/details?id=" + getPackageName();
-                        //                        Intent rateIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(appUrl));
-                        //                        startActivity(rateIntent);
                         Intent settings = new Intent(MainActivity.this, SettingsActivity.class);
                         startActivity(settings);
                         break;
@@ -228,6 +220,7 @@ public class MainActivity extends BaseActivity implements KeyCodeButton.KeyCodeH
         ((AudioManager) getSystemService(Context.AUDIO_SERVICE)).playSoundEffect(AudioManager.FX_KEY_CLICK);
     }
 
+    // 控制TV端通过浏览器打开指定的网址
     private void flingIntent(Intent intent) {
         if (intent != null) {
             if (Intent.ACTION_SEND.equals(intent.getAction())) {

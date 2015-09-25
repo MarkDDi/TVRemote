@@ -10,6 +10,7 @@ public interface ConstValues {
 
     String settings = "settings";
     String vibrator = "vibrator";
-    String connect_device = "deviceInfo";
+    String connected_device = "deviceInfo";
+    String auto_connect_device = "auto_connect_device";
 
 }

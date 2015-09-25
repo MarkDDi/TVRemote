@@ -61,6 +61,20 @@ public class SettingsActivity extends CommonTitleActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 switch (position) {
+                    case 0:
+                        //TODO 暂无功能具体的实现，默认是自动连接
+                        boolean is_auto_connect = sharedPreferences.getBoolean(ConstValues
+                                .auto_connect_device, true);
+                        if (is_auto_connect) {
+                            edit.putBoolean(ConstValues.auto_connect_device, false);
+                            LogUtils.e("取消自动连接 " + is_auto_connect);
+                        } else {
+                            edit.putBoolean(ConstValues.auto_connect_device, true);
+                            LogUtils.e("激活自动连接 " + is_auto_connect);
+                        }
+                        edit.commit();
+                        settingsAdapter.notifyDataSetInvalidated();
+                        break;
                     case 1:
                         try {
                             deleteFilesByDirectory(cacheDir);
@@ -72,8 +86,19 @@ public class SettingsActivity extends CommonTitleActivity {
                         }
                         PromptManager.showToast(SettingsActivity.this, "重置应用成功!");
                         break;
+                    case 2:
+                        boolean is_vibrator = sharedPreferences.getBoolean(ConstValues.vibrator, true);
+                        if (is_vibrator) {
+                            edit.putBoolean(ConstValues.vibrator, false);
+                            LogUtils.e("取消振动 " + is_vibrator);
+                        } else {
+                            edit.putBoolean(ConstValues.vibrator, true);
+                            LogUtils.e("激活振动 " + is_vibrator);
+                        }
+                        edit.commit();
+                        settingsAdapter.notifyDataSetInvalidated();
+                        break;
                     case 3:
-                        LogUtils.e("点击了关于");
                         Intent about = new Intent(SettingsActivity.this, AboutActivity.class);
                         startActivity(about);
                         break;
@@ -148,28 +173,21 @@ public class SettingsActivity extends CommonTitleActivity {
             holder.itemName_tv.setText(settingItems.get(position).getItemName());
             holder.item_description_tv.setText(settingItems.get(position).getItem_description());
 
-            if (vibrator_str.equals(settingItems.get(position).getItemName())) {
-
-                if (sharedPreferences.getBoolean(ConstValues.vibrator, true)) {
+            if (auto_connect_device.equals(settingItems.get(position).getItemName())) {
+                if (sharedPreferences.getBoolean(ConstValues.auto_connect_device, true)) {
                     holder.is_enable_cb.setChecked(true);
+                } else {
+                    holder.is_enable_cb.setChecked(false);
                 }
 
-                holder.is_enable_cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                    @Override
-                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-
-                        if (isChecked) {
-                            edit.putBoolean(ConstValues.vibrator, true);
-                            LogUtils.e("激活振动 " + isChecked);
-                        } else {
-                            edit.putBoolean(ConstValues.vibrator, false);
-                            LogUtils.e("取消振动 " + isChecked);
-                        }
-                        edit.commit();
-                    }
-                });
             }
-
+            if (vibrator_str.equals(settingItems.get(position).getItemName())) {
+                if (sharedPreferences.getBoolean(ConstValues.vibrator, true)) {
+                    holder.is_enable_cb.setChecked(true);
+                } else {
+                    holder.is_enable_cb.setChecked(false);
+                }
+            }
             return convertView;
         }
 
