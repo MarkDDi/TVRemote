@@ -24,7 +24,7 @@ import android.view.MenuItem.OnMenuItemClickListener;
  *
  */
 public class ApplicationVariantConfig {
-  private com.winside.tvremote.MenuInitializer menuInitializer;
+  private MenuInitializer menuInitializer;
 
   private static ApplicationVariantConfig INSTANCE;
 
@@ -38,7 +38,7 @@ public class ApplicationVariantConfig {
     return INSTANCE;
   }
 
-  public com.winside.tvremote.MenuInitializer getMenuInitializer() {
+  public MenuInitializer getMenuInitializer() {
     return menuInitializer != null ? menuInitializer : new com.winside.tvremote.MenuInitializer() {
       public OnMenuItemClickListener addMenuItems(Menu menu) {
         return null;
@@ -46,7 +46,7 @@ public class ApplicationVariantConfig {
     };
   }
 
-  public void setMenuInitializer(com.winside.tvremote.MenuInitializer extender) {
+  public void setMenuInitializer(MenuInitializer extender) {
     menuInitializer = extender;
   }
 }

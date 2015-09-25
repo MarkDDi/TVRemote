@@ -23,12 +23,14 @@ import android.os.Message;
 import android.os.Vibrator;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageButton;
@@ -38,6 +40,7 @@ import com.winside.tvremote.component.BatteryBroadcastListener;
 import com.winside.tvremote.component.ScreenBroadcastListener;
 import com.winside.tvremote.util.LogUtils;
 import com.winside.tvremote.util.PromptManager;
+import com.winside.tvremote.widget.GameTouchMode;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -274,8 +277,8 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
         initBroadcast();
 
         // 初始化手势
-        gListener = new myGestureListener();
-        detector = new GestureDetector(this, gListener);
+//        gListener = new myGestureListener();
+//        detector = new GestureDetector(this, gListener);
 
         LogUtils.e("oncreate ..");
         //初始化界面UI
@@ -551,7 +554,55 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
 
             case 0x02: // 触摸鼠标模式
                 setContentView(R.layout.handle_activity_mtouch);
+                RelativeLayout game_mouse = (RelativeLayout) findViewById(R.id.game_mouse);
+                GameTouchMode gameTouchMode = new GameTouchMode(this, null);
+                gameTouchMode.setGestureListener(new GameTouchMode.MyGameGestureListener() {
+                    @Override
+                    public void onSingleTapUp() {
+                        _SingleTap = true;
+                        LogUtils.e("触摸模式，单击....");
+                    }
 
+                    @Override
+                    public void onTouchStatus() {
+                        _TouchStatus = 0x00;
+                    }
+
+                    @Override
+                    public void mulTouch(int pointer, int i) {
+                        if (pointer != -1) {
+                            _TouchStatus |= (byte) (0x0100 >> (8 - i));
+                        } else {
+                            _TouchStatus &= (byte) (0xFEFF >> (8 - i));
+                        }
+                    }
+
+                    @Override
+                    public void acitonMove(int pointer, int current, MotionEvent event) {
+                        if (pointer != -1) {
+                            _TouchStatus |= (byte) (0x0100 >> (8 - current));
+                            _TouchX[current] = event.getX(pointer);
+                            _TouchY[current] = event.getY(pointer);
+                            LogUtils.i("onTouchEvent index: " + current + "_TouchX: " +
+                                    _TouchX[current] +
+                                    "_TouchY: " + _TouchY[current]);
+                        } else {
+                            _TouchStatus &= (byte) (0xFEFF >> (8 - current));
+                        }
+                    }
+
+
+                });
+                RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
+                params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+                params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+                gameTouchMode.setLayoutParams(params);
+                gameTouchMode.setBackgroundResource(R.drawable.new_dpad);
+                game_mouse.addView(gameTouchMode);
+
+                // 游戏触摸屏模式的单击确定键事件
+                detector = new GestureDetector(this, gameTouchMode);
+                gameTouchMode.setDetector(detector);
                 break;
             case 0x03: {
 
@@ -911,7 +962,7 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
         return (byte) "0123456789ABCDEF".indexOf(c);
     }
 
-    @Override
+   /* @Override
     public boolean onTouchEvent(MotionEvent event) {
         switch (event.getAction()) {
             case MotionEvent.ACTION_UP: {
@@ -961,7 +1012,7 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
             return false;
         }
 
-    }
+    }*/
 
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
     }

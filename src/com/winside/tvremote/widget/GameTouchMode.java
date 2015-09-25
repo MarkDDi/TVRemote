@@ -20,7 +20,7 @@ import com.winside.tvremote.util.LogUtils;
  * Time          : 17:26
  * Decription    :
  */
-public class GameTouchMode extends ImageView implements GestureDetector.OnGestureListener{
+public class GameTouchMode extends ImageView implements GestureDetector.OnGestureListener {
 
     private SparseArray<TouchHistory> mTouches;
     private float mCircleRadius;
@@ -32,7 +32,22 @@ public class GameTouchMode extends ImageView implements GestureDetector.OnGestur
     // radius of historical circle in dp default 7f
     private static final float CIRCLE_HISTORICAL_RADIUS_DP = 7f;
     public final int[] COLORS = {0xFF33B5E5, 0xFFAA66CC, 0xFF99CC00, 0xFFFFBB33, 0xFFFF4444, 0xFF0099CC, 0xFF9933CC, 0xFF669900, 0xFFFF8800, 0xFFCC0000};
+    //多点触摸
+    private static int _TouchMaxCount = 5;
 
+    private MyGameGestureListener myGameGestureListener;
+    private GestureDetector detector;
+
+    public void setGestureListener(MyGameGestureListener myGameGestureListener) {
+        this.myGameGestureListener = myGameGestureListener;
+    }
+
+    public GameTouchMode(Context context) {
+        super(context);
+        // SparseArray for touch events, indexed by touch id
+        mTouches = new SparseArray<TouchHistory>(10);
+        initialize();
+    }
 
     public GameTouchMode(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -69,8 +84,8 @@ public class GameTouchMode extends ImageView implements GestureDetector.OnGestur
 
     @Override
     public boolean onSingleTapUp(MotionEvent e) {
-//        _SingleTap = true;
-//        LogUtils.e("触摸模式，单击");
+        //
+        myGameGestureListener.onSingleTapUp();
         return false;
     }
 
@@ -81,15 +96,16 @@ public class GameTouchMode extends ImageView implements GestureDetector.OnGestur
 
     @Override
     public void onLongPress(MotionEvent e) {
-//        if (_RemoteMode == 0x10) {
-//            //                bcExit ();
-//            InitUI((byte) 0x00);
-//        }
+
     }
 
     @Override
     public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
         return false;
+    }
+
+    public void setDetector(GestureDetector detector) {
+        this.detector = detector;
     }
 
     static final class TouchHistory {
@@ -186,8 +202,10 @@ public class GameTouchMode extends ImageView implements GestureDetector.OnGestur
                 break;
 
             case MotionEvent.ACTION_MOVE:
-
-
+                for (int i = 0; i < _TouchMaxCount; i++) {
+                    int p = event.findPointerIndex(i);
+                    myGameGestureListener.acitonMove(p, i, event);
+                }
                 for (int index = 0; index < event.getPointerCount(); index++) {
                     // get pointer id for data stored at this index
                     int id_ = event.getPointerId(0);
@@ -203,6 +221,8 @@ public class GameTouchMode extends ImageView implements GestureDetector.OnGestur
                 break;
 
             case MotionEvent.ACTION_UP:
+                // 回调
+                myGameGestureListener.onTouchStatus();
                 //                LogUtils.e("SoftDpad 触发ACTION_UP");
                 int id_ = event.getPointerId(0);
                 TouchHistory touchHistory = mTouches.get(id_);
@@ -211,10 +231,28 @@ public class GameTouchMode extends ImageView implements GestureDetector.OnGestur
 
                 mHasTouch = false;
                 break;
+
+            case MotionEvent.ACTION_POINTER_1_UP:
+            case MotionEvent.ACTION_POINTER_2_UP:
+            case MotionEvent.ACTION_POINTER_3_UP:
+            case MotionEvent.ACTION_POINTER_1_DOWN:
+            case MotionEvent.ACTION_POINTER_2_DOWN:
+            case MotionEvent.ACTION_POINTER_3_DOWN:
+                for (int i = 0; i < _TouchMaxCount; i++) {
+                    int p = event.findPointerIndex(i);
+                    myGameGestureListener.mulTouch(p, i);
+                }
+                break;
         }
         // trigger redraw on UI thread
         this.postInvalidate();
-        return true;
+        // 游戏触摸屏模式的点击事件
+        if (detector.onTouchEvent(event)) {
+            return detector.onTouchEvent(event);
+        } else {
+            return true;
+        }
+
     }
 
     @Override
@@ -259,6 +297,10 @@ public class GameTouchMode extends ImageView implements GestureDetector.OnGestur
 
         void onSingleTapUp();
 
-        void onLongPress();
+        void onTouchStatus();
+
+        void mulTouch(int pointer, int current);
+
+        void acitonMove(int pointer, int current, MotionEvent event);
     }
 }
