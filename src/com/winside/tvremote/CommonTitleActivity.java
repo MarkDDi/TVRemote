@@ -98,11 +98,11 @@ public abstract class CommonTitleActivity extends Activity {
         return super.onTouchEvent(event);
     }
 
-    @Override
+   /* @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_tutorial, menu);
         return true;
-    }
+    }*/
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

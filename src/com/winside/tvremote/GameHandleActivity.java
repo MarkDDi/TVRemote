@@ -24,14 +24,12 @@ import android.os.Message;
 import android.os.Vibrator;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageButton;
@@ -39,7 +37,7 @@ import android.widget.RelativeLayout;
 
 import com.winside.tvremote.component.BatteryBroadcastListener;
 import com.winside.tvremote.component.ScreenBroadcastListener;
-import com.winside.tvremote.util.FeatureEffectUtils;
+import com.winside.tvremote.util.EffectUtils;
 import com.winside.tvremote.util.LogUtils;
 import com.winside.tvremote.util.PromptManager;
 import com.winside.tvremote.widget.GameTouchMode;
@@ -436,10 +434,7 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
     private int touchBtn(int actionType, View view) {
         switch (actionType) {
             case MotionEvent.ACTION_DOWN: {
-                if (sharedPreferences.getBoolean(ConstValues.vibrator, true)) {
-                    vibrator.vibrate(40);
-                    FeatureEffectUtils.playSoundClick(view);
-                }
+               EffectUtils.triggerVibrator(GameHandleActivity.this, view, sharedPreferences.getBoolean(ConstValues.vibrator, true));
                 return 1;
             }
             case MotionEvent.ACTION_UP:
@@ -561,11 +556,13 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
             case 0x02: // 触摸鼠标模式
                 setContentView(R.layout.handle_activity_mtouch);
                 RelativeLayout game_mouse = (RelativeLayout) findViewById(R.id.game_mouse);
-                GameTouchMode gameTouchMode = new GameTouchMode(this, null);
+                final GameTouchMode gameTouchMode = new GameTouchMode(this, null);
                 gameTouchMode.setGestureListener(new GameTouchMode.MyGameGestureListener() {
                     @Override
                     public void onSingleTapUp() {
                         _SingleTap = true;
+                        EffectUtils.triggerVibrator(GameHandleActivity.this, gameTouchMode,
+                                sharedPreferences.getBoolean(ConstValues.vibrator, true));
                         LogUtils.e("触摸模式，单击....");
                     }
 
@@ -927,7 +924,7 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
     private void RemoteSetVibrator(int ms) {
         if (ms > 0) {
             LogUtils.e("点击振动..." + ms);
-//            mVibrator.vibrate((ms > 2550) ? 2550 : ms);
+            mVibrator.vibrate((ms > 2550) ? 2550 : ms);
         } else {
             mVibrator.cancel();
         }

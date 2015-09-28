@@ -16,9 +16,14 @@
 package com.winside.tvremote.widget;
 
 import com.google.anymote.Key.Code;
+import com.winside.tvremote.ConstValues;
+import com.winside.tvremote.R;
+import com.winside.tvremote.util.EffectUtils;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.TypedArray;
+import android.os.Vibrator;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -27,82 +32,81 @@ import android.widget.ImageButton;
 /**
  * Button of the remote controller that has remote controller keycode assigned,
  * and supports displaying highlight with the support of {@link HighlightView}.
- *
  */
 public class KeyCodeButton extends ImageButton {
 
-  private final Code keyCode;
-  private boolean wasPressed;
-
-  /**
-   * Key code handler interface.
-   */
-  public interface KeyCodeHandler {
-    /**
-     * Invoked when key has became touched.
-     *
-     * @param keyCode touched key code.
-     */
-    void onTouch(Code keyCode);
+    private final Code keyCode;
+    private boolean wasPressed;
+    private SharedPreferences sharedPreferences;
 
     /**
-     * Invoked when key has been released.
-     *
-     * @param keyCode released key code.
+     * Key code handler interface.
      */
-    void onRelease(Code keyCode);
-  }
+    public interface KeyCodeHandler {
+        /**
+         * Invoked when key has became touched.
+         * @param keyCode touched key code.
+         */
+        void onTouch(Code keyCode);
 
-  public KeyCodeButton(Context context) {
-    super(context);
-    keyCode = null;
-    initialize();
-  }
-
-  public KeyCodeButton(Context context, AttributeSet attrs) {
-    super(context, attrs);
-
-    TypedArray a = context.obtainStyledAttributes(attrs,
-        com.winside.tvremote.R.styleable.RemoteButton);
-
-    try {
-      CharSequence s = a.getString(com.winside.tvremote.R.styleable.RemoteButton_key_code);
-      if (s != null) {
-        keyCode = Code.valueOf(s.toString());
-        enableKeyCodeAction();
-      } else {
-        keyCode = null;
-      }
-    } finally {
-      a.recycle();
+        /**
+         * Invoked when key has been released.
+         * @param keyCode released key code.
+         */
+        void onRelease(Code keyCode);
     }
 
-    initialize();
-  }
+    public KeyCodeButton(Context context, Vibrator vibrator) {
+        super(context);
+        keyCode = null;
+        initialize();
+    }
 
-  private void initialize() {
-    setScaleType(ScaleType.CENTER_INSIDE);
-  }
+    public KeyCodeButton(Context context, AttributeSet attrs) {
+        super(context, attrs);
 
-  private void enableKeyCodeAction() {
-    setOnTouchListener(new View.OnTouchListener() {
-        public boolean onTouch(View v, MotionEvent event) {
-            Context context = getContext();
-            if (context instanceof KeyCodeHandler) {
-                KeyCodeHandler handler = (KeyCodeHandler) context;
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        handler.onTouch(keyCode);
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        handler.onRelease(keyCode);
-                        break;
-                }
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.RemoteButton);
+
+        sharedPreferences = context.getSharedPreferences(ConstValues.settings, Context.MODE_PRIVATE);
+        try {
+            CharSequence s = a.getString(R.styleable.RemoteButton_key_code);
+            if (s != null) {
+                keyCode = Code.valueOf(s.toString());
+                enableKeyCodeAction();
+            } else {
+                keyCode = null;
             }
-
-            return false;
+        } finally {
+            a.recycle();
         }
-    });
-  }
+
+        initialize();
+    }
+
+    private void initialize() {
+        setScaleType(ScaleType.CENTER_INSIDE);
+    }
+
+    private void enableKeyCodeAction() {
+        setOnTouchListener(new View.OnTouchListener() {
+            public boolean onTouch(View v, MotionEvent event) {
+                Context context = getContext();
+                if (context instanceof KeyCodeHandler) {
+                    KeyCodeHandler handler = (KeyCodeHandler) context;
+                    switch (event.getAction()) {
+                        case MotionEvent.ACTION_DOWN:
+                            handler.onTouch(keyCode);
+                            EffectUtils.triggerVibrator(context, v, sharedPreferences.getBoolean(ConstValues.vibrator, true));
+                            break;
+                        case MotionEvent.ACTION_UP:
+                            handler.onRelease(keyCode);
+                            break;
+                    }
+                }
+
+                return false;
+            }
+        });
+    }
 
 }
