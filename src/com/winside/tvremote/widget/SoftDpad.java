@@ -502,7 +502,7 @@ public final class SoftDpad extends ImageView {
         if (listener != null) {
             listener.onDpadClicked();
             // 点击中间OK键开始振动,持续时间为40毫秒
-            vibrator.vibrate(getResources().getInteger(com.winside.tvremote.R.integer.dpad_vibrate_time));
+            vibrator.vibrate(getResources().getInteger(R.integer.dpad_vibrate_time));
             playSound();
         }
     }

@@ -187,6 +187,18 @@ public class SettingsActivity extends CommonTitleActivity {
                 } else {
                     holder.is_enable_cb.setChecked(false);
                 }
+                holder.is_enable_cb.setOnCheckedChangeListener(new CompoundButton
+                        .OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        if (isChecked) {
+                            edit.putBoolean(ConstValues.vibrator, true);
+                        } else {
+                            edit.putBoolean(ConstValues.vibrator, false);
+                        }
+                        edit.commit();
+                    }
+                });
             }
             return convertView;
         }

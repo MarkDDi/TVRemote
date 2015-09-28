@@ -6,6 +6,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -38,6 +39,7 @@ import android.widget.RelativeLayout;
 
 import com.winside.tvremote.component.BatteryBroadcastListener;
 import com.winside.tvremote.component.ScreenBroadcastListener;
+import com.winside.tvremote.util.FeatureEffectUtils;
 import com.winside.tvremote.util.LogUtils;
 import com.winside.tvremote.util.PromptManager;
 import com.winside.tvremote.widget.GameTouchMode;
@@ -232,6 +234,8 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
     };
     private BatteryBroadcastListener batteryBroadcastListener;
     private ScreenBroadcastListener screenBroadcastListener;
+    private Vibrator vibrator;
+    private SharedPreferences sharedPreferences;
 
 
     @Override
@@ -247,6 +251,8 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         getWindowManager().getDefaultDisplay().getMetrics(_DM);
+
+        sharedPreferences = getSharedPreferences(ConstValues.settings, Context.MODE_PRIVATE);
 
         actionBar.setTitle(R.string.handle);
         LoadCaliInfo();
@@ -302,6 +308,7 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
         LogUtils.e("onResume RemoteMode = " + _RemoteMode);
         // 振动器服务
         mVibrator = (Vibrator) getSystemService(Service.VIBRATOR_SERVICE);
+        vibrator = (Vibrator) getSystemService(Service.VIBRATOR_SERVICE);
         //传感器服务，必须要放在onResume方法中，防止锁屏后再打开出现程序崩溃，mSensorManager空指针
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
@@ -426,10 +433,13 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
     }
 
 
-    private int touchBtn(int actionType) {
+    private int touchBtn(int actionType, View view) {
         switch (actionType) {
             case MotionEvent.ACTION_DOWN: {
-                RemoteSetVibrator(10);
+                if (sharedPreferences.getBoolean(ConstValues.vibrator, true)) {
+                    vibrator.vibrate(40);
+                    FeatureEffectUtils.playSoundClick(view);
+                }
                 return 1;
             }
             case MotionEvent.ACTION_UP:
@@ -497,7 +507,7 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
                 //UP
                 Btn_Up.setOnTouchListener(new View.OnTouchListener() {
                     public boolean onTouch(View v, MotionEvent e) {
-                        int t = touchBtn(e.getAction());
+                        int t = touchBtn(e.getAction(), v);
                         if (t == 1) {
                             _Btn |= 0x10;
                         } else if (t == 0) {
@@ -510,7 +520,7 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
                 //DOWN
                 Btn_Down.setOnTouchListener(new View.OnTouchListener() {
                     public boolean onTouch(View v, MotionEvent e) {
-                        int t = touchBtn(e.getAction());
+                        int t = touchBtn(e.getAction(), v);
                         if (t == 1) {
                             _Btn |= 0x20;
                         } else if (t == 0) {
@@ -523,7 +533,7 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
                 //LEFT
                 Btn_Left.setOnTouchListener(new View.OnTouchListener() {
                     public boolean onTouch(View v, MotionEvent e) {
-                        int t = touchBtn(e.getAction());
+                        int t = touchBtn(e.getAction(), v);
                         if (t == 1) {
                             _Btn |= 0x40;
                         } else if (t == 0) {
@@ -536,7 +546,7 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
                 //RIGHT
                 Btn_Right.setOnTouchListener(new View.OnTouchListener() {
                     public boolean onTouch(View v, MotionEvent e) {
-                        int t = touchBtn(e.getAction());
+                        int t = touchBtn(e.getAction(), v);
                         if (t == 1) {
                             _Btn |= 0x80;
                         } else if (t == 0) {
@@ -754,7 +764,7 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
         switch (v.getId()) {
             case R.id.handle_x_key:
             case R.id.handle_d_key:
-                int d_key = touchBtn(event.getAction());
+                int d_key = touchBtn(event.getAction(), v);
                 if (d_key == 1) {
                     _Btn |= 0x01;
                 } else if (d_key == 0) {
@@ -763,7 +773,7 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
                 break;
             case R.id.handle_b_key:
             case R.id.handle_y_key:
-                int y_key = touchBtn(event.getAction());
+                int y_key = touchBtn(event.getAction(), v);
                 if (y_key == 1) {
                     _Btn |= 0x08;
                 } else if (y_key == 0) {
@@ -771,7 +781,7 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
                 }
                 break;
             case R.id.handle_a_key:
-                int a_key = touchBtn(event.getAction());
+                int a_key = touchBtn(event.getAction(), v);
                 if (a_key == 1) {
                     _Btn |= 0x02;
                 } else if (a_key == 0) {
@@ -916,8 +926,8 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
 
     private void RemoteSetVibrator(int ms) {
         if (ms > 0) {
-            LogUtils.e("点击振动...");
-            mVibrator.vibrate((ms > 2550) ? 2550 : ms);
+            LogUtils.e("点击振动..." + ms);
+//            mVibrator.vibrate((ms > 2550) ? 2550 : ms);
         } else {
             mVibrator.cancel();
         }
