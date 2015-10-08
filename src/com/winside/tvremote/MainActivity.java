@@ -26,6 +26,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -85,7 +86,6 @@ public class MainActivity extends BaseActivity implements KeyCodeButton.KeyCodeH
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main); // 加载主界面
-
 
         ActionBar ab = getActionBar();
         ab.setDisplayHomeAsUpEnabled(true);

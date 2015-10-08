@@ -21,9 +21,9 @@ package com.winside.tvremote.util;
  *
  */
 public class Debug {
-  private static final boolean DEBUG_CONNECTION = false;
+  private static final boolean DEBUG_CONNECTION = true;
 
-  private static final boolean DEBUG_DEVICES = false;
+  private static final boolean DEBUG_DEVICES = true;
 
   private static final boolean DEBUG_NO_CONNECTION = false;
 
