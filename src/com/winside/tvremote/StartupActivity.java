@@ -21,6 +21,8 @@ import android.os.AsyncTask;
 import android.os.Handler;
 import android.provider.Settings;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 
 /**

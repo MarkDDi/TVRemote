@@ -50,6 +50,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -231,8 +232,6 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
             0,    //KEYCODE_MUTE = 91;
     };
     private BatteryBroadcastListener batteryBroadcastListener;
-    private ScreenBroadcastListener screenBroadcastListener;
-    private Vibrator vibrator;
     private SharedPreferences sharedPreferences;
 
 
@@ -245,7 +244,7 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
         //        requestWindowFeature(Window.FEATURE_PROGRESS);
         //no status bar
         //        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        //keep screen on
+        //keep screen on 保持屏幕常亮，一旦锁屏就会关闭连接
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         getWindowManager().getDefaultDisplay().getMetrics(_DM);
@@ -306,8 +305,7 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
         LogUtils.e("onResume RemoteMode = " + _RemoteMode);
         // 振动器服务
         mVibrator = (Vibrator) getSystemService(Service.VIBRATOR_SERVICE);
-        vibrator = (Vibrator) getSystemService(Service.VIBRATOR_SERVICE);
-        //传感器服务，必须要放在onResume方法中，防止锁屏后再打开出现程序崩溃，mSensorManager空指针
+        //传感器服务，必须要放在onResume方法中，防止锁屏后再打开出现程序崩溃
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
         List<Sensor> sensors_list = mSensorManager.getSensorList(Sensor.TYPE_ALL);
@@ -627,7 +625,7 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
         //ip address  获取IP address
         int hostip = info.getIpAddress();
         _IPAddr = hostip;
-        LogUtils.i("Local IP Address: " + hostip);
+        LogUtils.i("Local IP Address: " + Integer.toHexString(hostip));
 
         //dialog
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -725,7 +723,7 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
                 }
             }
 
-            if (_ServEnable) {
+           /* if (_ServEnable) {
                 if (_RemoteMode == 0) {
                     LogUtils.e("_Ability & 0x02" + (_Ability & 0x02));
                     InitUI(((_Ability & 0x02) != 0x00) ? (byte) 0x01 : (byte) 0x02);
@@ -750,7 +748,7 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
                     }
                     //                    InitUI((byte) 0x00);
                 }
-            }
+            }*/
 
             _LaunchHandler.postDelayed(_LaunchRunnable, 10);
         }
@@ -834,49 +832,6 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
         }
     };
 
-    // 新版本采用外部传入的IP参数，无需扫描
-   /* private class _RQueryHost implements Runnable {
-        private int ipStart;
-        private int ipEnd;
-
-        public _RQueryHost(int start, int end) {
-            this.ipStart = start;
-            this.ipEnd = end;
-        }
-
-        public void run() {
-            //get local ip address
-            int t_localip[] = new int[4];
-            byte t_target[] = new byte[4];
-            for (int i = 0; i < 4; i++) {
-                t_localip[i] = ((_IPAddr >> (i * 8)) & 0x000000ff);
-                t_target[i] = (byte) t_localip[i];
-            }
-            String t_lan = t_localip[0] + "." + t_localip[1] + "." + t_localip[2] + ".";
-            String t_host = null;
-            //check host
-            for (int ip = ipStart; ip <= ipEnd; ip++) {
-                t_target[3] = (byte) ip;
-                t_host = t_lan + ip;
-                try {
-                    Socket socket = new Socket();
-                    socket.connect(new InetSocketAddress(InetAddress.getByAddress(t_target), 4215), 80);
-                    if (socket != null) {
-                        socket.close();
-                    }
-                    _QHLock.lock();
-                    t_ipArray.add(t_host);
-                    _QHLock.unlock();
-                } catch (Exception e) {
-                }
-            }
-            _QHLock.lock();
-            _QHRunnableCnt--;
-            _QHLock.unlock();
-        }
-    }*/
-    ;
-
     private void ConvertMACAddr(String mac) {
         int tMac = 0;
         for (int i = 0; i < 6; i++) {
@@ -908,9 +863,9 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
         }
         // 接受加速度感应器的类型
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-            _Acc[0] = event.values[0];
-            _Acc[1] = event.values[1];
-            _Acc[2] = event.values[2];
+            _Acc[0] = event.values[0];  // X轴，横向翻转改变其值，向右翻转为负数,向左翻转为正数
+            _Acc[1] = event.values[1]; // Y轴，纵向翻转改变其值，向内向自己翻转为正数，向外翻转为负数
+            _Acc[2] = event.values[2]; // Z轴，屏幕对应的方向，屏幕朝上为正数，朝下为负数
         }
         // 接受陀螺仪传感器的类型
         if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
@@ -923,7 +878,6 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
 
     private void RemoteSetVibrator(int ms) {
         if (ms > 0) {
-            LogUtils.e("点击振动..." + ms);
             mVibrator.vibrate((ms > 2550) ? 2550 : ms);
         } else {
             mVibrator.cancel();
@@ -935,7 +889,6 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
             while (_TSendTEnable) {
                 if (_ServEnable) {
                     RemoteSend0x4aReport();
-
                     if ((_RemoteMode == 3) && (_AutoPrintScreen)) {
                         if (((System.currentTimeMillis() - _AskPrintScreenTime) > 3000) || ((_PrintScreenRecTime != 0) && ((System.currentTimeMillis() - _PrintScreenRecTime) > 500))) {
                             _AskPrintScreenTime = System.currentTimeMillis();
@@ -964,6 +917,7 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
                     } else {
                         if (!_ServResp) {
                             tRequestCount++;
+                            LogUtils.e("RemoteSend 0x70");
                             RemoteSend0x70Report();
                             if (tRequestCount > 10) {
                                 DisconnectHost();
@@ -1000,6 +954,7 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
         if (data == null) return;
         if (len <= 0) return;
 
+        LogUtils.e("解析远程发送过来的数据： " + Arrays.toString(data));
         switch (data[0]) {
             case 0x20:        //set vibrator
             {
@@ -1191,7 +1146,7 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
         byte data[] = new byte[_OutputReportLen];
 
         //rpt id
-        data[curlen] = 0x4a;
+        data[curlen] = 0x4a; // 74
         curlen += 1;
 
         //for length
@@ -1205,7 +1160,7 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
         data[curlen + 3] = (byte) ((_SWVer) & 0x000000ff); // 0x07
         curlen += 4; // 7
 
-        //MAC addr
+        //MAC addr data[] = { 0x4a, 0, 0, 0x50, 0x02, 0x07, 0x07, -16, -122, -10, 85, 35, 79, 0...}
         for (int i = 0; i < 6; i++) {
             data[curlen + i] = _MacAddr[i];
         }
@@ -1214,6 +1169,7 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
         //battery
         data[curlen] = _Battery;
         curlen += 1;
+        // curlen == 14
 
         //cycdata
         data[curlen] = (byte) _Cycdata;
@@ -1229,6 +1185,7 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
         data[curlen + 1] = (byte) ((tNow) & 0x000000ff);
         curlen += 2;
 
+        // curlen == 17
         //ability
         data[curlen] = 0x00;
         data[curlen + 1] = _Ability;
@@ -1239,26 +1196,40 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
         data[curlen + 1] = _Btn;
         if (_SingleTap) {
             if (_RemoteMode == 0x02) {
-                data[curlen + 1] |= 0x02;
+                data[curlen + 1] |= 0x02; // data[20]
             }
+//            LogUtils.e("data[] = " + Arrays.toString(data) + "\n 0xa7 = " + Long.toBinaryString
+//                    (0xa7)
+//                    + " curlen = " + curlen);
             _SingleTap = false;
         }
+
         if (_SetBack) {
             data[curlen + 1] |= 0x08;
             _SetBack = false;
         }
-        curlen += 2;
+        curlen += 2; // curlen == 21
 
         int tmp;
 
+        /**
+         * 精确加速度传感器的值
+         */
         for (int i = 0; i < 3; i++) {
             tmp = (int) (_Acc[i] * 100000);
+//            LogUtils.e("_Acc["+ i +"] = " + _Acc[i] * 100000);
+//            LogUtils.e("temp hex = " + Integer.toBinaryString(tmp));
+
             data[curlen] = (byte) ((tmp >> 24) & 0x000000ff);
             data[curlen + 1] = (byte) ((tmp >> 16) & 0x000000ff);
             data[curlen + 2] = (byte) ((tmp >> 8) & 0x000000ff);
             data[curlen + 3] = (byte) ((tmp) & 0x000000ff);
+//            LogUtils.e("加速度 X = " + data[curlen] + " Y = " + data[curlen + 1] + " Z = " +
+//                    data[curlen + 2]);
             curlen += 4;
         }
+
+//        LogUtils.e("data[] = " + Arrays.toString(data) + "\n curlen = " + curlen);
 
         for (int i = 0; i < 3; i++) {
             tmp = (int) (_Gyro[i] * 100000);
@@ -1278,12 +1249,18 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
             curlen += 4;
         }
 
+        // 方向传感器数值
+        /**
+         * values[1] --- pitch倾斜角，即由静止状态开始，前后翻转
+         */
         for (int i = 0; i < 3; i++) {
             tmp = (int) (_Ori[i] * 100000);
             data[curlen] = (byte) ((tmp >> 24) & 0x000000ff);
             data[curlen + 1] = (byte) ((tmp >> 16) & 0x000000ff);
             data[curlen + 2] = (byte) ((tmp >> 8) & 0x000000ff);
             data[curlen + 3] = (byte) ((tmp) & 0x000000ff);
+//            LogUtils.e("方向 X = " + data[curlen] + " Y = " + data[curlen + 1] + " Z = " +
+//                    data[curlen + 2]);
             curlen += 4;
         }
 
@@ -1343,6 +1320,7 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
 
         data[1] = (byte) ((curlen >> 8) & 0x000000ff);
         data[2] = (byte) ((curlen) & 0x000000ff);
+//        LogUtils.e("最终发送的数据：" + Arrays.toString(data) + " 长度： " + curlen);
         return RemoteSendData(data, curlen);
     }
 
@@ -1477,7 +1455,8 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
         return true;
     }
 
-    private void ShowKeyboard(boolean enable) {
+    // 操作TV端弹出键盘，暂时无用
+    /*private void ShowKeyboard(boolean enable) {
         InputMethodManager _IMM = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
         if (!enable) {
             _IMM.toggleSoftInput(0, InputMethodManager.HIDE_IMPLICIT_ONLY);
@@ -1519,6 +1498,6 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
             e.printStackTrace();
             return;
         }
-    }
+    }*/
 
 }
