@@ -142,7 +142,7 @@ public class MainActivity extends BaseActivity implements KeyCodeButton.KeyCodeH
         mDrawerLayout.setDrawerListener(mDrawerToggle);
         mDrawerToggle.syncState();
 
-        final String[] values = new String[]{"扫一扫", "多屏互动", "游戏手柄", "体感手柄", "文件共享", "检查更新", "设置"};
+        final String[] values = new String[]{"扫一扫", "多屏互动", "体感手柄", "文件共享", "检查更新", "设置"};
         //        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, android.R.id.text1, values);
         Integer[] icons = new Integer[]{R.drawable.scan, R.drawable.miracast, R.drawable.game_hand,
                 R.drawable.somatic_hand, R.drawable.file_share, R.drawable.check_version,
@@ -169,7 +169,7 @@ public class MainActivity extends BaseActivity implements KeyCodeButton.KeyCodeH
                             Intent wifi_display = new Intent(Settings.ACTION_SETTINGS);
                             startActivity(wifi_display);
                         break;
-                    case 2:   // 游戏手柄
+                    case 2:   // 体感手柄
                         Intent game = new Intent(MainActivity.this, GameHandleActivity.class);
                         String addre = getCoreService().getTarget().getAddress().getHostAddress();
                         LogUtils.e("address = " + addre);
@@ -177,20 +177,20 @@ public class MainActivity extends BaseActivity implements KeyCodeButton.KeyCodeH
                         startActivity(game);
 //                        mDrawerLayout.closeDrawer(mDrawerList);
                         break;
-                    case 3:    // 体感手柄
+                   /* case 3:    // 游戏手柄（暂停开发）
                         Intent handle = new Intent(MainActivity.this, HandleActivity.class);
                         String address = getCoreService().getTarget().getAddress().getHostAddress();
                         LogUtils.e("address = " + address);
                         handle.putExtra("ip", address);
                         startActivity(handle);
+                        break;*/
+                    case 3:    // 文件共享 (暂停开发)
+                            PromptManager.showToast(MainActivity.this, "暂未支持，敬请期待");
                         break;
-                    case 4:    // 文件共享
-
-                        break;
-                    case 5:   // 检查更新
+                    case 4:   // 检查更新
                         //
                         break;
-                    case 6:  // 设置
+                    case 5:  // 设置
                         Intent settings = new Intent(MainActivity.this, SettingsActivity.class);
                         startActivity(settings);
                         break;
