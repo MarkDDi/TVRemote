@@ -26,6 +26,7 @@ import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -37,6 +38,8 @@ import android.widget.RelativeLayout;
 
 import com.winside.tvremote.component.BatteryBroadcastListener;
 import com.winside.tvremote.component.ScreenBroadcastListener;
+import com.winside.tvremote.fragment.GameHandleFragment;
+import com.winside.tvremote.fragment.GameTouchFragment;
 import com.winside.tvremote.util.EffectUtils;
 import com.winside.tvremote.util.LogUtils;
 import com.winside.tvremote.util.PromptManager;
@@ -59,7 +62,8 @@ import java.util.List;
  * Time          : 15:01
  * Decription    :
  */
-public class GameHandleActivity extends CommonTitleActivity implements SensorEventListener, View.OnTouchListener {
+public class GameHandleActivity extends CommonTitleActivity implements SensorEventListener,
+        GameHandleFragment.BtnListener, GameTouchMode.MyGameGestureListener {
 
     // 连接的目标主机端口
     private static final int DST_PORT = 4215;
@@ -233,6 +237,8 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
     };
     private BatteryBroadcastListener batteryBroadcastListener;
     private SharedPreferences sharedPreferences;
+    private GameHandleFragment gameHandleFragment;
+    private GameTouchFragment gameTouchFragment;
 
 
     @Override
@@ -249,6 +255,7 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
 
         getWindowManager().getDefaultDisplay().getMetrics(_DM);
 
+        setContentView(R.layout.gamehandle_activity);
         sharedPreferences = getSharedPreferences(ConstValues.settings, Context.MODE_PRIVATE);
 
         actionBar.setTitle(R.string.handle);
@@ -277,7 +284,13 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
 //        gListener = new myGestureListener();
 //        detector = new GestureDetector(this, gListener);
 
-        LogUtils.e("oncreate ..");
+        LogUtils.e("onCreate ..");
+
+        gameHandleFragment = new GameHandleFragment();
+        gameTouchFragment = new GameTouchFragment();
+
+        getFragmentManager().beginTransaction().replace(R.id.game_container, gameHandleFragment).commit();
+
         //初始化界面UI
         InitUI(_RemoteMode);
         //初始化WiFi状态
@@ -421,6 +434,7 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
         //Log.i(_TAG, "onKeyUp :" + keyCode);
         if (keyCode < MaxKeyCodeNum) {
             int keyboardcode = KeyCodeToKeyboardCode[keyCode];
+            LogUtils.e("keyboardcode = " + keyboardcode);
             if (keyboardcode > 0) {
                 RemoteKeyboardUpdate(keyboardcode, false);
             }
@@ -460,145 +474,15 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
 
             // 已连接到体感游戏
             case 0x01:
-                setContentView(R.layout.handle_activity_remote_new);
-                // A 键，确定键
-                final ImageButton Btn_A = (ImageButton) findViewById(R.id.handle_a_key);
-                // B键。同Y键
-                final ImageButton Btn_B = (ImageButton) findViewById(R.id.handle_b_key);
-                // D 键，校正对焦
-                final ImageButton Btn_D = (ImageButton) findViewById(R.id.handle_d_key);
-                // X 键，同D键
-                final ImageButton Btn_X = (ImageButton) findViewById(R.id.handle_x_key);
-                // Y 键，退出菜单键
-                final ImageButton Btn_Y = (ImageButton) findViewById(R.id.handle_y_key);
 
-                // 上下左右控制
-                final ImageButton Btn_Up = (ImageButton) findViewById(R.id.handle_up_img_btn);
-                final ImageButton Btn_Down = (ImageButton) findViewById(R.id.handle_down_img_btn);
-                final ImageButton Btn_Left = (ImageButton) findViewById(R.id.handle_left_img_btn);
-                final ImageButton Btn_Right = (ImageButton) findViewById(R.id.handle_right_img_btn);
-
-                // 逻辑代码在onTouch()方法中
-                Btn_A.setOnTouchListener(this);
-                Btn_B.setOnTouchListener(this);
-                Btn_D.setOnTouchListener(this);
-                Btn_X.setOnTouchListener(this);
-                Btn_Y.setOnTouchListener(this);
-                //B
-               /* Btn_B.setOnTouchListener(new View.OnTouchListener() {
-                    public boolean onTouch(View v, MotionEvent e) {
-                        int t = touchBtn(Btn_B, e.getAction(), R.drawable.handle_img_ma_b_on, R.drawable.handle_img_ma_b_off);
-                        if (t == 1) {
-                            _Btn |= 0x04;
-                        } else if (t == 0) {
-                            _Btn &= 0xfb;
-                        }
-                        return true;
-                    }
-                });*/
-
-                //UP
-                Btn_Up.setOnTouchListener(new View.OnTouchListener() {
-                    public boolean onTouch(View v, MotionEvent e) {
-                        int t = touchBtn(e.getAction(), v);
-                        if (t == 1) {
-                            _Btn |= 0x10;
-                        } else if (t == 0) {
-                            _Btn &= 0xef;
-                        }
-                        return false;
-                    }
-                });
-
-                //DOWN
-                Btn_Down.setOnTouchListener(new View.OnTouchListener() {
-                    public boolean onTouch(View v, MotionEvent e) {
-                        int t = touchBtn(e.getAction(), v);
-                        if (t == 1) {
-                            _Btn |= 0x20;
-                        } else if (t == 0) {
-                            _Btn &= 0xdf;
-                        }
-                        return false;
-                    }
-                });
-
-                //LEFT
-                Btn_Left.setOnTouchListener(new View.OnTouchListener() {
-                    public boolean onTouch(View v, MotionEvent e) {
-                        int t = touchBtn(e.getAction(), v);
-                        if (t == 1) {
-                            _Btn |= 0x40;
-                        } else if (t == 0) {
-                            _Btn &= 0xbf;
-                        }
-                        return false;
-                    }
-                });
-
-                //RIGHT
-                Btn_Right.setOnTouchListener(new View.OnTouchListener() {
-                    public boolean onTouch(View v, MotionEvent e) {
-                        int t = touchBtn(e.getAction(), v);
-                        if (t == 1) {
-                            _Btn |= 0x80;
-                        } else if (t == 0) {
-                            _Btn &= 0x7f;
-                        }
-                        return false;
-                    }
-                });
+                getFragmentManager().beginTransaction().replace(R.id.game_container, gameHandleFragment).commit();
 
                 break;
 
             case 0x02: // 触摸鼠标模式
-                setContentView(R.layout.handle_activity_mtouch);
-                RelativeLayout game_mouse = (RelativeLayout) findViewById(R.id.game_mouse);
-                final GameTouchMode gameTouchMode = new GameTouchMode(this, null);
-                gameTouchMode.setGestureListener(new GameTouchMode.MyGameGestureListener() {
-                    @Override
-                    public void onSingleTapUp() {
-                        _SingleTap = true;
-                        EffectUtils.triggerVibrator(GameHandleActivity.this, gameTouchMode,
-                                sharedPreferences.getBoolean(ConstValues.vibrator, true));
-                        LogUtils.e("触摸模式，单击....");
-                    }
+                getFragmentManager().beginTransaction().replace(R.id.game_container,
+                        gameTouchFragment).commit();
 
-                    @Override
-                    public void onTouchStatus() {
-                        _TouchStatus = 0x00;
-                    }
-
-                    @Override
-                    public void mulTouch(int pointer, int i) {
-                        if (pointer != -1) {
-                            _TouchStatus |= (byte) (0x0100 >> (8 - i));
-                        } else {
-                            _TouchStatus &= (byte) (0xFEFF >> (8 - i));
-                        }
-                    }
-
-                    @Override
-                    public void acitonMove(int pointer, int current, MotionEvent event) {
-                        if (pointer != -1) {
-                            _TouchStatus |= (byte) (0x0100 >> (8 - current));
-                            _TouchX[current] = event.getX(pointer);
-                            _TouchY[current] = event.getY(pointer);
-                        } else {
-                            _TouchStatus &= (byte) (0xFEFF >> (8 - current));
-                        }
-                    }
-                });
-                RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
-                params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-                params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-                gameTouchMode.setLayoutParams(params);
-                gameTouchMode.setBackgroundResource(R.drawable.soft_pad);
-                game_mouse.addView(gameTouchMode);
-
-                // 游戏触摸屏模式的单击确定键事件
-                detector = new GestureDetector(this, gameTouchMode);
-                gameTouchMode.setDetector(detector);
                 break;
             case 0x03: {
 
@@ -754,8 +638,9 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
         }
     };
 
+
     @Override
-    public boolean onTouch(View v, MotionEvent event) {
+    public void TouchListener(View v, MotionEvent event) {
         switch (v.getId()) {
             case R.id.handle_x_key:
             case R.id.handle_d_key:
@@ -783,9 +668,71 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
                     _Btn &= 0xfd;
                 }
                 break;
+            case R.id.handle_up_img_btn:
+                int up_btn = touchBtn(event.getAction(), v);
+                if (up_btn == 1) {
+                    _Btn |= 0x10;
+                } else if (up_btn == 0) {
+                    _Btn &= 0xef;
+                }
+                break;
+            case R.id.handle_down_img_btn:
+                int down_btn = touchBtn(event.getAction(), v);
+                if (down_btn == 1) {
+                    _Btn |= 0x20;
+                } else if (down_btn == 0) {
+                    _Btn &= 0xdf;
+                }
+                break;
+            case R.id.handle_left_img_btn:
+                int left_btn = touchBtn(event.getAction(), v);
+                if (left_btn == 1) {
+                    _Btn |= 0x40;
+                } else if (left_btn == 0) {
+                    _Btn &= 0xbf;
+                }
+                break;
+            case R.id.handle_right_img_btn:
+                int right_btn = touchBtn(event.getAction(), v);
+                if (right_btn == 1) {
+                    _Btn |= 0x80;
+                } else if (right_btn == 0) {
+                    _Btn &= 0x7f;
+                }
+                break;
         }
+    }
 
-        return false;
+    public void onSingleTapUp() {
+        _SingleTap = true;
+        EffectUtils.triggerVibrator(GameHandleActivity.this, gameTouchFragment.getTouchView(),
+                sharedPreferences.getBoolean(ConstValues.vibrator, true));
+        LogUtils.e("触摸模式，单击....");
+    }
+
+    @Override
+    public void onTouchStatus() {
+        _TouchStatus = 0x00;
+    }
+
+    @Override
+    public void mulTouch(int pointer, int i) {
+        if (pointer != -1) {
+            _TouchStatus |= (byte) (0x0100 >> (8 - i));
+        } else {
+            _TouchStatus &= (byte) (0xFEFF >> (8 - i));
+        }
+    }
+
+    @Override
+    public void acitonMove(int pointer, int current, MotionEvent event) {
+        if (pointer != -1) {
+            _TouchStatus |= (byte) (0x0100 >> (8 - current));
+            _TouchX[current] = event.getX(pointer);
+            _TouchY[current] = event.getY(pointer);
+        } else {
+            _TouchStatus &= (byte) (0xFEFF >> (8 - current));
+        }
     }
 
     private class _RConnectHost implements Runnable {
@@ -1164,9 +1111,9 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
         for (int i = 0; i < 6; i++) {
             data[curlen + i] = _MacAddr[i];
         }
-        curlen += 6;
+        curlen += 6; // 13
 
-        //battery
+        //battery —— data[13]存放手机当前电量信息
         data[curlen] = _Battery;
         curlen += 1;
         // curlen == 14
@@ -1181,8 +1128,10 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
 
         //time
         long tNow = System.currentTimeMillis();
-        data[curlen] = (byte) ((tNow >> 8) & 0x0000000f);
+        data[curlen] = (byte) ((tNow >> 8) & 0x0000000f); //
         data[curlen + 1] = (byte) ((tNow) & 0x000000ff);
+//        LogUtils.e("tNow = " + Long.toHexString(tNow) + " data["+ curlen +"] = " + data[curlen]
+//                + " data["+ 16 +"] = " + data[curlen+1]);
         curlen += 2;
 
         // curlen == 17
@@ -1194,13 +1143,15 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
         //button
         data[curlen] = 0x00;
         data[curlen + 1] = _Btn;
-        if (_SingleTap) {
+//        LogUtils.e("data[] = " + Arrays.toString(data)
+//                + " curlen = " + curlen);
+        if (_SingleTap) { // 在触摸屏模式，点击时改为true
             if (_RemoteMode == 0x02) {
                 data[curlen + 1] |= 0x02; // data[20]
             }
-//            LogUtils.e("data[] = " + Arrays.toString(data) + "\n 0xa7 = " + Long.toBinaryString
-//                    (0xa7)
-//                    + " curlen = " + curlen);
+            LogUtils.e("data[] = " + Arrays.toString(data) + "\n 0xa7 = " + Long.toBinaryString
+                    (0xa7)
+                    + " curlen = " + curlen);
             _SingleTap = false;
         }
 
