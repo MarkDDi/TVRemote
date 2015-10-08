@@ -25,8 +25,8 @@
     * 重置应用，清除缓存及已连接过的设备信息
 
 #### 界面
-+ 主界面
+主界面
 ![main.png](screenshots/main.png)
 
-+ 体感手柄
+体感手柄
 ![handle.png](screenshots/handle.png)
