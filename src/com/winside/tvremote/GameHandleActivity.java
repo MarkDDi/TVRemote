@@ -289,8 +289,6 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
         gameHandleFragment = new GameHandleFragment();
         gameTouchFragment = new GameTouchFragment();
 
-        getFragmentManager().beginTransaction().replace(R.id.game_container, gameHandleFragment).commit();
-
         //初始化界面UI
         InitUI(_RemoteMode);
         //初始化WiFi状态
@@ -443,18 +441,6 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
     }
 
 
-    private int touchBtn(int actionType, View view) {
-        switch (actionType) {
-            case MotionEvent.ACTION_DOWN: {
-               EffectUtils.triggerVibrator(GameHandleActivity.this, view, sharedPreferences.getBoolean(ConstValues.vibrator, true));
-                return 1;
-            }
-            case MotionEvent.ACTION_UP:
-                return 0;
-            default:
-                return -1;
-        }
-    }
 
     private void InitUI(byte mode) {
 
@@ -639,101 +625,6 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
     };
 
 
-    @Override
-    public void TouchListener(View v, MotionEvent event) {
-        switch (v.getId()) {
-            case R.id.handle_x_key:
-            case R.id.handle_d_key:
-                int d_key = touchBtn(event.getAction(), v);
-                if (d_key == 1) {
-                    _Btn |= 0x01;
-                } else if (d_key == 0) {
-                    _Btn &= 0xfe;
-                }
-                break;
-            case R.id.handle_b_key:
-            case R.id.handle_y_key:
-                int y_key = touchBtn(event.getAction(), v);
-                if (y_key == 1) {
-                    _Btn |= 0x08;
-                } else if (y_key == 0) {
-                    _Btn &= 0xf7;
-                }
-                break;
-            case R.id.handle_a_key:
-                int a_key = touchBtn(event.getAction(), v);
-                if (a_key == 1) {
-                    _Btn |= 0x02;
-                } else if (a_key == 0) {
-                    _Btn &= 0xfd;
-                }
-                break;
-            case R.id.handle_up_img_btn:
-                int up_btn = touchBtn(event.getAction(), v);
-                if (up_btn == 1) {
-                    _Btn |= 0x10;
-                } else if (up_btn == 0) {
-                    _Btn &= 0xef;
-                }
-                break;
-            case R.id.handle_down_img_btn:
-                int down_btn = touchBtn(event.getAction(), v);
-                if (down_btn == 1) {
-                    _Btn |= 0x20;
-                } else if (down_btn == 0) {
-                    _Btn &= 0xdf;
-                }
-                break;
-            case R.id.handle_left_img_btn:
-                int left_btn = touchBtn(event.getAction(), v);
-                if (left_btn == 1) {
-                    _Btn |= 0x40;
-                } else if (left_btn == 0) {
-                    _Btn &= 0xbf;
-                }
-                break;
-            case R.id.handle_right_img_btn:
-                int right_btn = touchBtn(event.getAction(), v);
-                if (right_btn == 1) {
-                    _Btn |= 0x80;
-                } else if (right_btn == 0) {
-                    _Btn &= 0x7f;
-                }
-                break;
-        }
-    }
-
-    public void onSingleTapUp() {
-        _SingleTap = true;
-        EffectUtils.triggerVibrator(GameHandleActivity.this, gameTouchFragment.getTouchView(),
-                sharedPreferences.getBoolean(ConstValues.vibrator, true));
-        LogUtils.e("触摸模式，单击....");
-    }
-
-    @Override
-    public void onTouchStatus() {
-        _TouchStatus = 0x00;
-    }
-
-    @Override
-    public void mulTouch(int pointer, int i) {
-        if (pointer != -1) {
-            _TouchStatus |= (byte) (0x0100 >> (8 - i));
-        } else {
-            _TouchStatus &= (byte) (0xFEFF >> (8 - i));
-        }
-    }
-
-    @Override
-    public void acitonMove(int pointer, int current, MotionEvent event) {
-        if (pointer != -1) {
-            _TouchStatus |= (byte) (0x0100 >> (8 - current));
-            _TouchX[current] = event.getX(pointer);
-            _TouchY[current] = event.getY(pointer);
-        } else {
-            _TouchStatus &= (byte) (0xFEFF >> (8 - current));
-        }
-    }
 
     private class _RConnectHost implements Runnable {
         private String ipaddr;
@@ -792,9 +683,11 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
     }
 
 
+    // 传感器系统接口回调，精度改变时触发
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
     }
 
+    // 传感器系统接口回调，数值改变时回调，注意，该方法会一直频繁调用，禁止添加耗时操作
     public void onSensorChanged(SensorEvent event) {
         // 接受地磁传感器的类型
         if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
@@ -1087,6 +980,7 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
         return true;
     }
 
+    // 操作发送传感器等数据方法
     private boolean RemoteSend0x4aReport() {
         int curlen = 0;
 
@@ -1143,8 +1037,10 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
         //button
         data[curlen] = 0x00;
         data[curlen + 1] = _Btn;
-//        LogUtils.e("data[] = " + Arrays.toString(data)
-//                + " curlen = " + curlen);
+
+        if (data[curlen + 1] != 0) {
+            LogUtils.e("data["+19+"] = " + data[curlen+1] + " curlen = " + curlen);
+        }
         if (_SingleTap) { // 在触摸屏模式，点击时改为true
             if (_RemoteMode == 0x02) {
                 data[curlen + 1] |= 0x02; // data[20]
@@ -1155,7 +1051,10 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
             _SingleTap = false;
         }
 
-        if (_SetBack) {
+//        LogUtils.e("data[] = " + Arrays.toString(data)
+//                                + " curlen = " + curlen);
+
+        if (_SetBack) {   // 触摸屏模式中的主机[返回]键，已废弃
             data[curlen + 1] |= 0x08;
             _SetBack = false;
         }
@@ -1163,25 +1062,30 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
 
         int tmp;
 
+//        LogUtils.e("原始加速度值 x = " + _Acc[0] + " y = " + _Acc[1] + " z = " + _Acc[2]);
+//        LogUtils.e("原始加速度值*100000 x = " + _Acc[0]*100000 + " y = " + _Acc[1]*100000 + " z = " +
+//                _Acc[2]*100000 + " curlen = " + curlen);
         /**
          * 精确加速度传感器的值
          */
         for (int i = 0; i < 3; i++) {
             tmp = (int) (_Acc[i] * 100000);
-//            LogUtils.e("_Acc["+ i +"] = " + _Acc[i] * 100000);
-//            LogUtils.e("temp hex = " + Integer.toBinaryString(tmp));
+            //            LogUtils.e("_Acc["+ i +"] = " + _Acc[i] * 100000);
+            //            LogUtils.e("temp hex = " + Integer.toBinaryString(tmp));
 
             data[curlen] = (byte) ((tmp >> 24) & 0x000000ff);
             data[curlen + 1] = (byte) ((tmp >> 16) & 0x000000ff);
             data[curlen + 2] = (byte) ((tmp >> 8) & 0x000000ff);
             data[curlen + 3] = (byte) ((tmp) & 0x000000ff);
-//            LogUtils.e("加速度 X = " + data[curlen] + " Y = " + data[curlen + 1] + " Z = " +
-//                    data[curlen + 2]);
             curlen += 4;
         }
 
-//        LogUtils.e("data[] = " + Arrays.toString(data) + "\n curlen = " + curlen);
+//        LogUtils.e("处理后的加速度 X0 = " + data[21] + " X1 = " + data[22] + " X2 = " +
+//                data[23] + " X flag = " + data[24]);
 
+        /**
+         * 精确陀螺仪传感器的值
+         */
         for (int i = 0; i < 3; i++) {
             tmp = (int) (_Gyro[i] * 100000);
             data[curlen] = (byte) ((tmp >> 24) & 0x000000ff);
@@ -1190,7 +1094,14 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
             data[curlen + 3] = (byte) ((tmp) & 0x000000ff);
             curlen += 4;
         }
+//        LogUtils.e("处理后的陀螺仪 X0 = " + data[33] + " X1 = " + data[34] + " X2 = " +
+//                data[35] + " X flag = " + data[36]);
 
+//        LogUtils.e("data[] = " + Arrays.toString(data) + "\n curlen = " + curlen);
+
+        /**
+         * 磁场传感器的值
+         */
         for (int i = 0; i < 3; i++) {
             tmp = (int) (_Mag[i] * 100000);
             data[curlen] = (byte) ((tmp >> 24) & 0x000000ff);
@@ -1200,8 +1111,8 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
             curlen += 4;
         }
 
-        // 方向传感器数值
         /**
+         * 方向传感器数值
          * values[1] --- pitch倾斜角，即由静止状态开始，前后翻转
          */
         for (int i = 0; i < 3; i++) {
@@ -1215,8 +1126,14 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
             curlen += 4;
         }
 
+//        LogUtils.e("处理后的方向传感器 X0 = " + data[57] + " X1 = " + data[58] + " X2 = " +
+//                                data[59] + " X flag = " + data[60]);
+//        LogUtils.e("data[] = " + Arrays.toString(data) + "\n curlen = " + curlen);
+
         data[curlen] = (byte) _TouchStatus;
         curlen += 1;
+
+        LogUtils.e("_TouchStatus = " + data[69]);
 
         for (int i = 0; i < _TouchMaxCount; i++) {
             if ((_TouchStatus & (0x01 << i)) == 0x00) {
@@ -1405,6 +1322,126 @@ public class GameHandleActivity extends CommonTitleActivity implements SensorEve
         }
         return true;
     }
+
+    // =================== 空中鼠标手柄模式 ==================================================
+    // GameHandleFragment中的接口回调
+    @Override
+    public void TouchListener(View v, MotionEvent event) {
+        switch (v.getId()) {
+            case R.id.handle_x_key:
+            case R.id.handle_d_key:
+                int d_key = touchBtn(event.getAction(), v);
+                if (d_key == 1) {
+                    _Btn |= 0x01;  // 1
+                } else if (d_key == 0) {
+                    _Btn &= 0xfe; // 归零操作，以下类似
+                }
+                break;
+            case R.id.handle_b_key:
+            case R.id.handle_y_key:
+                int y_key = touchBtn(event.getAction(), v);
+                if (y_key == 1) {
+                    _Btn |= 0x08; // 8
+                } else if (y_key == 0) {
+                    _Btn &= 0xf7;
+                }
+                break;
+            case R.id.handle_a_key:
+                int a_key = touchBtn(event.getAction(), v);
+                if (a_key == 1) {
+                    _Btn |= 0x02; // 2
+                } else if (a_key == 0) {
+                    _Btn &= 0xfd;
+                }
+                break;
+            case R.id.handle_up_img_btn:
+                int up_btn = touchBtn(event.getAction(), v);
+                if (up_btn == 1) {
+                    _Btn |= 0x10; // 16
+                } else if (up_btn == 0) {
+                    _Btn &= 0xef;
+                }
+                break;
+            case R.id.handle_down_img_btn:
+                int down_btn = touchBtn(event.getAction(), v);
+                if (down_btn == 1) {
+                    _Btn |= 0x20; // 32
+                } else if (down_btn == 0) {
+                    _Btn &= 0xdf;
+                }
+                break;
+            case R.id.handle_left_img_btn:
+                int left_btn = touchBtn(event.getAction(), v);
+                if (left_btn == 1) {
+                    _Btn |= 0x40; // 64
+                } else if (left_btn == 0) {
+                    _Btn &= 0xbf;
+                }
+                break;
+            case R.id.handle_right_img_btn:
+                int right_btn = touchBtn(event.getAction(), v);
+                if (right_btn == 1) {
+                    _Btn |= 0x80; // -128
+                } else if (right_btn == 0) {
+                    _Btn &= 0x7f;
+                }
+                break;
+        }
+    }
+
+    private int touchBtn(int actionType, View view) {
+        switch (actionType) {
+            case MotionEvent.ACTION_DOWN: {
+                EffectUtils.triggerVibrator(GameHandleActivity.this, view, sharedPreferences.getBoolean(ConstValues.vibrator, true));
+                return 1;
+            }
+            case MotionEvent.ACTION_UP:
+                return 0;
+            default:
+                return -1;
+        }
+    }
+
+
+
+    // ================== 触摸屏模式 =========================================================
+    // 这些手势监听是在GameTouchFragment中进行的，这里是回调
+    public void onSingleTapUp() {
+        _SingleTap = true;
+        EffectUtils.triggerVibrator(GameHandleActivity.this, gameTouchFragment.getTouchView(),
+                sharedPreferences.getBoolean(ConstValues.vibrator, true));
+        LogUtils.e("触摸模式，单击....");
+    }
+
+    @Override
+    public void onTouchStatus() {
+        _TouchStatus = 0x00;
+    }
+
+    @Override
+    public void mulTouch(int pointer, int i) {
+        if (pointer != -1) {
+            _TouchStatus |= (byte) (0x0100 >> (8 - i));
+        } else {
+            _TouchStatus &= (byte) (0xFEFF >> (8 - i));
+        }
+    }
+
+    @Override
+    public void acitonMove(int pointer, int current, MotionEvent event) {
+        if (pointer != -1) {
+            _TouchStatus |= (byte) (0x0100 >> (8 - current));
+            _TouchX[current] = event.getX(pointer);
+            _TouchY[current] = event.getY(pointer);
+        } else {
+            _TouchStatus &= (byte) (0xFEFF >> (8 - current));
+        }
+    }
+
+
+
+
+
 
     // 操作TV端弹出键盘，暂时无用
     /*private void ShowKeyboard(boolean enable) {

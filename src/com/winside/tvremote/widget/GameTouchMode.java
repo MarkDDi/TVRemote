@@ -33,7 +33,7 @@ public class GameTouchMode extends ImageView implements GestureDetector.OnGestur
     private static final float CIRCLE_HISTORICAL_RADIUS_DP = 7f;
     public final int[] COLORS = {0xFF33B5E5, 0xFFAA66CC, 0xFF99CC00, 0xFFFFBB33, 0xFFFF4444, 0xFF0099CC, 0xFF9933CC, 0xFF669900, 0xFFFF8800, 0xFFCC0000};
     //多点触摸
-    private static int _TouchMaxCount = 5;
+    private static int _TouchMaxCount = 1;
 
     private MyGameGestureListener myGameGestureListener;
     private GestureDetector detector;
@@ -210,11 +210,13 @@ public class GameTouchMode extends ImageView implements GestureDetector.OnGestur
                     // get pointer id for data stored at this index
                     int id_ = event.getPointerId(0);
                     // get the data stored externally about this pointer.
-                    TouchHistory history = mTouches.get(id_);
+//                    TouchHistory history = mTouches.get(id_);
+                    TouchHistory history = mTouches.get(0);
 
                     // add previous position to history and add new values
                     history.addHistory(history.x, history.y);
-                    history.setTouch(event.getX(index), event.getY(index), event.getPressure(index));
+//                    history.setTouch(event.getX(index), event.getY(index), event.getPressure(index));
+                    history.setTouch(event.getX(0), event.getY(0), event.getPressure(0));
 
                 }
 
@@ -225,7 +227,8 @@ public class GameTouchMode extends ImageView implements GestureDetector.OnGestur
                 myGameGestureListener.onTouchStatus();
                 //                LogUtils.e("SoftDpad 触发ACTION_UP");
                 int id_ = event.getPointerId(0);
-                TouchHistory touchHistory = mTouches.get(id_);
+//                TouchHistory touchHistory = mTouches.get(id_);
+                TouchHistory touchHistory = mTouches.get(0);
                 mTouches.remove(0);
                 touchHistory.recycle();
 
