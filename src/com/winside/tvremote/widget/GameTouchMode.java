@@ -33,7 +33,7 @@ public class GameTouchMode extends ImageView implements GestureDetector.OnGestur
     private static final float CIRCLE_HISTORICAL_RADIUS_DP = 7f;
     public final int[] COLORS = {0xFF33B5E5, 0xFFAA66CC, 0xFF99CC00, 0xFFFFBB33, 0xFFFF4444, 0xFF0099CC, 0xFF9933CC, 0xFF669900, 0xFFFF8800, 0xFFCC0000};
     //多点触摸
-    private static int _TouchMaxCount = 1;
+    private static int _TouchMaxCount = 5;
 
     private MyGameGestureListener myGameGestureListener;
     private GestureDetector detector;
@@ -181,8 +181,9 @@ public class GameTouchMode extends ImageView implements GestureDetector.OnGestur
     public boolean onTouchEvent(MotionEvent event) {
         int x = (int) event.getX();
         int y = (int) event.getY();
-        switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN:
+        final int action = event.getAction();
+        switch (action & MotionEvent.ACTION_MASK) {
+            case MotionEvent.ACTION_DOWN: {
 
                 int id = event.getPointerId(0);
 
@@ -200,6 +201,29 @@ public class GameTouchMode extends ImageView implements GestureDetector.OnGestur
                 mHasTouch = true;
 
                 break;
+            }
+
+            case MotionEvent.ACTION_POINTER_DOWN: {
+                int index = event.getActionIndex();
+                int id = event.getPointerId(index);
+                TouchHistory data = TouchHistory.obtain(event.getX(index), event.getY(index),
+                        event.getPressure(index));
+                /*
+                 * Store the data under its pointer identifier. The index of
+                 * this pointer can change over multiple events, but this
+                 * pointer is always identified by the same identifier for this
+                 * active gesture.
+                 */
+                mTouches.put(id, data);
+
+                LogUtils.e("多点按下: " + mTouches.size());
+                for (int i = 0; i < _TouchMaxCount; i++) {
+                    int p = event.findPointerIndex(i);
+                    myGameGestureListener.mulTouch(p, i);
+                }
+
+                break;
+            }
 
             case MotionEvent.ACTION_MOVE:
                 for (int i = 0; i < _TouchMaxCount; i++) {
@@ -208,15 +232,16 @@ public class GameTouchMode extends ImageView implements GestureDetector.OnGestur
                 }
                 for (int index = 0; index < event.getPointerCount(); index++) {
                     // get pointer id for data stored at this index
-                    int id_ = event.getPointerId(0);
+//                    int id_ = event.getPointerId(0); // 单点
+                    int id_ = event.getPointerId(index);
                     // get the data stored externally about this pointer.
 //                    TouchHistory history = mTouches.get(id_);
-                    TouchHistory history = mTouches.get(0);
+                    TouchHistory history = mTouches.get(id_);
 
                     // add previous position to history and add new values
                     history.addHistory(history.x, history.y);
-//                    history.setTouch(event.getX(index), event.getY(index), event.getPressure(index));
-                    history.setTouch(event.getX(0), event.getY(0), event.getPressure(0));
+                    history.setTouch(event.getX(index), event.getY(index), event.getPressure(index));
+//                    history.setTouch(event.getX(0), event.getY(0), event.getPressure(0)); // 单点
 
                 }
 
@@ -227,25 +252,31 @@ public class GameTouchMode extends ImageView implements GestureDetector.OnGestur
                 myGameGestureListener.onTouchStatus();
                 //                LogUtils.e("SoftDpad 触发ACTION_UP");
                 int id_ = event.getPointerId(0);
-//                TouchHistory touchHistory = mTouches.get(id_);
-                TouchHistory touchHistory = mTouches.get(0);
-                mTouches.remove(0);
+                TouchHistory touchHistory = mTouches.get(id_);
+//                TouchHistory touchHistory = mTouches.get(0);  // 单点
+//                mTouches.remove(0); // 单点
+                mTouches.remove(id_); // 单点
                 touchHistory.recycle();
 
                 mHasTouch = false;
                 break;
 
-            case MotionEvent.ACTION_POINTER_1_UP:
-            case MotionEvent.ACTION_POINTER_2_UP:
-            case MotionEvent.ACTION_POINTER_3_UP:
-            case MotionEvent.ACTION_POINTER_1_DOWN:
-            case MotionEvent.ACTION_POINTER_2_DOWN:
-            case MotionEvent.ACTION_POINTER_3_DOWN:
-                for (int i = 0; i < _TouchMaxCount; i++) {
-                    int p = event.findPointerIndex(i);
-                    myGameGestureListener.mulTouch(p, i);
-                }
+//            case MotionEvent.ACTION_POINTER_1_UP:
+//            case MotionEvent.ACTION_POINTER_2_UP:
+//            case MotionEvent.ACTION_POINTER_3_UP:
+            case MotionEvent.ACTION_POINTER_UP: {
+                int index = event.getActionIndex();
+                int id = event.getPointerId(index);
+
+                TouchHistory data = mTouches.get(id);
+                mTouches.remove(id);
+                data.recycle();
+
                 break;
+            }
+//            case MotionEvent.ACTION_POINTER_1_DOWN:
+//            case MotionEvent.ACTION_POINTER_2_DOWN:
+//            case MotionEvent.ACTION_POINTER_3_DOWN:
         }
         // trigger redraw on UI thread
         this.postInvalidate();
@@ -263,16 +294,26 @@ public class GameTouchMode extends ImageView implements GestureDetector.OnGestur
         //        canvas.translate(offsetX, offsetY);
         super.onDraw(canvas);
 
-        int id = 0;
         // 单点触控
+       /* int id = 0;
         if (mTouches.size() > 0) {
             id = mTouches.keyAt(0);
             TouchHistory data = mTouches.valueAt(0);
 
             // draw the data and its history to the canvas
             drawCircle(canvas, id, data);
-        }
+        }*/
 
+        // 多点触控
+        for (int i = 0; i < mTouches.size(); i++) {
+
+            // get the pointer id and associated data for this index
+            int id = mTouches.keyAt(i);
+            TouchHistory data = mTouches.valueAt(i);
+
+            // draw the data and its history to the canvas
+            drawCircle(canvas, id, data);
+        }
     }
 
     protected void drawCircle(Canvas canvas, int id, TouchHistory data) {
